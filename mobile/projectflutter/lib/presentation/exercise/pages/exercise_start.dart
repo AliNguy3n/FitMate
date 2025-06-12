@@ -1,0 +1,347 @@
+import 'dart:async';
+
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:projectflutter/common/helper/dialog/show_dialog.dart';
+import 'package:projectflutter/common/helper/navigation/app_navigator.dart';
+import 'package:projectflutter/core/config/themes/app_color.dart';
+import 'package:extended_image/extended_image.dart';
+import 'package:projectflutter/data/exercise/request/exercise_session_request.dart';
+import 'package:projectflutter/domain/exercise/entity/exercises_entity.dart';
+import 'package:projectflutter/domain/exercise/usecase/start_exercise.dart';
+import 'package:projectflutter/presentation/exercise/bloc/button_exercise_cubit.dart';
+import 'package:projectflutter/presentation/exercise/pages/exercise_result.dart';
+import 'package:projectflutter/presentation/exercise/widgets/exercise_rest.dart';
+import 'package:projectflutter/presentation/exercise/widgets/show_overlay.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
+class ExerciseStart extends StatefulWidget {
+  final List<ExercisesEntity> exercises;
+  final int currentIndex;
+  final int resetBatch;
+  const ExerciseStart(
+      {super.key,
+      required this.exercises,
+      required this.currentIndex,
+      this.resetBatch = 0});
+
+  @override
+  State<ExerciseStart> createState() => _ExerciseStartsState();
+}
+
+class _ExerciseStartsState extends State<ExerciseStart> {
+  late int _counter;
+  late ExercisesEntity currentExercise;
+  late Timer _timer;
+  bool _showOverlay = true;
+  bool _buttonState = false;
+  int _countdown = 5;
+  Timer? _countdownTimer;
+  Timer? _totalDurationTimer;
+  int _totalDuration = 0;
+  bool _isResting = false;
+
+  @override
+  void initState() {
+    super.initState();
+    currentExercise = widget.exercises[widget.currentIndex];
+    _initPreferencesAndStart();
+
+  }
+
+  void _initPreferencesAndStart() async{
+    final prefs = await SharedPreferences.getInstance();
+    final overlayPref =  prefs.getBool('overlay');
+    setState(() {
+      _showOverlay = widget.currentIndex == 0 || overlayPref!;
+      // _counter = currentExercise.duration;
+      _counter = 10;
+    });
+    _startTotalDurationTimer();
+
+    if (_showOverlay) {
+      _startCountdown();
+    } else {
+      _startExercise();
+    }
+  }
+
+  void _startTotalDurationTimer() {
+    _totalDurationTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      setState(() {
+        _totalDuration++;
+      });
+    });
+  }
+
+  void _startGenericTimer({
+    required int initialValue,
+    required void Function() onFinish,
+    required void Function(int) onTick,
+  }) {
+    int value = initialValue;
+    _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
+      if (!mounted) return;
+      setState(() {
+        if (value > 0) {
+          value--;
+          onTick(value);
+        } else {
+          timer.cancel();
+          onFinish();
+        }
+      });
+    });
+  }
+
+  void _startCountdown() {
+    _startGenericTimer(
+      initialValue: _countdown,
+      onTick: (val) => _countdown = val,
+      onFinish: () {
+        _showOverlay = false;
+        _startExercise();
+      },
+    );
+  }
+
+  void _startExercise() async {
+    final currentResetBatch = await context
+        .read<ButtonExerciseCubit>()
+        .getResetBatchBySubCategory(currentExercise.subCategory!.id);
+    _startGenericTimer(
+      initialValue: _counter,
+      onTick: (val) => _counter = val,
+      onFinish: () {
+        currentExercise = widget.exercises[widget.currentIndex];
+
+        ExerciseSessionRequest req = ExerciseSessionRequest(
+          exerciseId: currentExercise.id,
+          duration: _totalDuration,
+          resetBatch: currentResetBatch!,
+        );
+
+        print(
+            "Exercise ID: ${currentExercise.id} - Duration: $_totalDuration - Reset Batch: ${currentResetBatch}");
+        StartExerciseUseCase().call(params: req);
+
+        if (widget.currentIndex < widget.exercises.length - 1) {
+          _isResting = true;
+          _showOverlay = false;
+        } else {
+          _onExerciseFinished();
+        }
+      },
+    );
+  }
+
+  void _onExerciseFinished() {
+    if (widget.currentIndex < widget.exercises.length - 1) {
+      AppNavigator.pushReplacement(
+          context,
+          ExerciseStart(
+              exercises: widget.exercises,
+              currentIndex: widget.currentIndex + 1));
+    } else {
+      AppNavigator.pushReplacement(context, const ExerciseResultPage());
+    }
+
+    setState(() {
+      _showOverlay = false;
+      _isResting = false;
+    });
+  }
+
+  String _formatDuration(int seconds) {
+    final duration = Duration(seconds: seconds);
+    String twoDigits(int n) => n.toString().padLeft(2, '0');
+    final minutes = twoDigits(duration.inMinutes.remainder(60));
+    final secs = twoDigits(duration.inSeconds.remainder(60));
+    return "$minutes:$secs";
+  }
+
+  @override
+  void dispose() {
+    _timer.cancel();
+    _countdownTimer?.cancel();
+    _totalDurationTimer?.cancel();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    int totalSteps = widget.exercises.length;
+    int currentStep = widget.currentIndex;
+
+    return Scaffold(
+      body: Stack(children: [
+        Container(
+            decoration: BoxDecoration(color: AppColors.white),
+            child: NestedScrollView(
+              headerSliverBuilder: (context, innerBoxIsScrolled) {
+                return [
+                  SliverAppBar(
+                    backgroundColor: Colors.transparent,
+                    elevation: 0,
+                    automaticallyImplyLeading: false,
+                    pinned: true,
+                    expandedHeight: 130,
+                    flexibleSpace: Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 50, 16, 12),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Row(
+                              children: List.generate(totalSteps, (index) {
+                                bool isActive = index <= currentStep;
+
+                                return Container(
+                                  margin:
+                                      const EdgeInsets.symmetric(horizontal: 2),
+                                  width: 40,
+                                  height: 8,
+                                  decoration: BoxDecoration(
+                                    color: isActive
+                                        ? AppColors.primaryColor1
+                                        : Colors.grey.shade300,
+                                    borderRadius: BorderRadius.circular(4),
+                                  ),
+                                );
+                              }),
+                            ),
+                          ),
+                          const SizedBox(height: 10),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.only(left: 0),
+                              child: InkWell(
+                                onTap: () async {
+                                  final result = await ShowDialog.shouldPop(
+                                      context,
+                                      'Confirm',
+                                      'Are you sure want to quit');
+                                  if (result == true && context.mounted) {
+                                    Navigator.pop(context, true);
+                                  }
+                                },
+                                child: Container(
+                                  height: 40,
+                                  width: 40,
+                                  decoration: BoxDecoration(
+                                    color: Colors.black.withOpacity(0.25),
+                                    shape: BoxShape.circle,
+                                  ),
+                                  child: const Icon(Icons.close,
+                                      size: 15, color: Colors.white),
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ];
+              },
+              body: Column(
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: ExtendedImage.network(
+                      'https://i.pinimg.com/originals/b7/6c/d5/b76cd5cff2452b9b3d839d2018863fbb.gif',
+                      fit: BoxFit.cover,
+                      enableLoadState: false,
+                      width: double.infinity,
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2.5.toInt(),
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Text(
+                          currentExercise.exerciseName,
+                          style: TextStyle(
+                              fontSize: 24, color: AppColors.primaryColor1),
+                        ),
+                        const SizedBox(height: 8),
+                        Text(
+                          _formatDuration(_counter),
+                          style: const TextStyle(fontSize: 24),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Expanded(
+                    flex: 2.5.toInt(),
+                    child: Align(
+                      alignment: Alignment.center,
+                      child: Container(
+                        width: 150,
+                        height: 50,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(25),
+                          color: Colors.black,
+                        ),
+                        child: IconButton(
+                          onPressed: () {
+                            setState(() {
+                              _buttonState = !_buttonState;
+                              if (_buttonState) {
+                                _timer.cancel();
+                              } else {
+                                _startExercise();
+                              }
+                            });
+                          },
+                          color: Colors.white,
+                          icon: Icon(
+                              !_buttonState ? Icons.pause : Icons.play_arrow),
+                          iconSize: 25,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            )),
+        if (_isResting)
+          Positioned.fill(
+            child: ExerciseRest(
+              currentExercise: currentStep + 1,
+              exerciseName: widget
+                  .exercises[currentStep + 1 < widget.exercises.length
+                      ? currentStep + 1
+                      : currentStep]
+                  .exerciseName,
+              totalExercise: totalSteps,
+              onRestFinished: () {
+                setState(() {
+                  _onExerciseFinished();
+                });
+                _startExercise();
+              },
+            ),
+          ),
+        if (_showOverlay)
+          ShowOverlay(
+              exercises: widget.exercises,
+              currentStep: currentStep,
+              totalSteps: totalSteps,
+              startExercise: _startExercise,
+              showOverlay: _showOverlay,
+              onPressed: () {
+                  setState(() {
+                    _showOverlay = false;
+                  });
+                  _startExercise();
+                },
+              countDown: _countdown)
+      ]),
+    );
+  }
+}
