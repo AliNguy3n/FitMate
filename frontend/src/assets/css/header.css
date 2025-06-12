@@ -1,0 +1,9 @@
+.logo-img {
+  /* height: 50px; */
+  width: 50px;
+  /* object-fit: contain; */
+}
+
+nav {
+  justify-content: space-between;
+}

@@ -1,0 +1,32 @@
+[
+    {
+        "id": 1,
+        "category": "course",
+        "r_id": "1",
+        "name": "ahha",
+        "quality": 2,
+        "image": "/"
+    },
+    {
+        "id": 2,
+        "category": "product",
+        "r_id": "2",
+        "name": "ahha",
+        "quality": 2,
+        "image": "/"
+    },
+    {
+        "id": 3,
+        "category": "video",
+        "r_id": "2",
+        "quality": 2,
+        "image": "/"
+    },
+    {
+        "id": 4,
+        "category": "product",
+        "r_id": "1",
+        "quality": 10,
+        "image": "/"
+    }
+]
