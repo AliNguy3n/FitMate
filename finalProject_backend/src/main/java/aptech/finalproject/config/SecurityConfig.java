@@ -22,6 +22,7 @@ public class SecurityConfig {
     @Value("${jwt.signerKey}")
     private String SIGNER_KEY;
 
+
     private final String[] AUTH_WHITELIST = {"/auth/**"};
 
     private final String[] AUTH_BLACKLIST = {};

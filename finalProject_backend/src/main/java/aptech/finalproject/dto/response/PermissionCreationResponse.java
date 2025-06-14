@@ -10,6 +10,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PermissionCreationResponse {
-    private String role;
+    private String permission;
     private String description;
 }

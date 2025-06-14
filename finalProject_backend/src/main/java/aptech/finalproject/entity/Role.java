@@ -1,10 +1,7 @@
 package aptech.finalproject.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.Set;
 
@@ -13,12 +10,21 @@ import java.util.Set;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Builder
 @Table(name = "roles")
 public class Role {
     @Id
     private String role;
     private String description;
 
-    @ManyToMany(mappedBy = "permissions", cascade = CascadeType.MERGE)
+    @ManyToMany(mappedBy = "roles")
+    private Set<User> users;
+
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "role_permissions",
+            joinColumns = @JoinColumn(name = "role_id"),
+            inverseJoinColumns = @JoinColumn(name = "permission_id")
+    )
     private Set<Permission> permissions;
 }
