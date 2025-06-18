@@ -13,4 +13,8 @@ public interface PermissionService {
     void delete(String permission);
 
     List<PermissionCreationResponse> findAll();
+
+    boolean existed(String permission);
+
+    PermissionCreationResponse findById(String permission);
 }

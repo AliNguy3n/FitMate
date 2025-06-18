@@ -10,6 +10,7 @@ Code	Info [affected API endpoints]
 202	User entered one or more invalid currency codes.
 301	User did not specify a date. [historical]
 302	User entered an invalid date. [historical, convert]
+400 Bad Request
 401	User entered an invalid "from" property. [convert]
 402	User entered an invalid "to" property. [convert]
 403	User entered no or an invalid "amount" property. [convert]

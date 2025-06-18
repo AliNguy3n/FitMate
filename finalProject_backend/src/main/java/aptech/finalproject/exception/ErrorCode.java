@@ -9,10 +9,34 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public enum ErrorCode {
+    //Authentication and Authorization
+        //USER
     USER_UNAUTHORIZED(401, "Unauthorized"),
     USER_EXISTED(400, "User existed!"),
     USER_NOT_FOUND(404, "User not found!"),
     USER_UNAUTHENTICATED(401, "Unauthenticated"),
+    USER_CREATION_FAILED(400, "User creation failed"),
+        //ROLE
+    ROLE_NOT_FOUND(404, "Role not found!"),
+    ROLE_ALREADY_EXISTED(409, "Role already existed!"),
+        //PERMISSION
+    PERMISSION_NOT_FOUND(404, "Permission not found!"),
+    PERMISSION_ALREADY_EXISTED(409, "Permission already existed!"),
+        //TOKEN
+    TOKEN_NOT_FOUND(404, "Token not found!"),
+    TOKEN_DEVICE_LIMIT_EXCEEDED(409, "Token device limit exceeded!"),
+    REFRESH_TOKEN_NOT_FOUND(404, "Refresh token not found!"),
+    REFRESH_TOKEN_EXPIRED(409, "Refresh token expired!"),
+    REFRESH_TOKEN_INVALID(409, "Refresh token invalid!"),
+    REFRESH_TOKEN_ALREADY_REVOKED(409, "Refresh token already revoked!"),
+        //DEVICE
+    INVALID_DEVICE_TYPE(400, "Invalid device type!"),
+        //RESET PASSWORD TOKEN
+    RESET_PASSWORD_TOKEN_ALREADY_EXISTED(409, "Reset password token already existed!"),
+    INVALID_RESET_PASSWORD_TOKEN(409, "Invalid reset password token!"),
+    RESET_PASSWORD_TOKEN_ALREADY_USED(409, "Reset password token used!"),
+    RESET_PASSWORD_TOKEN_EXPIRED(409, "Reset password token expired!"),
+    //Validation
     USERNAME_INVALID(401, "Username must be between 3 and 30 characters"),
     PASSWORD_INVALID(401, "Password must be between 3 and 30 characters"),
     KEYWORD_INVALID(401, "Keyword not valid"),

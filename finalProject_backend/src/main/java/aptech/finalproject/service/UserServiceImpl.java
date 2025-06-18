@@ -13,7 +13,6 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,7 +48,11 @@ public class UserServiceImpl implements UserService {
     }
 
     public User getByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(()-> new RuntimeException("User not found"));
+        return userRepository.findByUsername(username).orElseThrow(()-> new ApiException(ErrorCode.USER_NOT_FOUND));
+    }
+
+    public User getByEmail(String email) {
+        return userRepository.findByEmail(email).orElseThrow(()-> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 
     public User update(String userId ,UserUpdateRequest userUpdateRequest) {

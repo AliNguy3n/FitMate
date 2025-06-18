@@ -14,4 +14,8 @@ public interface RoleService {
     void delete(String permission);
 
     List<RoleCreationResponse> findAll();
+
+    boolean existedRole(String permission);
+
+    RoleCreationResponse findById(String role);
 }

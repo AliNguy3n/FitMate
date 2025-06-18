@@ -4,18 +4,21 @@ import aptech.finalproject.dto.request.AuthenticationRequest;
 import aptech.finalproject.dto.request.IntrospectRequest;
 import aptech.finalproject.dto.response.AuthenticationResponse;
 import aptech.finalproject.dto.response.IntrospectResponse;
+import aptech.finalproject.emums.DeviceType;
+import aptech.finalproject.entity.Token;
 import aptech.finalproject.entity.User;
 import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
+import aptech.finalproject.repository.TokenRepository;
 import aptech.finalproject.repository.UserRepository;
 import com.nimbusds.jose.*;
 import com.nimbusds.jose.crypto.MACSigner;
 import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.CollectionUtils;
@@ -23,13 +26,18 @@ import org.springframework.util.CollectionUtils;
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
-import java.util.Date;
-import java.util.StringJoiner;
+import java.util.*;
 
 @Service
 public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     UserRepository userRepository;
+
+    @Autowired
+    TokenRepository tokenRepository;
+
+    @Autowired
+    PasswordEncoder passwordEncoder;
 
     @Value("${jwt.signerKey}")
     private String SIGNER_KEY;
@@ -37,24 +45,45 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private Long EXPIRATION_TIME;
     @Value("${jwt.expirationRefreshToken}")
     private Long EXPIRATION_REFRESH_TIME;
+    @Value("${jwt.revoke}")
+    private Boolean REVOKE;
+    private static final Map<DeviceType, Integer> DEVICE_LIMIT = Map.of(
+            DeviceType.DESKTOP, 1,
+            DeviceType.MOBILE, 2
+    );
 
-    public AuthenticationResponse authenticated(AuthenticationRequest request) {
+    public AuthenticationResponse authenticated(AuthenticationRequest request, String deviceType, HttpServletRequest httpRequest) {
         var user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder(10);
-
+        DeviceType device = resolveDeviceType(deviceType);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
-        if(!authenticated)
+        if (!authenticated)
             throw new ApiException(ErrorCode.USER_UNAUTHENTICATED);
+        String username = user.getUsername();
 
         try {
             return AuthenticationResponse.builder()
                     .authenticated(true)
-                    .token(generateToken(request.getUsername()))
+                    .token(generateToken(user))
+                    .refreshToken(generateRefreshToken(
+                            username,
+                            device,
+                            httpRequest).getRefreshToken())
                     .build();
         } catch (JOSEException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void logout(String refreshToken) {
+        var jwtRefreshToken = tokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() ->new ApiException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
+
+        if(jwtRefreshToken.isRevoked()){
+            throw new ApiException(ErrorCode.REFRESH_TOKEN_ALREADY_REVOKED);
+        }
+
+        jwtRefreshToken.setRevoked(true);
+        tokenRepository.save(jwtRefreshToken);
     }
 
     public IntrospectResponse introspect(IntrospectRequest request) throws JOSEException, ParseException {
@@ -73,16 +102,37 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
-    private String generateToken(String username) throws JOSEException {
+    public AuthenticationResponse refreshAccessToken(String refreshToken) {
+        var jwtRefreshToken = tokenRepository.findByRefreshToken(refreshToken)
+                .orElseThrow(() -> new ApiException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
+
+        if(jwtRefreshToken.isRevoked()){
+            throw new ApiException(ErrorCode.REFRESH_TOKEN_ALREADY_REVOKED);
+        }
+
+        try{
+            return AuthenticationResponse.builder()
+                    .token(generateToken(jwtRefreshToken.getUser()))
+                    .refreshToken(refreshToken)
+                    .authenticated(true)
+                    .build();
+        } catch (JOSEException e) {
+            throw new RuntimeException("Could not generate access token", e);
+        }
+    }
+
+    private String generateToken(User user) throws JOSEException {
 
         JWSHeader jwsHeader = new JWSHeader(JWSAlgorithm.HS512);
+        String jwtId = UUID.randomUUID().toString();
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(username)
+                .jwtID(jwtId)
+                .subject(user.getUsername())
                 .issuer("finalProject.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(EXPIRATION_TIME, ChronoUnit.SECONDS).toEpochMilli()))
-                .claim("authorities", "ROLE_USER")
+                .claim("authorities", buildScope(user))
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -93,12 +143,50 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         return jwsObject.serialize();
     }
 
-    private String buildScope(User user){
-        StringJoiner stringJoiner = new StringJoiner(" ");
-        if(!CollectionUtils.isEmpty(user.getRoles())) {
-//            user.getRoles().forEach(stringJoiner::add);
+    private Token generateRefreshToken(String username, DeviceType deviceType, HttpServletRequest httpRequest) throws JOSEException {
+        int maxAllowed = DEVICE_LIMIT.getOrDefault(deviceType, 1);
+        List<Token> existingTokens = tokenRepository.findByUserUsernameAndDeviceTypeAndRevoked(username, deviceType, true);
+
+        if(existingTokens.size() >= maxAllowed){
+            if(REVOKE){
+                tokenRepository.delete(existingTokens.getFirst());
+            }else{
+                throw new ApiException(ErrorCode.TOKEN_DEVICE_LIMIT_EXCEEDED);
+            }
         }
 
+        User user = userRepository.findByUsername(username)
+                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        String userAgent = httpRequest.getHeader("User-Agent");
+        String ipAddress = httpRequest.getRemoteAddr();
+
+        Token token = Token.builder()
+                .refreshToken(UUID.randomUUID().toString())
+                .deviceType(deviceType)
+                .userAgent(userAgent)
+                .ipAddress(ipAddress)
+                .issuedAt(Instant.now())
+                .expiresAt(Instant.now().plus(EXPIRATION_REFRESH_TIME, ChronoUnit.SECONDS))
+                .revoked(false)
+                .user(user)
+                .build();
+
+        return tokenRepository.save(token);
+    }
+
+    private String buildScope(User user) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if (!CollectionUtils.isEmpty(user.getRoles())) {
+            user.getRoles().forEach(role -> stringJoiner.add(role.getRole()));
+        }
         return stringJoiner.toString();
+    }
+
+    private DeviceType resolveDeviceType(String device) throws ApiException {
+        try{
+            return DeviceType.valueOf(device.toUpperCase());
+        }catch(IllegalArgumentException e){
+            throw new ApiException(ErrorCode.INVALID_DEVICE_TYPE);
+        }
     }
 }
