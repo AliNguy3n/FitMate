@@ -20,15 +20,15 @@ public class UserResponse {
 
     private String firstName;
 
-//    private String lastName;
+    private String lastName;
 
     private String email;
 
-//    private String phone;
+    private String phone;
 
-//    private String address;
+    private String address;
 
-//    private LocalDate dob;
+    private LocalDate dob;
 
     private Set<Role> roles;
 }

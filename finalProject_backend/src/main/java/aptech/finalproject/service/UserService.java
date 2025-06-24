@@ -16,6 +16,8 @@ public interface UserService {
 
     User getByUsername(String username);
 
+    User getByEmail(String email);
+
     User update(String userId , UserUpdateRequest userUpdateRequest);
 
     void delete(String userId);
