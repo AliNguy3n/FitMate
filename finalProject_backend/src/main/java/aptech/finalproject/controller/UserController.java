@@ -24,11 +24,11 @@ public class UserController {
     @Autowired
     private UserMapper userMapper;
 
-    @PostMapping
+    @PostMapping("/create")
     public ApiResponse<UserResponse> create(@RequestBody @Valid UserCreationRequest userCreationRequest,
                                             BindingResult result) {
         if (result.hasErrors()) {
-            return ApiResponse.badRequest(result.getAllErrors().getFirst().getDefaultMessage());
+            return ApiResponse.badRequest(result);
         }
         UserResponse user = userService.create(userCreationRequest);
         if (user == null) {
@@ -69,7 +69,7 @@ public class UserController {
                                             @RequestBody @Valid UserUpdateRequest userUpdateRequest,
                                             BindingResult result) {
         if(result.hasErrors()) {
-            return ApiResponse.badRequest(result.getAllErrors().getFirst().getDefaultMessage());
+            return ApiResponse.badRequest(result);
         }
         User updated = userService.update(userId, userUpdateRequest);
         if (updated == null) {

@@ -13,8 +13,6 @@ import java.util.Optional;
 @Repository
 public interface TokenRepository extends JpaRepository<Token, String> {
 
-    List<Token> findByUserUsernameAndDeviceType(@Size(min = 3, max = 30, message = "USERNAME_INVALID") String userUsername, DeviceType deviceType);
-
     Optional<Token> findByRefreshToken(String refreshToken);
 
     List<Token> findByUserUsernameAndDeviceTypeAndRevoked(@Size(min = 3, max = 30, message = "USERNAME_INVALID") String userUsername, DeviceType deviceType, boolean revoked);

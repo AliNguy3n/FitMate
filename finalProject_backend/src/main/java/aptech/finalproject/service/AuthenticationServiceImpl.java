@@ -17,6 +17,7 @@ import com.nimbusds.jose.crypto.MACVerifier;
 import com.nimbusds.jwt.JWTClaimsSet;
 import com.nimbusds.jwt.SignedJWT;
 import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -29,6 +30,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.*;
 
 @Service
+@Slf4j
 public class AuthenticationServiceImpl implements AuthenticationService {
     @Autowired
     UserRepository userRepository;
@@ -76,9 +78,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     public void logout(String refreshToken) {
         var jwtRefreshToken = tokenRepository.findByRefreshToken(refreshToken)
-                .orElseThrow(() ->new ApiException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
 
-        if(jwtRefreshToken.isRevoked()){
+        if (jwtRefreshToken.isRevoked()) {
             throw new ApiException(ErrorCode.REFRESH_TOKEN_ALREADY_REVOKED);
         }
 
@@ -102,18 +104,31 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .build();
     }
 
-    public AuthenticationResponse refreshAccessToken(String refreshToken) {
+    public AuthenticationResponse refreshAccessToken(String refreshToken, HttpServletRequest httpRequest) throws ParseException, JOSEException {
         var jwtRefreshToken = tokenRepository.findByRefreshToken(refreshToken)
                 .orElseThrow(() -> new ApiException(ErrorCode.REFRESH_TOKEN_NOT_FOUND));
 
-        if(jwtRefreshToken.isRevoked()){
+        if (jwtRefreshToken.isRevoked()) {
             throw new ApiException(ErrorCode.REFRESH_TOKEN_ALREADY_REVOKED);
         }
 
-        try{
+        if(jwtRefreshToken.getExpiresAt().isBefore(Instant.now())) {
+            throw new ApiException(ErrorCode.REFRESH_TOKEN_EXPIRED);
+        }
+
+        if(!Objects.equals(jwtRefreshToken.getIpAddress(), httpRequest.getRemoteAddr()) ||
+            !Objects.equals(jwtRefreshToken.getUserAgent(), httpRequest.getHeader("User-Agent"))) {
+            throw new ApiException(ErrorCode.INVALID_DEVICE_CONTEXT);
+        }
+
+        try {
+            jwtRefreshToken.setRevoked(true);
+            tokenRepository.save(jwtRefreshToken);
+            Token newRefreshToken = generateRefreshToken(jwtRefreshToken.getUser().getUsername(), jwtRefreshToken.getDeviceType(), httpRequest);
+
             return AuthenticationResponse.builder()
                     .token(generateToken(jwtRefreshToken.getUser()))
-                    .refreshToken(refreshToken)
+                    .refreshToken(newRefreshToken.getRefreshToken())
                     .authenticated(true)
                     .build();
         } catch (JOSEException e) {
@@ -128,7 +143,8 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
                 .jwtID(jwtId)
-                .subject(user.getUsername())
+                .subject(user.getId())
+                .claim("preferred_username", user.getUsername())
                 .issuer("finalProject.com")
                 .issueTime(new Date())
                 .expirationTime(new Date(Instant.now().plus(EXPIRATION_TIME, ChronoUnit.SECONDS).toEpochMilli()))
@@ -145,12 +161,15 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     private Token generateRefreshToken(String username, DeviceType deviceType, HttpServletRequest httpRequest) throws JOSEException {
         int maxAllowed = DEVICE_LIMIT.getOrDefault(deviceType, 1);
-        List<Token> existingTokens = tokenRepository.findByUserUsernameAndDeviceTypeAndRevoked(username, deviceType, true);
+        List<Token> existingTokens = tokenRepository.findByUserUsernameAndDeviceTypeAndRevoked(username, deviceType, false);
 
-        if(existingTokens.size() >= maxAllowed){
-            if(REVOKE){
-                tokenRepository.delete(existingTokens.getFirst());
-            }else{
+        if (existingTokens.size() >= maxAllowed) {
+            if (REVOKE) {
+                for (Token token : existingTokens) {
+                    token.setRevoked(true);
+                }
+                tokenRepository.saveAll(existingTokens);
+            } else {
                 throw new ApiException(ErrorCode.TOKEN_DEVICE_LIMIT_EXCEEDED);
             }
         }
@@ -177,15 +196,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private String buildScope(User user) {
         StringJoiner stringJoiner = new StringJoiner(" ");
         if (!CollectionUtils.isEmpty(user.getRoles())) {
-            user.getRoles().forEach(role -> stringJoiner.add(role.getRole()));
+            user.getRoles().forEach(role -> {
+                stringJoiner.add(role.getRole());
+                if(!CollectionUtils.isEmpty(role.getPermissions())){
+                    role.getPermissions().forEach(permission -> {stringJoiner.add(permission.getPermission());});
+                }
+            });
+
         }
         return stringJoiner.toString();
     }
 
     private DeviceType resolveDeviceType(String device) throws ApiException {
-        try{
+        try {
             return DeviceType.valueOf(device.toUpperCase());
-        }catch(IllegalArgumentException e){
+        } catch (IllegalArgumentException e) {
             throw new ApiException(ErrorCode.INVALID_DEVICE_TYPE);
         }
     }

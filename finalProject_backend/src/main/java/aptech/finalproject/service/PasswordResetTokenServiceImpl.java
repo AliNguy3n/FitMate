@@ -7,6 +7,7 @@ import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.repository.PasswordResetTokenRepository;
 import aptech.finalproject.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -16,6 +17,7 @@ import java.time.Instant;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class PasswordResetTokenServiceImpl implements PasswordResetTokenService {
     @Autowired
     private PasswordResetTokenRepository passwordResetTokenRepository;

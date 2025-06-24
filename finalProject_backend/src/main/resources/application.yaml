@@ -1,0 +1,53 @@
+spring:
+  application:
+    name: finalProject
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/finalProject
+    username: root
+    password:
+  jpa:
+    show-sql: true
+    hibernate:
+      ddl-auto: update
+  mail: #JavaMailSender
+    host: smtp.gmail.com
+    port: 587
+    username: linhnguyenduc.kts@gmail.com
+    password: elmt sqhf pspn erng
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
+server:
+  port: 8080
+
+jwt: #JWT Config
+  signerKey: dUjIEKATZSotHhpkwqllffJR2bqQ+RRUAPjPnRZ7Uar2KXRlyNSKIZlInXdmPjvD
+  expiration: 180
+  expirationRefreshToken: 604800
+  revoke: true
+
+frontend: #Frontend Domain
+  domain: https://abcd.com/
+
+app: #App config
+  config:
+    filter:
+      limitTimeWindow: 60000
+      maxRequest: 100
+    paths:
+      static-dir: upload
+      common-images-dir: images
+      images-dir: images
+      logos-dir: logos
+      avatars-dir: avatars
+      articles-dir: articles
+      pdfs-dir: pdfs
+      audios-dir: audios
+      docs-dir: docs
+      videos-dir: videos
+      categories-dir: categories

@@ -20,7 +20,7 @@ public class PasswordResetToken {
 
     private Instant expiryDate;
 
-    @OneToOne
+    @ManyToOne
     private User user;
     @Builder.Default
     private boolean used = false;

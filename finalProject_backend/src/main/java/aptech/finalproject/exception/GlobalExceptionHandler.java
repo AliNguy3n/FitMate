@@ -36,6 +36,8 @@ public class GlobalExceptionHandler {
         return ResponseEntity.badRequest().body(apiResponse);
     }
 
+
+
     @ExceptionHandler(value = MethodArgumentNotValidException.class)
     ResponseEntity<ApiResponse<String>> handlingValidationException(MethodArgumentNotValidException e) {
         String key  = e.getFieldError().getDefaultMessage();

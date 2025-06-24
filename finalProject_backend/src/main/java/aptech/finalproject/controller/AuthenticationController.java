@@ -2,11 +2,11 @@ package aptech.finalproject.controller;
 
 import aptech.finalproject.dto.request.AuthenticationRequest;
 import aptech.finalproject.dto.request.IntrospectRequest;
+import aptech.finalproject.dto.request.RefreshTokenRequest;
 import aptech.finalproject.dto.request.ResetPasswordRequest;
 import aptech.finalproject.dto.response.ApiResponse;
 import aptech.finalproject.dto.response.AuthenticationResponse;
 import aptech.finalproject.dto.response.IntrospectResponse;
-import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.service.AuthenticationService;
 import aptech.finalproject.service.PasswordResetTokenService;
 import aptech.finalproject.service.UserService;
@@ -16,13 +16,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.text.ParseException;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/auth")
 public class AuthenticationController {
-    @Autowired
-    private UserService userService;
-
     @Autowired
     private AuthenticationService authenticationService;
 
@@ -44,26 +42,28 @@ public class AuthenticationController {
     }
 
     @PostMapping("/logout")
-    public ApiResponse<?> logout(@RequestBody String token) throws ParseException, JOSEException {
-        authenticationService.logout(token);
+    public ApiResponse<?> logout(@RequestBody RefreshTokenRequest request) throws ParseException, JOSEException {
+        authenticationService.logout(request.getRefreshToken());
         return ApiResponse.ok();
     }
 
     @PostMapping("/refresh-token")
-    public ApiResponse<?> refreshToken(@RequestParam String refreshToken) {
-        return ApiResponse.ok(authenticationService.refreshAccessToken(refreshToken));
+
+    public ApiResponse<?> refreshToken(@RequestBody RefreshTokenRequest refreshToken, HttpServletRequest httpServletRequest) throws ParseException, JOSEException {
+        return ApiResponse.ok(authenticationService.refreshAccessToken(refreshToken.getRefreshToken(), httpServletRequest));
     }
 
     @PostMapping("/forgot-password")
-    public ApiResponse<?> forgotPassword(@RequestParam String email)  {
+    public ApiResponse<?> forgotPassword(@RequestBody Map<String,String> request)  {
+        String email = request.get("email");
         passwordResetTokenService.sendResetPasswordLink(email);
-        return ApiResponse.ok();
+        return ApiResponse.ok("Reset password link sent to email.");
     }
 
     @PostMapping("/reset-password")
     public ApiResponse<?> resetPassword(@RequestBody ResetPasswordRequest request)  {
         passwordResetTokenService.resetPassword(request);
-        return ApiResponse.ok();
+        return ApiResponse.ok("Password has been reset successfully.");
     }
 
 }
