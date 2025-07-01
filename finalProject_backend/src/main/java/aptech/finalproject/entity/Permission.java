@@ -17,8 +17,14 @@ import java.util.Set;
 @Table(name = "permissions")
 public class Permission {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @Column(nullable = false, unique = true)
     private String permission;
+
     private String description;
+
     @ManyToMany(mappedBy = "permissions")
     @JsonIgnore
     private Set<Role> roles;

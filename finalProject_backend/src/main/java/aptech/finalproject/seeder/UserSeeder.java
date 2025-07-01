@@ -37,12 +37,13 @@ public class UserSeeder implements CommandLineRunner {
 
         // 1. Seed all permissions
         for (PredefinedPermission predefined : PredefinedPermission.values()) {
-            permissionRepository.findById(predefined.getPermission()).orElseGet(() -> {
+            Optional<Permission> existing = permissionRepository.findByPermission(predefined.getPermission());
+            if (existing.isEmpty()) {
                 Permission permission = new Permission();
                 permission.setPermission(predefined.getPermission());
                 permission.setDescription(predefined.getDescription());
-                return permissionRepository.save(permission);
-            });
+                permissionRepository.save(permission);
+            }
         }
 
         // Load all permissions to a map for quick access
@@ -51,7 +52,7 @@ public class UserSeeder implements CommandLineRunner {
 
         // 2. Define role-permission mapping
         Map<PredefinedRole, List<PredefinedPermission>> rolePermissionMap = Map.of(
-                PredefinedRole.SUPER_ADMIN, Arrays.asList(PredefinedPermission.values()),
+//                PredefinedRole.SUPER_ADMIN, Arrays.asList(PredefinedPermission.values()),
                 PredefinedRole.ADMIN, Arrays.asList(
                         PredefinedPermission.MANAGE_USERS, PredefinedPermission.VIEW_USERS,
                         PredefinedPermission.RESET_PASSWORD, PredefinedPermission.ASSIGN_ROLES,
@@ -73,33 +74,37 @@ public class UserSeeder implements CommandLineRunner {
 
         // 3. Seed roles with mapped permissions
         for (PredefinedRole predefined : PredefinedRole.values()) {
-            Role role = roleRepository.findById(predefined.getRole()).orElseGet(() -> {
-                Role newRole = new Role();
-                newRole.setRole(predefined.getRole());
-                newRole.setDescription(predefined.getDescription());
-                return roleRepository.save(newRole);
-            });
+            Optional<Role> existing = roleRepository.findByRole(predefined.getRole());
 
-            // Gán permission nếu có ánh xạ
-            List<PredefinedPermission> mappedPermissions = rolePermissionMap.get(predefined);
-            if (mappedPermissions != null) {
-                Set<Permission> permissions = mappedPermissions.stream()
-                        .map(p -> permissionMap.get(p.getPermission()))
-                        .collect(Collectors.toSet());
-                role.setPermissions(permissions);
+            if (existing.isEmpty()) {
+                Role role = new Role();
+                role.setRole(predefined.getRole());
+                role.setDescription(predefined.getDescription());
                 roleRepository.save(role);
+
+                // Gán permission nếu có ánh xạ
+                List<PredefinedPermission> mappedPermissions = rolePermissionMap.get(predefined);
+                if (mappedPermissions != null) {
+                    Set<Permission> permissions = mappedPermissions.stream()
+                            .map(p -> permissionMap.get(p.getPermission()))
+                            .collect(Collectors.toSet());
+                    role.setPermissions(permissions);
+                    roleRepository.save(role);
+                }
             }
+
         }
 
         // 4. Seed user: admin
         if (!userRepository.existsByUsername("admin")) {
-            Optional<Role> adminRole = roleRepository.findById(PredefinedRole.ADMIN.getRole());
+            Optional<Role> adminRole = roleRepository.findByRole(PredefinedRole.ADMIN.getRole());
             adminRole.ifPresent(role -> {
                 User admin = User.builder()
                         .username("admin")
                         .email("admin@admin.com")
                         .password(passwordEncoder.encode("123"))
-                        .roles(Set.of(role))
+                        .role(role)
+                        .active(true)
                         .build();
                 userRepository.save(admin);
                 System.out.println("Admin user created.");
@@ -108,13 +113,14 @@ public class UserSeeder implements CommandLineRunner {
 
         // 5. Seed user: user1
         if (!userRepository.existsByUsername("user1")) {
-            Optional<Role> userRole = roleRepository.findById(PredefinedRole.USER.getRole());
+            Optional<Role> userRole = roleRepository.findByRole(PredefinedRole.USER.getRole());
             userRole.ifPresent(role -> {
                 User user = User.builder()
                         .username("user1")
                         .email("user@auser.com")
                         .password(passwordEncoder.encode("123"))
-                        .roles(Set.of(role))
+                        .role(role)
+                        .active(true)
                         .build();
                 userRepository.save(user);
                 System.out.println("User1 user created.");
@@ -123,13 +129,14 @@ public class UserSeeder implements CommandLineRunner {
 
         // 6. Seed user: moderator
         if (!userRepository.existsByUsername("moderator")) {
-            Optional<Role> moderatorRole = roleRepository.findById(PredefinedRole.MODERATOR.getRole());
+            Optional<Role> moderatorRole = roleRepository.findByRole(PredefinedRole.MODERATOR.getRole());
             moderatorRole.ifPresent(role -> {
                 User mod = User.builder()
                         .username("moderator")
                         .email("moderator@mod.com")
                         .password(passwordEncoder.encode("123"))
-                        .roles(Set.of(role))
+                        .role(role)
+                        .active(true)
                         .build();
                 userRepository.save(mod);
                 System.out.println("Moderator user created.");

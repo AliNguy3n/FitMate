@@ -30,5 +30,5 @@ public class UserResponse {
 
     private LocalDate dob;
 
-    private Set<Role> roles;
+    private Role role;
 }

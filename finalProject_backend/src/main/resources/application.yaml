@@ -1,6 +1,8 @@
 spring:
   application:
     name: finalProject
+  config:
+    import: optional:env.properties
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/finalProject
@@ -10,11 +12,16 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: update
+  servlet:
+    multipart:
+      enabled: true
+      max-file-size: 10MB
+      max-request-size: 20MB
   mail: #JavaMailSender
     host: smtp.gmail.com
     port: 587
-    username: linhnguyenduc.kts@gmail.com
-    password: elmt sqhf pspn erng
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -26,21 +33,24 @@ server:
   port: 8080
 
 jwt: #JWT Config
-  signerKey: dUjIEKATZSotHhpkwqllffJR2bqQ+RRUAPjPnRZ7Uar2KXRlyNSKIZlInXdmPjvD
+  signerKey: ${JWT_SIGNER_KEY}
   expiration: 180
   expirationRefreshToken: 604800
   revoke: true
 
 frontend: #Frontend Domain
-  domain: https://abcd.com/
+  domain: https://abcd.com
 
 app: #App config
   config:
     filter:
       limitTimeWindow: 60000
       maxRequest: 100
+    file:
+      max-size: 5242880
     paths:
-      static-dir: upload
+      public-dir: public
+      upload-dir: upload
       common-images-dir: images
       images-dir: images
       logos-dir: logos

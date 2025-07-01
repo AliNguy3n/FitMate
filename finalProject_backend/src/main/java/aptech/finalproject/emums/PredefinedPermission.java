@@ -32,6 +32,7 @@ public enum PredefinedPermission {
     VIEW_INVOICES("VIEW_INVOICES", "View generated invoices"),
 
     // Content Management (CMS / LMS)
+    MANGE_POST("MANGE_POST", "Create, update, delete posts"),
     CREATE_POST("CREATE_POST", "Create a new post or article"),
     EDIT_POST("EDIT_POST", "Edit existing content"),
     DELETE_POST("DELETE_POST", "Remove content"),

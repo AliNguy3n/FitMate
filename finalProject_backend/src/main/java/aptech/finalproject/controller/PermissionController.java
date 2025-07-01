@@ -23,18 +23,18 @@ public class PermissionController {
         return ApiResponse.ok(permissionService.findAll());
     }
 
-    @PutMapping("/{permission}")
-    public ApiResponse<?> update(@PathVariable String permission, @RequestBody PermissionCreationRequest request) {
+    @PutMapping("/{permissionId}")
+    public ApiResponse<?> update(@PathVariable String permissionId, @RequestBody PermissionCreationRequest request) {
         return ApiResponse.ok(permissionService.update(request));
     }
-    @DeleteMapping("/{permission}")
-    public ApiResponse<?> delete(@PathVariable String permission) {
-        permissionService.delete(permission);
-        return ApiResponse.ok("Permission " + permission + " deleted successfully");
+    @DeleteMapping("/{permissionId}")
+    public ApiResponse<?> delete(@PathVariable long permissionId) {
+        permissionService.delete(permissionId);
+        return ApiResponse.ok("Permission " + permissionId + " deleted successfully");
     }
 
-    @GetMapping("/{permission}")
-    public ApiResponse<?> getById(@PathVariable String permission) {
-        return ApiResponse.ok(permissionService.findById(permission));
+    @GetMapping("/{permissionId}")
+    public ApiResponse<?> getById(@PathVariable long permissionId) {
+        return ApiResponse.ok(permissionService.findById(permissionId));
     }
 }

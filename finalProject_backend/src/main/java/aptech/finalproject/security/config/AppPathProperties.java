@@ -13,7 +13,8 @@ import java.nio.file.Paths;
 @Data
 public class AppPathProperties {
 
-    private String staticDir = "static";
+    private String publicDir = "public";
+    private String uploadDir = "upload";
     private String imagesDir = "images";
     private String avatarsDir = "avatars";
     private String logosDir = "logos";
@@ -25,19 +26,22 @@ public class AppPathProperties {
     private String docsDir = "docs";
     private String audiosDir = "audios";
 
-    private final Path uploadDir = Paths.get(System.getProperty("user.dir"));
+    private final Path userDir = Paths.get(System.getProperty("user.dir"));
 
 
-    private Path getStaticPath() {
-        return uploadDir.resolve(Paths.get(staticDir));
+    public Path getPublicPath() {
+        return userDir.resolve(Paths.get(publicDir));
     }
 
+    public Path getUploadPath() { return userDir.resolve(Paths.get(uploadDir)); }
+
+
     private Path getCommonImagesPath() {
-        return getStaticPath().resolve(Paths.get(commonImagesDir));
+        return getUploadPath().resolve(Paths.get(commonImagesDir));
     }
 
     public Path getImagesPath() {
-        return getStaticPath().resolve(Paths.get(imagesDir));
+        return getUploadPath().resolve(Paths.get(imagesDir));
     }
 
     public Path getAvatarsPath() {
@@ -58,19 +62,19 @@ public class AppPathProperties {
     }
 
     public Path getPdfsPath() {
-        return getStaticPath().resolve(Paths.get(pdfsDir));
+        return getUploadPath().resolve(Paths.get(pdfsDir));
     }
 
     public Path getVideosPath() {
-        return getStaticPath().resolve(Paths.get(videosDir));
+        return getUploadPath().resolve(Paths.get(videosDir));
     }
 
     public Path getDocsPath() {
-        return getStaticPath().resolve(Paths.get(docsDir));
+        return getUploadPath().resolve(Paths.get(docsDir));
     }
 
     public Path getAudiosPath() {
-        return getStaticPath().resolve(Paths.get(audiosDir));
+        return getUploadPath().resolve(Paths.get(audiosDir));
     }
 
     public Path getPathByFileType(FileType fileType) {

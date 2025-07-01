@@ -42,7 +42,7 @@ public class AuthenticationController {
     }
 
     @PostMapping("/logout")
-    public ApiResponse<?> logout(@RequestBody RefreshTokenRequest request) throws ParseException, JOSEException {
+    public ApiResponse<?> logout(@RequestBody RefreshTokenRequest request)  {
         authenticationService.logout(request.getRefreshToken());
         return ApiResponse.ok();
     }

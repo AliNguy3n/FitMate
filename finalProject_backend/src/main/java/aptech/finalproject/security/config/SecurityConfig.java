@@ -3,9 +3,12 @@ package aptech.finalproject.security.config;
 import aptech.finalproject.dto.response.ApiResponse;
 import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
+import aptech.finalproject.security.jwt.CustomAuthenticationEntryPoint;
 import aptech.finalproject.security.jwt.JwtToUserAuthenticationConverter;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.web.server.ErrorPage;
 import org.springframework.context.annotation.Bean;
@@ -28,24 +31,30 @@ import java.util.Map;
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
-@EnableScheduling
+@Slf4j
 public class SecurityConfig {
 
     @Value("${jwt.signerKey}")
     private String SIGNER_KEY;
 
-    // Danh sách route AUTH có thể truy cập không cần xác thực hoặc quyền
-    private final String[] AUTH_WHITELIST = {"/auth/**"};
+    @Autowired
+    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+
+    // Danh sách route có thể truy cập không cần xác thực hoặc quyền
+    private final String[] WHITELIST = {
+            "/auth/**",
+            "/resources/**",
+    };
 
     // Danh sách route tạm thời ngưng truy cập
     private final String[] BLACKLIST = {};
     // Danh sách route IDENTITY được truy cập không cần xác thực hoặc quyền
     private final String[] IDENTITY_WHITELIST = {
-            "/identity/user/create"
+            "/identity/user/create",
     };
 
     //Danh sách route public
-    private final String[] PUBLIC_ENDPOINT = {};
+    private final String[] PUBLIC_ENDPOINT = {"/public/**"};
 
 
     @Bean
@@ -54,21 +63,30 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(
                         request -> request
-                                .requestMatchers(AUTH_WHITELIST).permitAll()
+                                .requestMatchers(WHITELIST).permitAll()
                                 .requestMatchers(IDENTITY_WHITELIST).permitAll()
+                                .requestMatchers(PUBLIC_ENDPOINT).permitAll()
                                 .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2 ->
-                        oauth2.jwt(jwt -> jwt.jwtAuthenticationConverter(new JwtToUserAuthenticationConverter()))
-                                .authenticationEntryPoint((request, response, authException) -> {
-                                    response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                                    response.setContentType("application/json");
-                                    ApiResponse apiResponse = ApiResponse.builder()
-                                            .success(false)
-                                            .code(ErrorCode.JWT_TOKEN_INVALID.getCode())
-                                            .errors(Map.of("error",ErrorCode.JWT_TOKEN_INVALID.getException()))
-                                            .build();
-                                    response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
-                                }))
+                .oauth2ResourceServer(oauth2 -> oauth2
+                        .jwt(jwt -> jwt.jwtAuthenticationConverter(new JwtToUserAuthenticationConverter()))
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                )
+                .exceptionHandling(exception -> exception
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                            response.setContentType("application/json");
+                            ApiResponse<?> apiResponse = ApiResponse.builder()
+                                    .success(false)
+                                    .code(ErrorCode.UNAUTHORIZED.getCode())
+                                    .errors(Map.of("Exception", "Access Denied by Security Filter"))
+                                    .build();
+                            response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
+                            response.flushBuffer();
+
+
+                        })
+                        .authenticationEntryPoint(customAuthenticationEntryPoint)
+                )
         ;
 
         return http.build();

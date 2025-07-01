@@ -30,14 +30,14 @@ public class RoleController {
         return ApiResponse.badRequest("Role not found");
     }
 
-    @GetMapping("/{role}")
-    public ApiResponse<?> getById(@PathVariable String role) {
-        return ApiResponse.ok(roleService.findById(role));
+    @GetMapping("/{roleId}")
+    public ApiResponse<?> getById(@PathVariable long roleId) {
+        return ApiResponse.ok(roleService.findById(roleId));
     }
 
-    @DeleteMapping("/{role}")
-    public ApiResponse<?> delete(@PathVariable String role) {
-        roleService.delete(role);
-        return ApiResponse.ok("Role " + role + " deleted successfully");
+    @DeleteMapping("/{roleId}")
+    public ApiResponse<?> delete(@PathVariable long roleId) {
+        roleService.delete(roleId);
+        return ApiResponse.ok("Role " + roleId + " deleted successfully");
     }
 }

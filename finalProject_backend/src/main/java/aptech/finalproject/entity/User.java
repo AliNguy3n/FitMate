@@ -44,13 +44,12 @@ public class User {
     @Column(nullable = true, length = 128)
     private String address;
 
+    @Builder.Default
+    private boolean active = false;
+
     private LocalDate dob;
-    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_id")
-    )
-    @JsonIgnore
-    private Set<Role> roles;
+
+    @ManyToOne()
+    @JoinColumn(name = "role_id", nullable = false)
+    private Role role;
 }

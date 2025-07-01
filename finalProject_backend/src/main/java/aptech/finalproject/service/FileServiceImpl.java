@@ -7,18 +7,26 @@ import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.repository.FileMetadataRepository;
 import aptech.finalproject.security.config.AppPathProperties;
 import aptech.finalproject.util.FileTypeUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
+@Slf4j
 public class FileServiceImpl implements FileService {
     @Autowired
     FileMetadataRepository fileMetadataRepository;
@@ -26,45 +34,72 @@ public class FileServiceImpl implements FileService {
     @Autowired
     AppPathProperties appPath;
 
-    public FileMetadata saveImage(MultipartFile file) throws ApiException {
-        if (file.isEmpty())
-            throw new ApiException(ErrorCode.FILE_IS_EMPTY);
+    @Value("${app.config.file.max-size}")
+    long maxSize ;
 
-        if (file.getOriginalFilename() == null || file.getOriginalFilename().isEmpty())
-            throw new ApiException(ErrorCode.NOT_SUPPORTED_FILE_TYPE);
+    public FileMetadata saveFile(MultipartFile file, Optional<String> groupPath) throws ApiException {
+        validateFile(file);
 
         FileType fileType = FileTypeUtil.detectFileType(file);
-        List<String> extension = fileType.getExtension();
-        String storedName = UUID.randomUUID().toString() + "." + extension.getFirst();
+        String extension = fileType.getExtension().getFirst();
+        String storedName = UUID.randomUUID() + "." + extension;
 
-        Path fileDir = appPath.getImagesPath().resolve(fileType.getTypeName());
+        String relativePath = groupPath.orElse(fileType.getTypeName()); // fallback theo FileType
+
+        Path targetDir = appPath.getUploadPath().resolve(relativePath);
+        Path targetPath = targetDir.resolve(storedName);
 
         try {
-            Files.createDirectories(fileDir);
-            Path path = fileDir.resolve(storedName);
-            file.transferTo(path.toFile());
+            Files.createDirectories(targetDir);
+            file.transferTo(targetPath.toFile());
         } catch (IOException e) {
-            throw new RuntimeException("Failed to store file", e);
+            throw new ApiException(ErrorCode.FILE_UPLOAD_FAILED);
         }
 
-        FileMetadata fileMetadata = FileMetadata.builder()
+        FileMetadata metadata = FileMetadata.builder()
                 .id(UUID.randomUUID().toString())
                 .originalName(file.getOriginalFilename())
                 .storedName(storedName)
+                .relativePath(relativePath)
                 .fileType(fileType)
                 .size(file.getSize())
                 .uploadAt(Instant.now())
                 .build();
-        return fileMetadataRepository.save(fileMetadata);
+
+        try {
+            return fileMetadataRepository.save(metadata);
+        } catch (Exception e) {
+            try {
+                Files.deleteIfExists(targetPath);
+            } catch (IOException ex) {
+                log.error("Failed to delete file after DB error", ex);
+            }
+            throw new ApiException(ErrorCode.DATABASE_ERROR);
+        }
     }
 
-//    public byte[] getFileContent(String storedName) throws ApiException {
-//        FileMetadata fileMetadata = fileMetadataRepository.findByStoredName(storedName)
-//                .orElseThrow(() -> new ApiException(ErrorCode.FILE_NOT_FOUND));
-//        try {
-//
-//        }
-//    }
+    public Resource getFile(String fileName) {
+        FileMetadata metadata = fileMetadataRepository.findByStoredName(fileName).orElseThrow(()->new ApiException(ErrorCode.FILE_NOT_FOUND));
+
+        return getFileContent(metadata);
+    }
+
+    public Resource getFileContent(FileMetadata metadata) throws ApiException {
+
+        Path path = appPath.getUploadPath()
+                .resolve(metadata.getRelativePath())
+                .resolve(metadata.getStoredName());
+
+        if (!Files.exists(path)) {
+            throw new ApiException(ErrorCode.FILE_NOT_FOUND);
+        }
+
+        try {
+            return new UrlResource(path.toUri());
+        } catch (MalformedURLException e) {
+            throw new ApiException(ErrorCode.FILE_READ_FAILED);
+        }
+    }
 
     public void deleteImage(String storedName) {
         FileMetadata fileMetadata = fileMetadataRepository.findByStoredName(storedName)
@@ -81,15 +116,42 @@ public class FileServiceImpl implements FileService {
         }
 
     }
+    public List<FileMetadata> findAll() {
+        return fileMetadataRepository.findAll();
+    }
 
-
-    private FileMetadata findById(String id) {
+    public FileMetadata findById(String id) {
         return fileMetadataRepository.findById(id).orElseThrow(() -> new ApiException(ErrorCode.FILE_NOT_FOUND));
     }
 
-    private FileMetadata findByFileName(String fileName) {
+    public FileMetadata findByFileName(String fileName) {
         return fileMetadataRepository.findByStoredName(fileName).orElseThrow(() -> new ApiException(ErrorCode.FILE_NOT_FOUND));
     }
 
+    private void validateFile(MultipartFile file) {
+        if (file.isEmpty())
+            throw new ApiException(ErrorCode.FILE_IS_EMPTY);
+
+        if (file.getOriginalFilename() == null || file.getOriginalFilename().isBlank())
+            throw new ApiException(ErrorCode.NOT_SUPPORTED_FILE_TYPE);
+
+        if (file.getSize() > maxSize)
+            throw new ApiException(ErrorCode.FILE_TOO_LARGE);
+    }
+
+    private String generateStoredFileName(String extension) {
+        return UUID.randomUUID() + "." + extension;
+    }
+
+    private FileMetadata buildFileMetadata(MultipartFile file, String storedName, FileType fileType) {
+        return FileMetadata.builder()
+                .id(UUID.randomUUID().toString())
+                .originalName(file.getOriginalFilename())
+                .storedName(storedName)
+                .fileType(fileType)
+                .size(file.getSize())
+                .uploadAt(Instant.now())
+                .build();
+    }
 
 }

@@ -5,6 +5,7 @@ import aptech.finalproject.dto.request.UserUpdateRequest;
 import aptech.finalproject.dto.response.ApiResponse;
 import aptech.finalproject.dto.response.UserResponse;
 import aptech.finalproject.entity.User;
+import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.mapper.UserMapper;
 import aptech.finalproject.service.UserService;
@@ -35,6 +36,12 @@ public class UserController {
             return ApiResponse.badRequest(ErrorCode.USER_CREATION_FAILED.getException());
         }
         return ApiResponse.created(user, "Created user");
+    }
+
+    @PostMapping("/activation")
+    public ApiResponse<?> activateAccount(@RequestBody String token) throws ApiException {
+        userService.activateAccount(token);
+        return ApiResponse.ok();
     }
 
     @GetMapping()

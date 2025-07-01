@@ -41,7 +41,11 @@ public class PasswordResetTokenServiceImpl implements PasswordResetTokenService 
         PasswordResetToken existed = passwordResetTokenRepository.findByUserAndUsed(user, false);
 
         if (existed != null && existed.getExpiryDate().isAfter(Instant.now())) {
-            throw new ApiException(ErrorCode.RESET_PASSWORD_TOKEN_ALREADY_EXISTED);
+            if(existed.getCreatedAt().isAfter(Instant.now().plusSeconds(60))){
+                throw new ApiException(ErrorCode.SEND_EMAIL_AFTER_MINUTE);
+            }
+            existed.setUsed(true);
+            passwordResetTokenRepository.save(existed);
         }
 
         String token = UUID.randomUUID().toString();

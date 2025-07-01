@@ -3,48 +3,102 @@ package aptech.finalproject.service;
 import aptech.finalproject.dto.request.UserCreationRequest;
 import aptech.finalproject.dto.request.UserUpdateRequest;
 import aptech.finalproject.dto.response.UserResponse;
-import aptech.finalproject.entity.Role;
+import aptech.finalproject.entity.AccountActivationToken;
 import aptech.finalproject.entity.User;
 import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.mapper.UserMapper;
+import aptech.finalproject.repository.AccountActivationTokenRepository;
 import aptech.finalproject.repository.RoleRepository;
 import aptech.finalproject.repository.UserRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
+import java.time.Instant;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     @Autowired
     private UserRepository userRepository;
-
     @Autowired
     private RoleRepository roleRepository;
     @Autowired
+    private AccountActivationTokenRepository activationTokenRepository;
+    @Autowired
     private UserMapper userMapper;
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    public UserResponse create(UserCreationRequest request) {
+    @Value("${frontend.domain}")
+    private String frontendDomain;
 
+    public UserResponse create(UserCreationRequest request) {
+        //Create User
         if(userRepository.existsByUsername(request.getUsername()))
             throw new ApiException(ErrorCode.USER_EXISTED);
 
         User user = userMapper.toUser(request);
 
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        Set<Role> roles = roleRepository.findByRole("USER");
-        user.setRoles(roles);
-        return userMapper.toUserResponse(userRepository.save(user));
+        var role = roleRepository.findByRole("USER").orElseThrow();
+        user.setRole(role);
+        User finalUser =userRepository.save(user);
+        //Send Mail
+        String token = UUID.randomUUID().toString();
+        AccountActivationToken activationToken =  AccountActivationToken.builder()
+                .token(token)
+                .user(user)
+                .expiryDate(Instant.now().plusSeconds(600))
+                .build();
+        activationTokenRepository.save(activationToken);
+        String subject = "Account Activation";
+
+        String content = String.format("""
+        <html>
+            <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                <h2 style="color: #2E86C1;">Hello %s,</h2>
+                <p>Thank you for registering with us.</p>
+                <p>Please click the button below to activate your account:</p>
+                <a href="%s/account-activation?token=%s"
+                   style="display: inline-block; padding: 10px 20px; background-color: #28a745;
+                          color: white; text-decoration: none; border-radius: 5px;">
+                    Activate Account
+                </a>
+                <p>This link will expire in <strong>10 minutes</strong>.</p>
+                <p>If you didn’t request this, please ignore this email.</p>
+                <hr />
+                <p style="font-size: 0.9em; color: #888;">&copy; 2025 FitMat3 Company. All rights reserved.</p>
+            </body>
+        </html>
+        """, user.getUsername(), frontendDomain, token);
+        System.out.println(finalUser.getEmail());
+        emailService.sendHtml(finalUser.getEmail(), subject, content);
+
+        return userMapper.toUserResponse(finalUser);
+    }
+
+    public void activateAccount(String token) throws ApiException {
+        AccountActivationToken userToken = activationTokenRepository.findByToken(token).orElseThrow(
+                ()-> new ApiException(ErrorCode.TOKEN_INVALID)
+        );
+
+        User user = userToken.getUser();
+        user.setActive(true);
+        userRepository.save(user);
     }
 
     @PreAuthorize("hasAuthority('MANAGE_USERS')")

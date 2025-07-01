@@ -12,7 +12,7 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class PasswordResetToken {
+public class AccountActivationToken {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;
@@ -25,9 +25,8 @@ public class PasswordResetToken {
     @Column(updatable = false)
     private Instant createdAt;
 
-    @ManyToOne
+    @OneToOne
     private User user;
 
-    @Builder.Default
-    private boolean used = false;
 }
+

@@ -23,6 +23,8 @@ public class FileMetadata {
 
     private String storedName;
 
+    private String relativePath;
+
     @Enumerated(EnumType.STRING)
     private FileType fileType;
 

@@ -10,11 +10,13 @@ public interface PermissionService {
 
     PermissionCreationResponse update(PermissionCreationRequest request);
 
-    void delete(String permission);
+    void delete(long permissionId);
 
     List<PermissionCreationResponse> findAll();
 
     boolean existed(String permission);
 
-    PermissionCreationResponse findById(String permission);
+    PermissionCreationResponse findById(long permissionId);
+
+    PermissionCreationResponse findByPermission(String permission);
 }

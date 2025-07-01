@@ -2,7 +2,6 @@ package aptech.finalproject.service;
 
 import aptech.finalproject.dto.request.PermissionCreationRequest;
 import aptech.finalproject.dto.response.PermissionCreationResponse;
-import aptech.finalproject.entity.Permission;
 import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.mapper.PermissionMapper;
@@ -12,7 +11,6 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 public class PermissionServiceImpl implements PermissionService {
@@ -32,8 +30,8 @@ public class PermissionServiceImpl implements PermissionService {
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    public void delete(String permission) {
-        permissionRepository.deleteById(permission);
+    public void delete(long permissionId) {
+        permissionRepository.deleteById(permissionId);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
@@ -43,12 +41,19 @@ public class PermissionServiceImpl implements PermissionService {
 
     @PreAuthorize("hasAuthority('ADMIN')")
     public boolean existed(String permission) {
-        return permissionRepository.existsById(permission);
+        return permissionRepository.existsByPermission(permission);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
-    public PermissionCreationResponse findById(String permission) {
-        return permissionRepository.findById(permission)
+    public PermissionCreationResponse findById(long permissionId) {
+        return permissionRepository.findById(permissionId)
+                .map(permissionMapper::toPermissionResponse)
+                .orElseThrow(()-> new ApiException(ErrorCode.PERMISSION_NOT_FOUND));
+    }
+
+    @PreAuthorize("hasAuthority('ADMIN')")
+    public PermissionCreationResponse findByPermission(String permission) {
+        return permissionRepository.findByPermission(permission)
                 .map(permissionMapper::toPermissionResponse)
                 .orElseThrow(()-> new ApiException(ErrorCode.PERMISSION_NOT_FOUND));
     }

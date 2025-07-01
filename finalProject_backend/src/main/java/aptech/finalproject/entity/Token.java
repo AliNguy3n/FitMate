@@ -4,6 +4,7 @@ import aptech.finalproject.emums.DeviceType;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
 
 import java.time.Instant;
 
@@ -32,6 +33,8 @@ public class Token {
     @Column(length = 45)
     private String ipAddress;
 
+    @CreationTimestamp
+    @Column(updatable = false)
     private Instant issuedAt;
 
     private Instant expiresAt;

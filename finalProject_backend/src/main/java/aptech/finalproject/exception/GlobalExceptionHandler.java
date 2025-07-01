@@ -15,10 +15,10 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(value = RuntimeException.class)
     ResponseEntity<ApiResponse<String>> handleRuntimeException(RuntimeException e) {
         Map<String, String> error = new HashMap<>();
-        error.put("Exception", e.getMessage());
+        error.put("Exception",e.getMessage() +" " + e.getStackTrace()[0].toString());
         ApiResponse<String> apiResponse = ApiResponse.<String>builder()
                 .success(false)
-                .code(400)
+                .code(9999)
                 .errors(error)
                 .build();
         return ResponseEntity.badRequest().body(apiResponse);

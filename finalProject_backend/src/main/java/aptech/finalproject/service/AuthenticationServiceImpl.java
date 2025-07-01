@@ -5,6 +5,8 @@ import aptech.finalproject.dto.request.IntrospectRequest;
 import aptech.finalproject.dto.response.AuthenticationResponse;
 import aptech.finalproject.dto.response.IntrospectResponse;
 import aptech.finalproject.emums.DeviceType;
+import aptech.finalproject.entity.Permission;
+import aptech.finalproject.entity.Role;
 import aptech.finalproject.entity.Token;
 import aptech.finalproject.entity.User;
 import aptech.finalproject.exception.ApiException;
@@ -184,7 +186,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
                 .deviceType(deviceType)
                 .userAgent(userAgent)
                 .ipAddress(ipAddress)
-                .issuedAt(Instant.now())
                 .expiresAt(Instant.now().plus(EXPIRATION_REFRESH_TIME, ChronoUnit.SECONDS))
                 .revoked(false)
                 .user(user)
@@ -194,17 +195,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
 
     private String buildScope(User user) {
-        StringJoiner stringJoiner = new StringJoiner(" ");
-        if (!CollectionUtils.isEmpty(user.getRoles())) {
-            user.getRoles().forEach(role -> {
-                stringJoiner.add(role.getRole());
-                if(!CollectionUtils.isEmpty(role.getPermissions())){
-                    role.getPermissions().forEach(permission -> {stringJoiner.add(permission.getPermission());});
-                }
-            });
+        if (user == null || user.getRole() == null) return "";
 
+        Role role = user.getRole();
+        Set<Permission> permissions = role.getPermissions();
+
+        Set<String> scopes = new LinkedHashSet<>();
+
+        scopes.add("ROLE_" + role.getRole());
+
+        if (!CollectionUtils.isEmpty(permissions)) {
+            permissions.forEach(permission -> scopes.add(permission.getPermission()));
         }
-        return stringJoiner.toString();
+
+        return String.join(" ", scopes);
     }
 
     private DeviceType resolveDeviceType(String device) throws ApiException {

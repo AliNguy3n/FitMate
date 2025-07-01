@@ -4,7 +4,11 @@ import aptech.finalproject.entity.Permission;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-@Repository
-public interface PermissionRepository extends JpaRepository<Permission, String> {
+import java.util.Optional;
 
+@Repository
+public interface PermissionRepository extends JpaRepository<Permission, Long> {
+    Optional<Permission> findByPermission(String permission);
+
+    boolean existsByPermission(String permission);
 }

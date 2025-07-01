@@ -11,11 +11,11 @@ public interface RoleService {
 
     RoleCreationResponse update(RoleCreationRequest request);
 
-    void delete(String permission);
+    void delete(long permission);
 
     List<RoleCreationResponse> findAll();
 
-    boolean existedRole(String permission);
+    boolean existedRole(String role);
 
-    RoleCreationResponse findById(String role);
+    RoleCreationResponse findById(long roleId);
 }
