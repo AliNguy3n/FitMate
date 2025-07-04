@@ -1,14 +1,13 @@
 package aptech.finalproject.entity;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import aptech.finalproject.entity.meal.Meal;
+import aptech.finalproject.entity.meal.UserMeal;
 import jakarta.persistence.*;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Set;
+import java.util.List;
 
 @Entity
 @Getter
@@ -52,4 +51,8 @@ public class User {
     @ManyToOne()
     @JoinColumn(name = "role_id", nullable = false)
     private Role role;
+
+    @OneToMany(mappedBy = "user",cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<UserMeal> meals;
+
 }
