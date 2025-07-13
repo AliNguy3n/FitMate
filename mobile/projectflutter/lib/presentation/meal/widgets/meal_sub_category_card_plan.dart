@@ -2,31 +2,33 @@ import 'package:flutter/material.dart';
 import 'package:projectflutter/common/helper/navigation/app_navigator.dart';
 import 'package:projectflutter/common/widget/button/round_button.dart';
 import 'package:projectflutter/core/config/themes/app_color.dart';
+import 'package:projectflutter/core/config/themes/app_font_size.dart';
 import 'package:projectflutter/core/data/meal_sub_category.dart';
+import 'package:projectflutter/data/meal/request/user_meal_request.dart';
 import 'package:projectflutter/domain/meal/entity/meals.dart';
 import 'package:projectflutter/domain/meal/usecase/get_meal_by_sub_category.dart';
 import 'package:projectflutter/domain/meal/usecase/save_record_meal.dart';
+import 'package:projectflutter/export.dart';
 import 'package:projectflutter/presentation/meal/pages/meal_by_sub_category.dart';
 
-class MealSubCategoryCard extends StatelessWidget {
+class MealSubCategoryCardPlan extends StatelessWidget {
   final int subCategoryId;
   final String subCategoryName;
   final String description;
   final double kcal;
   final int totalFood;
-  final VoidCallback onPressed;
 
-  const MealSubCategoryCard(
+  const MealSubCategoryCardPlan(
       {super.key,
       required this.subCategoryId,
       required this.subCategoryName,
       required this.description,
       required this.kcal,
-      required this.totalFood,
-      required this.onPressed});
+      required this.totalFood});
 
   @override
   Widget build(BuildContext context) {
+    var media = MediaQuery.of(context).size;
     return InkWell(
       onTap: () {
         AppNavigator.push(
@@ -37,9 +39,9 @@ class MealSubCategoryCard extends StatelessWidget {
             ));
       },
       child: Container(
-        height: 200,
+        height: media.width * 0.55,
         decoration: BoxDecoration(
-            color: AppColors.gray, borderRadius: BorderRadius.circular(10)),
+            color: AppColors.gray, borderRadius: BorderRadius.circular(30)),
         clipBehavior: Clip.antiAlias,
         child: Stack(
           children: [
@@ -64,44 +66,59 @@ class MealSubCategoryCard extends StatelessWidget {
                       subCategoryName,
                       style: TextStyle(
                           color: AppColors.primaryColor1,
-                          fontSize: 14,
+                          fontSize: AppFontSize.caption(context),
                           fontWeight: FontWeight.w500),
                     ),
                     Text(
                       description,
                       style: TextStyle(
                           color: AppColors.white,
-                          fontSize: 20,
+                          fontSize: AppFontSize.descriptionText(context),
                           fontWeight: FontWeight.w700),
                       maxLines: 2,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    Row(
-                      children: [
-                        Text(
-                          '${kcal.toStringAsFixed(0)} Kcal | ',
-                          style: TextStyle(
-                              color: AppColors.primaryColor1,
-                              fontSize: 14,
-                              fontWeight: FontWeight.bold),
+                    SizedBox(height: media.height * 0.01,),
+                    IntrinsicWidth(
+                      child: Container(
+                        padding:
+                            const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.4),
+                          borderRadius: BorderRadius.circular(20),
                         ),
-                        Text(
-                          '$totalFood foods',
-                          style:
-                              TextStyle(color: AppColors.white, fontSize: 14),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min, // RẤT QUAN TRỌNG
+                          children: [
+                            Text(
+                              '${kcal.toStringAsFixed(0)} Kcal | ',
+                              style: TextStyle(
+                                color: AppColors.kcalColor,
+                                fontSize: AppFontSize.caption(context),
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            Text(
+                              '$totalFood foods',
+                              style: TextStyle(
+                                color: AppColors.white,
+                                fontSize: AppFontSize.caption(context),
+                              ),
+                            ),
+                          ],
                         ),
-                      ],
+                      ),
                     ),
                     const Spacer(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: [
                         SizedBox(
-                            width: 100,
-                            height: 25,
+                            width: media.width * 0.3,
+                            height: media.height * 0.05,
                             child: RoundButton(
                               title: "Add Plan",
-                              fontSize: 14,
+                              fontSize: AppFontSize.caption(context),
                               fontWeight: FontWeight.bold,
                               color: Colors.black87,
                               onPressed: () async {
@@ -116,16 +133,44 @@ class MealSubCategoryCard extends StatelessWidget {
                                       List<MealsEntity>.from(data);
                                   List<int> mealIds =
                                       meals.map((meal) => meal.id).toList();
-                                  final saveListRecord =
-                                      SaveRecordMealUseCase();
-                                  await saveListRecord.call(params: mealIds);
-                                  if (context.mounted) {
-                                    Navigator.pop(context);
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      const SnackBar(
-                                          content: Text(
-                                              'Plan has been added to the meal schedule ')),
+                                  DateTime now = DateTime.now();
+                                  DateTime today =
+                                      DateTime(now.year, now.month, now.day);
+
+                                  DateTime? pickedDate = await showDatePicker(
+                                    context: context,
+                                    initialDate: today,
+                                    firstDate: today,
+                                    lastDate: DateTime(2100),
+                                  );
+
+                                  if (pickedDate != null) {
+                                    final created = DateTime(
+                                      pickedDate.year,
+                                      pickedDate.month,
+                                      pickedDate.day,
+                                      now.hour,
+                                      now.minute,
+                                      now.second,
                                     );
+                                    final req = UserMealRequest(
+                                      user: SharedPreferenceService.userId!,
+                                      meal: mealIds,
+                                      created: created,
+                                    );
+
+                                    final saveMeal = SaveRecordMealUseCase();
+                                    await saveMeal.call(params: req);
+
+                                    if (context.mounted) {
+                                      ScaffoldMessenger.of(context)
+                                          .showSnackBar(
+                                        const SnackBar(
+                                          content: Text(
+                                              'Meal plan scheduled successfully.'),
+                                        ),
+                                      );
+                                    }
                                   }
                                 });
                               },

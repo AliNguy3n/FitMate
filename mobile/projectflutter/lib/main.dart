@@ -26,9 +26,11 @@ Future<void> main() async {
   if (!hasExactAlarmPermission) {
     await notificationService.requestExactAlarmPermission();
   }
-  // await prefs.remove('onboarding_done');
+  SystemChrome.setEnabledSystemUIMode(SystemUiMode.immersiveSticky);
+
 
   // final prefs = await SharedPreferences.getInstance();
+  // await prefs.remove('onboarding_done');
   // await prefs.remove('token');
   // await prefs.remove('userId');
   // await prefs.remove('bmi_exist');
