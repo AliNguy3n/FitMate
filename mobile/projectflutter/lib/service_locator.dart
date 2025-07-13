@@ -9,13 +9,11 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<BmiService>(BmiServiceImpl());
   sl.registerSingleton<MealService>(MealServiceImpl());
   sl.registerSingleton<ExerciseService>(ExerciseServiceImpl());
-  sl.registerSingleton<RunService>(RunServiceImpl());
   // Repositories
   sl.registerSingleton<AuthRepository>(AuthRepositoryImpl());
   sl.registerSingleton<BmiRepository>(BmiRepositoryImpl());
   sl.registerSingleton<MealRepository>(MealRepositoryImpl());
   sl.registerSingleton<ExerciseRepository>(ExerciseRepositoryImpl());
-  sl.registerSingleton<RunRepository>(RunRepositoryImpl());
   // Usecases
   // Auth
   sl.registerSingleton<SigninUseCase>(SigninUseCase());
@@ -67,10 +65,31 @@ Future<void> initializeDependencies() async {
       GetExerciseCategoryUseCase());
   sl.registerSingleton<StartExerciseUseCase>(StartExerciseUseCase());
   sl.registerSingleton<ScheduleExerciseUseCase>(ScheduleExerciseUseCase());
+  sl.registerSingleton<GetSessionResetBatchUseCase>(GetSessionResetBatchUseCase());
 
-  // Exercise Total Kcal
-  sl.registerSingleton<GetRecordRunByUserUseCase>(GetRecordRunByUserUseCase());
 
   sl.registerLazySingleton<ExerciseScheduleCubit>(
       () => ExerciseScheduleCubit());
+
+  // Exercise Favorite
+  sl.registerSingleton<GetFavoritesUseCase>(GetFavoritesUseCase());
+  sl.registerSingleton<GetExerciseFavoriteUseCase>(GetExerciseFavoriteUseCase());
+  sl.registerSingleton<AddFavoriteUsecase>(AddFavoriteUsecase());
+  sl.registerSingleton<AddExerciseFavoriteUseCase>(
+      AddExerciseFavoriteUseCase());
+  sl.registerSingleton<RemoveFavoriteUseCase>(RemoveFavoriteUseCase());
+  sl.registerSingleton<RemoveExerciseFavoriteUseCase>(RemoveExerciseFavoriteUseCase());
+
+
+  // Sub Category - Program
+  sl.registerSingleton<GetSubCategoryProgramUseCase>(GetSubCategoryProgramUseCase());
+
+  // Exercise Mode
+  sl.registerSingleton<GetExerciseModeUseCase>(GetExerciseModeUseCase());
+  // Search
+  sl.registerSingleton<SearchBySubCategoryNameUseCase>(SearchBySubCategoryNameUseCase());
+  // Equipment
+  // sl.registerSingleton<GetExerciseEquipmentUseCase>(GetExerciseEquipmentUseCase());
+  sl.registerSingleton<GetEquipmentBySubIdUseCase>(GetEquipmentBySubIdUseCase());
+  sl.registerSingleton<GetAllEquipmentUseCase>(GetAllEquipmentUseCase());
 }

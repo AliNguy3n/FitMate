@@ -4,6 +4,7 @@ import 'package:projectflutter/common/helper/dialog/show_dialog.dart';
 import 'package:projectflutter/common/widget/appbar/app_bar.dart';
 import 'package:projectflutter/core/config/assets/app_image.dart';
 import 'package:projectflutter/core/config/themes/app_color.dart';
+import 'package:projectflutter/core/config/themes/app_font_size.dart';
 import 'package:projectflutter/domain/meal/entity/user_meals.dart';
 import 'package:projectflutter/domain/meal/usecase/delete_all_record_meal.dart';
 import 'package:projectflutter/presentation/bmi/bloc/health_cubit.dart';
@@ -14,14 +15,24 @@ import 'package:projectflutter/presentation/meal/widgets/meal_nutritions_row.dar
 import 'package:projectflutter/presentation/meal/widgets/meal_schedule_row.dart';
 import 'package:projectflutter/presentation/profile/widgets/calendar_custom.dart';
 
-class MealSchedule extends StatelessWidget {
+class MealSchedule extends StatefulWidget {
   const MealSchedule({super.key});
 
   @override
+  State<MealSchedule> createState() => _MealScheduleState();
+}
+
+class _MealScheduleState extends State<MealSchedule> {
+  DateTime date = DateTime.now();
+  @override
   Widget build(BuildContext context) {
+    var media = MediaQuery.of(context).size;
     return Scaffold(
         appBar: BasicAppBar(
-          title: const Text('Meal Schedule'),
+          title: Text(
+            'Meal Schedule',
+            style: TextStyle(fontSize: AppFontSize.titleAppBar(context)),
+          ),
           onPressed: () {
             Navigator.of(context).pop();
           },
@@ -39,13 +50,16 @@ class MealSchedule extends StatelessWidget {
                 child: Column(
               children: [
                 SizedBox(
-                    height: 150,
+                    height: media.height * 0.2,
                     child: Builder(builder: (context) {
-                      return CalendarCustom(
-                        onDateSelected: (selectedDate) => context
+                      return CalendarCustom(onDateSelected: (selectedDate) {
+                        setState(() {
+                          date = selectedDate;
+                        });
+                        context
                             .read<UserMealCubit>()
-                            .filterMealsByDate(selectedDate),
-                      );
+                            .filterMealsByDate(selectedDate);
+                      });
                     })),
                 BlocBuilder<UserMealCubit, UserMealState>(
                     builder: (context, state) {
@@ -139,10 +153,11 @@ class MealSchedule extends StatelessWidget {
 
                         Map<String, List<UserMealsEntity>> groupedByTime = {};
                         for (var meal in listUserMeal) {
-                          final timeOfDay = meal.meal.timeOfDay!.timeName;
-                          groupedByTime
-                              .putIfAbsent(timeOfDay, () => [])
-                              .add(meal);
+                          for (var time in meal.meal.timeOfDay) {
+                            groupedByTime
+                                .putIfAbsent(time.timeName, () => [])
+                                .add(meal);
+                          }
                         }
 
                         return SingleChildScrollView(
@@ -160,7 +175,7 @@ class MealSchedule extends StatelessWidget {
                                       'Meal Plan',
                                       style: TextStyle(
                                           color: AppColors.black,
-                                          fontSize: 16,
+                                          fontSize: AppFontSize.body(context),
                                           fontWeight: FontWeight.bold),
                                     ),
                                     TextButton(
@@ -172,7 +187,7 @@ class MealSchedule extends StatelessWidget {
                                                   'Are you sure want to clear?');
                                           if (shouldConfirm == true) {
                                             await DeleteAllRecordMealUseCase()
-                                                .call();
+                                                .call(params: date);
                                             Future.delayed(
                                                 const Duration(
                                                     milliseconds: 300),
@@ -189,7 +204,7 @@ class MealSchedule extends StatelessWidget {
                                           'CLEAR ALL',
                                           style: TextStyle(
                                               color: AppColors.primaryColor1,
-                                              fontSize: 14,
+                                              fontSize: AppFontSize.caption(context),
                                               fontWeight: FontWeight.bold),
                                         ))
                                   ],
@@ -210,8 +225,8 @@ class MealSchedule extends StatelessWidget {
                                                   CrossAxisAlignment.start,
                                               children: [
                                                 Text(entry.key,
-                                                    style: const TextStyle(
-                                                        fontSize: 18,
+                                                    style:  TextStyle(
+                                                        fontSize: AppFontSize.mealItemSchedule(context),
                                                         fontWeight:
                                                             FontWeight.bold)),
                                                 ListView.builder(
@@ -233,8 +248,8 @@ class MealSchedule extends StatelessWidget {
                                       ),
                                     )
                                   : const Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                          vertical: 15),
+                                      padding:
+                                          EdgeInsets.symmetric(vertical: 15),
                                       child: Center(
                                         child:
                                             Text('No meals for selected date'),
@@ -250,11 +265,11 @@ class MealSchedule extends StatelessWidget {
                                       'Today Meal Nutritions',
                                       style: TextStyle(
                                           color: AppColors.black,
-                                          fontSize: 16,
+                                          fontSize: AppFontSize.titleScheduleMeal(context),
                                           fontWeight: FontWeight.bold),
                                     ),
-                                    const SizedBox(
-                                      height: 10,
+                                    SizedBox(
+                                      height: media.height * 0.01,
                                     ),
                                     // Calories
                                     MealNutritionsRow(
