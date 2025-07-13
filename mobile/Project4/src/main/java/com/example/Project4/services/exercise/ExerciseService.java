@@ -2,23 +2,9 @@ package com.example.Project4.services.exercise;
 
 import java.util.List;
 
-import com.example.Project4.payload.exercise.ExerciseFavoriteRequest;
-import com.example.Project4.payload.exercise.ExerciseScheduleRequest;
-import com.example.Project4.payload.exercise.ExerciseSessionBatchRequest;
-import com.example.Project4.payload.exercise.ExerciseUpdateScheduleRequest;
-import com.example.Project4.dto.exercise.EquipmentsDTO;
-import com.example.Project4.dto.exercise.ExerciseCategoryDTO;
-import com.example.Project4.dto.exercise.ExerciseFavoriteDTO;
-import com.example.Project4.dto.exercise.ExerciseProgressDTO;
-import com.example.Project4.dto.exercise.ExerciseScheduleDTO;
-import com.example.Project4.dto.exercise.ExerciseSessionDTO;
-import com.example.Project4.dto.exercise.ExerciseSubCategoryDTO;
-import com.example.Project4.dto.exercise.ExerciseSubCategoryProgramDTO;
-import com.example.Project4.dto.exercise.ExerciseUserDTO;
-import com.example.Project4.dto.exercise.ExercisesDTO;
-import com.example.Project4.dto.exercise.FavoritesDTO;
-import com.example.Project4.models.exercise.ExerciseModeModel;
-import com.example.Project4.models.exercise.ExercisesModel;
+import com.example.Project4.payload.exercise.*;
+import com.example.Project4.dto.exercise.*;
+import com.example.Project4.entity.exercise.*;
 
 public interface ExerciseService {
     List<ExerciseSubCategoryProgramDTO> getAllSubCategoryProgam();
@@ -35,13 +21,13 @@ public interface ExerciseService {
 
     ExercisesModel getExerciseById(int exerciseId);
 
-    List<ExerciseProgressDTO> getAllExerciseProgressByUserId(int userId);
+    List<ExerciseProgressDTO> getAllExerciseProgressByUserId(String userId);
 
-    List<ExerciseSessionDTO> getAllExerciseSessionByUserId(int userId);
+    List<ExerciseSessionDTO> getAllExerciseSessionByUserId(String userId);
 
-    List<ExerciseUserDTO> getAllExerciseResultByUserId(int userId);
+    List<ExerciseUserDTO> getAllExerciseResultByUserId(String userId);
 
-    boolean findByIdAndUserId(int scheduleId, int userId);
+    boolean findByIdAndUserId(int scheduleId, String userId);
 
     void deleteExerciseSchdedule(int scheduleId);
 
@@ -50,25 +36,25 @@ public interface ExerciseService {
     // Schedule
     ExerciseProgressDTO startMultipleExercises(ExerciseSessionBatchRequest req);
 
-    List<ExerciseScheduleDTO> getAllScheduleByUserId(int userId);
+    List<ExerciseScheduleDTO> getAllScheduleByUserId(String userId);
 
     ExerciseScheduleDTO scheduleExercise(ExerciseScheduleRequest req);
 
     ExerciseScheduleDTO updateScheduleExercise(ExerciseUpdateScheduleRequest req);
 
     // Favorite
-    List<FavoritesDTO> getAllFavoriteByUserId(int userId);
+    List<FavoritesDTO> getAllFavoriteByUserId(String userId);
 
-    List<ExerciseFavoriteDTO> getAllExerciseFavoriteByUserId(int userId, int favoriteId);
+    List<ExerciseFavoriteDTO> getAllExerciseFavoriteByUserId(String userId, int favoriteId);
 
-    FavoritesDTO addNewFavoriteByUserId(int userId, String favoriteName);
+    FavoritesDTO addNewFavoriteByUserId(String userId, String favoriteName);
 
-    ExerciseFavoriteDTO addExerciseFavoriteByUserId(ExerciseFavoriteRequest req, int userId);
+    ExerciseFavoriteDTO addExerciseFavoriteByUserId(ExerciseFavoriteRequest req, String userId);
 
     void removeFavorite(int favoriteId);
 
     void removeExerciseFavorite(int subCategoryId);
-    int getResetBatchBySubCategory(int userId, int subCategoryId);
+    int getResetBatchBySubCategory(String userId, int subCategoryId);
 
 
     // Search

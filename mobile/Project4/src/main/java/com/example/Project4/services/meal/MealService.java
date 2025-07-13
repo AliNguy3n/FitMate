@@ -8,7 +8,7 @@ import com.example.Project4.dto.meal.MealCategoryDTO;
 import com.example.Project4.dto.meal.MealSubCategoryDTO;
 import com.example.Project4.dto.meal.MealsDTO;
 import com.example.Project4.dto.meal.UserMealDTO;
-import com.example.Project4.models.meal.MealsModel;
+import com.example.Project4.entity.meal.MealsModel;
 
 
 public interface MealService {
@@ -19,7 +19,7 @@ public interface MealService {
     MealsDTO getMealById(int mealId);
     List<MealsDTO> getMealBySubCategoryId(int subCategoryId);
     List<UserMealDTO> saveRecordMeal(UserMealsRequest request);
-    List<UserMealDTO> getRecordMeal(int userId);
+    List<UserMealDTO> getRecordMeal(String userId);
     void deleteRecordMeal(int recordId);
-    void deleteAllRecordMeal(int userId, LocalDate date);
+    void deleteAllRecordMeal(String userId, LocalDate date);
 }

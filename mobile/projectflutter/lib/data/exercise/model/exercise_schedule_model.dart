@@ -26,6 +26,18 @@ class ExerciseScheduleModel {
   }
 
   factory ExerciseScheduleModel.fromMap(Map<String, dynamic> map) {
+    DateTime? parsedScheduleTime;
+    if (map['scheduleTime'] is List && (map['scheduleTime'] as List).length >= 6) {
+      final list = map['scheduleTime'] as List;
+      parsedScheduleTime = DateTime(
+        list[0],
+        list[1],
+        list[2],
+        list[3],
+        list[4],
+        list[5],
+      );
+    }
     return ExerciseScheduleModel(
       id: map['id'] as int,
       user: map['user'] != null
@@ -35,9 +47,7 @@ class ExerciseScheduleModel {
           ? ExerciseSubCategoryModel.fromMap(
               map['subCategory'] as Map<String, dynamic>)
           : null,
-      scheduleTime: map['scheduleTime'] != null
-          ? DateTime.parse(map['scheduleTime'])
-          : null,
+      scheduleTime: parsedScheduleTime,
     );
   }
 

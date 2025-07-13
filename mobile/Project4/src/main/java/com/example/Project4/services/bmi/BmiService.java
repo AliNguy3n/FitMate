@@ -1,19 +1,18 @@
 package com.example.Project4.services.bmi;
 
 
+import com.example.Project4.dto.bmi.PersonalHealthDTO;
+import com.example.Project4.dto.bmi.PersonalHealthGoalDTO;
 import com.example.Project4.payload.bmi.PersonHealDataRequest;
 import com.example.Project4.payload.bmi.PersonTargetGoalRequest;
 
 import java.util.List;
 
-import com.example.Project4.models.bmi.PersonHealGoalModel;
-import com.example.Project4.models.bmi.PersonHealModel;
-
 public interface BmiService {
-    List<PersonHealModel> getDataByUserId(int userId);
-    PersonHealModel saveData(PersonHealDataRequest dto,int userId);
-    PersonHealModel updateData(PersonTargetGoalRequest req, int userId);
-    List<PersonHealGoalModel> getGoalByUserId(int userId);
-    PersonHealGoalModel saveGoal(PersonTargetGoalRequest req, int userId);
-    PersonHealGoalModel updateGoal(PersonTargetGoalRequest req, int userId);
+    List<PersonalHealthDTO> getDataByUserId(String userId);
+    PersonalHealthDTO saveData(PersonHealDataRequest dto,String userId);
+    PersonalHealthDTO updateData(PersonTargetGoalRequest req, String userId);
+    List<PersonalHealthGoalDTO> getGoalByUserId(String userId);
+    PersonalHealthGoalDTO saveGoal(PersonTargetGoalRequest req, String userId);
+    PersonalHealthGoalDTO updateGoal(PersonTargetGoalRequest req, String userId);
 }

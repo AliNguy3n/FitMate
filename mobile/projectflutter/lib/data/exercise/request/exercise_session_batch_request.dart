@@ -1,7 +1,7 @@
 import 'package:projectflutter/data/exercise/request/exercise_session_request.dart';
 
 class ExerciseSessionBatchRequest {
-  final int userId;
+  final String userId;
   final int subCategoryId;
   final int resetBatch;
   final List<ExerciseSessionRequest> sessions;

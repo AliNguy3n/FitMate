@@ -6,7 +6,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import org.springframework.stereotype.Repository;
 
-import com.example.Project4.models.exercise.ExercisesModel;
+import com.example.Project4.entity.exercise.ExercisesModel;
 
 @Repository
 public interface ExercisesRepository extends JpaRepository<ExercisesModel,Integer>{

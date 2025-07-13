@@ -6,22 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 
-import com.example.Project4.dto.exercise.EquipmentsDTO;
-import com.example.Project4.dto.exercise.ExerciseFavoriteDTO;
-import com.example.Project4.dto.exercise.FavoritesDTO;
-import com.example.Project4.payload.exercise.ExerciseFavoriteRequest;
-import com.example.Project4.payload.exercise.ExerciseScheduleRequest;
-import com.example.Project4.payload.exercise.ExerciseSessionBatchRequest;
-import com.example.Project4.payload.exercise.ExerciseUpdateScheduleRequest;
+import com.example.Project4.dto.exercise.*;
+import com.example.Project4.payload.exercise.*;
 import com.example.Project4.services.exercise.ExerciseService;
 
 @Controller
@@ -60,7 +48,7 @@ public class ExerciseController {
     }
 
     @GetMapping("/progress/{userId}")
-    public ResponseEntity<?> getAllExerciseProgressByUserId(@PathVariable int userId) {
+    public ResponseEntity<?> getAllExerciseProgressByUserId(@PathVariable String userId) {
         try {
             return ResponseEntity.status(200).body(exerciseService.getAllExerciseProgressByUserId(userId));
         } catch (Exception err) {
@@ -69,7 +57,7 @@ public class ExerciseController {
     }
 
     @GetMapping("/session/{userId}")
-    public ResponseEntity<?> getAllExerciseSessionByUserId(@PathVariable int userId) {
+    public ResponseEntity<?> getAllExerciseSessionByUserId(@PathVariable String userId) {
         try {
             return ResponseEntity.status(200).body(exerciseService.getAllExerciseSessionByUserId(userId));
         } catch (Exception err) {
@@ -78,7 +66,7 @@ public class ExerciseController {
     }
 
     @GetMapping("/user/{userId}")
-    public ResponseEntity<?> getAllExerciseResultByUserId(@PathVariable int userId) {
+    public ResponseEntity<?> getAllExerciseResultByUserId(@PathVariable String userId) {
         try {
             return ResponseEntity.status(200).body(exerciseService.getAllExerciseResultByUserId(userId));
         } catch (Exception err) {
@@ -86,7 +74,7 @@ public class ExerciseController {
         }
     }
     @GetMapping("/reset-batch")
-    public ResponseEntity<?> getAllExerciseResultByUserId(@RequestParam int userId, @RequestParam int subCategoryId) {
+    public ResponseEntity<?> getAllExerciseResultByUserId(@RequestParam String userId, @RequestParam int subCategoryId) {
         try {
             return ResponseEntity.status(200).body(exerciseService.getResetBatchBySubCategory(userId,subCategoryId));
         } catch (Exception err) {
@@ -102,12 +90,12 @@ public class ExerciseController {
 
     // Schedule
     @GetMapping("/schedule/{userId}")
-    public ResponseEntity<?> findSchedule(@PathVariable int userId) {
+    public ResponseEntity<?> findSchedule(@PathVariable String userId) {
         return ResponseEntity.status(200).body(exerciseService.getAllScheduleByUserId(userId));
     }
 
     @GetMapping("/schedule/{scheduleId}/{userId}")
-    public ResponseEntity<?> findSchedule(@PathVariable int scheduleId, @PathVariable int userId) {
+    public ResponseEntity<?> findSchedule(@PathVariable int scheduleId, @PathVariable String userId) {
         return ResponseEntity.status(200).body(exerciseService.findByIdAndUserId(scheduleId, userId));
     }
 
@@ -135,20 +123,20 @@ public class ExerciseController {
 
     // Favorite
     @GetMapping("/favorite/all/{userId}")
-    public ResponseEntity<?> getAllFavoriteByUserId(@PathVariable int userId) {
+    public ResponseEntity<?> getAllFavoriteByUserId(@PathVariable String userId) {
         List<FavoritesDTO> favorites = exerciseService.getAllFavoriteByUserId(userId);
         return ResponseEntity.status(200).body(favorites);
     }
 
     @GetMapping("/favorite/exercise/all/{userId}/{favoriteId}")
-    public ResponseEntity<?> getAllExerciseFavoriteByUserId(@PathVariable int userId, @PathVariable int favoriteId) {
+    public ResponseEntity<?> getAllExerciseFavoriteByUserId(@PathVariable String userId, @PathVariable int favoriteId) {
         List<ExerciseFavoriteDTO> exercise = exerciseService.getAllExerciseFavoriteByUserId(userId,favoriteId);
         return ResponseEntity.status(200).body(exercise);
     }
 
 
     @PostMapping("/favorite/new/{userId}")
-    public ResponseEntity<?> addNewFavoriteByUserId(@PathVariable int userId, @RequestBody String favoriteName) {
+    public ResponseEntity<?> addNewFavoriteByUserId(@PathVariable String userId, @RequestBody String favoriteName) {
         try {
             FavoritesDTO favorite = exerciseService.addNewFavoriteByUserId(userId, favoriteName);
             return ResponseEntity.status(201).body(favorite);   
@@ -158,7 +146,7 @@ public class ExerciseController {
     }
 
     @PostMapping("/favorite/add/exercise/{userId}")
-    public ResponseEntity<?> addExerciseFavoriteByUserId(@PathVariable int userId,
+    public ResponseEntity<?> addExerciseFavoriteByUserId(@PathVariable String userId,
             @RequestBody ExerciseFavoriteRequest req) {
         try {
             ExerciseFavoriteDTO favorite = exerciseService.addExerciseFavoriteByUserId(req, userId);

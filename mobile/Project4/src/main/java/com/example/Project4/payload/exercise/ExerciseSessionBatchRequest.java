@@ -10,7 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 public class ExerciseSessionBatchRequest {
     private List<ExerciseSessionRequest> sessions;
-    private int userId;
+    private String userId;
     private Integer resetBatch;
     private Integer subCategoryId;
 }

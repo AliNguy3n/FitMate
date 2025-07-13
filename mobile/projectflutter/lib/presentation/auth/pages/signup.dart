@@ -37,6 +37,7 @@ class _SignupPageState extends State<SignupPage> {
   final TextEditingController _passwordCon = TextEditingController();
   final TextEditingController _dobCon = TextEditingController();
   final TextEditingController _phoneCon = TextEditingController();
+  final TextEditingController _addressCon = TextEditingController();
   final SecureStorage secureStorage = SecureStorage();
   AutovalidateMode _autovalidateMode = AutovalidateMode.disabled;
 
@@ -214,13 +215,30 @@ class _SignupPageState extends State<SignupPage> {
                                     ),
                                     const SizedBox(height: 20),
                                     TextFieldCustom(
+                                      controller: _addressCon,
+                                      hintText: "Address",
+                                      icon: Icons.location_city,
+                                      validator: (value) {
+                                        if (value == null ||
+                                            value.isEmpty) {
+                                          return 'Address is required';
+                                        }
+                                        return null;
+                                      },
+                                    ),
+                                    const SizedBox(height: 20),
+                                    TextFieldCustom(
                                       controller: _phoneCon,
                                       hintText: "Phone",
+                                      inputType: TextInputType.number,
                                       icon: Icons.phone,
                                       validator: (value) {
                                         if (value == null ||
                                             value.isEmpty) {
                                           return 'Phone is required';
+                                        }
+                                        else if(value.length < 10 || value.length > 15){
+                                          return 'Phone number must be valid and contain 10 to 15 digits!';
                                         }
                                         return null;
                                       },
@@ -235,6 +253,7 @@ class _SignupPageState extends State<SignupPage> {
                                       passwordController: _passwordCon,
                                       dobController: _dobCon,
                                       phoneController: _phoneCon,
+                                      addressController: _addressCon,
                                       secureStorage: secureStorage,
                                     ),
                                     const SizedBox(height: 20),

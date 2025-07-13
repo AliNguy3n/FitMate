@@ -19,17 +19,27 @@ abstract class BmiService {
 }
 
 class BmiServiceImpl extends BmiService {
+
   @override
   Future<Either> getAllDataByUserId() async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = SharedPreferenceService.userId;
+      final token = SharedPreferenceService.token;
       Uri url = Uri.parse("$baseAPI/api/bmi/health/$userId");
-      final response = await http.get(url);
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
       if (response.statusCode == 404) {
         return const Left('No data to found');
       }
       prefs.setString("bmi_exist", response.body);
+      print('Decoded health response: ${response.body}');
+      print('Type: ${jsonDecode(response.body).runtimeType}');
       List<dynamic> responseData = jsonDecode(response.body);
       return Right(responseData);
     } catch (err) {
@@ -42,8 +52,15 @@ class BmiServiceImpl extends BmiService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = SharedPreferenceService.userId;
+      final token = SharedPreferenceService.token;
       Uri url = Uri.parse("$baseAPI/api/bmi/goal/$userId");
-      final response = await http.get(url);
+      final response = await http.get(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
       if (response.statusCode == 404) {
         return const Left('No data to found');
       }
@@ -56,15 +73,18 @@ class BmiServiceImpl extends BmiService {
     }
   }
 
-
   @override
   Future<Either> saveData(BmiRequest model) async {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = SharedPreferenceService.userId;
+      final token = SharedPreferenceService.token;
       Uri url = Uri.parse('$baseAPI/api/bmi/save/$userId');
       final response = await http.post(url,
-          headers: {'Content-Type': 'application/json'},
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
           body: json.encode({'height': model.height, 'weight': model.weight}));
       if (response.statusCode == 201) {
         await prefs.setString('bmi_latest', response.body);
@@ -82,9 +102,13 @@ class BmiServiceImpl extends BmiService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = SharedPreferenceService.userId;
+      final token = SharedPreferenceService.token;
       Uri url = Uri.parse('$baseAPI/api/bmi/update/$userId');
       final response = await http.post(url,
-          headers: {'Content-Type': 'application/json'},
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token'
+          },
           body: json.encode({'targetWeight': weight}));
       if (response.statusCode == 201) {
         await prefs.setString('bmi_latest', response.body);
@@ -102,9 +126,13 @@ class BmiServiceImpl extends BmiService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = SharedPreferenceService.userId;
+      final token = SharedPreferenceService.token;
       Uri url = Uri.parse('$baseAPI/api/bmi/goal/save/$userId');
       final response = await http.post(url,
-          headers: {'Content-Type': 'application/json'},
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token'
+          },
           body: json.encode({'targetWeight': targetWeight}));
       if (response.statusCode == 201) {
         await prefs.setString('goal_latest', response.body);
@@ -122,9 +150,13 @@ class BmiServiceImpl extends BmiService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final userId = SharedPreferenceService.userId;
+      final token = SharedPreferenceService.token;
       Uri url = Uri.parse('$baseAPI/api/bmi/goal/update/$userId');
       final response = await http.post(url,
-          headers: {'Content-Type': 'application/json'},
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token'
+          },
           body: json.encode({'targetWeight': targetWeight}));
       if (response.statusCode == 201) {
         await prefs.setString('goal_latest', response.body);
@@ -142,6 +174,7 @@ class BmiServiceImpl extends BmiService {
     final prefs = await SharedPreferences.getInstance();
     final bmiExist = prefs.getString('bmi_exist');
     final bmiLatest = prefs.getString('bmi_latest');
+
     return (bmiExist != null && bmiExist.isNotEmpty) ||
         (bmiLatest != null && bmiLatest.isNotEmpty);
   }

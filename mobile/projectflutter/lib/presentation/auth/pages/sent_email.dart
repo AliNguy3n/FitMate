@@ -29,7 +29,7 @@ class SentEmailPage extends StatelessWidget {
           BasicButton(
               title: 'Return to Login',
               onPressed: () {
-                AppNavigator.pushAndRemoveUntil(context, SigninPage());
+                AppNavigator.pushAndRemoveUntil(context, const SigninPage());
               })
         ],
       ),

@@ -2,15 +2,19 @@ package com.example.Project4.services.bmi;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import com.example.Project4.dto.bmi.PersonalHealthDTO;
+import com.example.Project4.dto.bmi.PersonalHealthGoalDTO;
+import com.example.Project4.entity.auth.User;
+import com.example.Project4.entity.bmi.PersonHealGoalModel;
+import com.example.Project4.entity.bmi.PersonHealModel;
+import com.example.Project4.mapper.BmiMapper;
 import com.example.Project4.payload.bmi.PersonHealDataRequest;
 import com.example.Project4.payload.bmi.PersonTargetGoalRequest;
-import com.example.Project4.models.auth.UserModel;
-import com.example.Project4.models.bmi.PersonHealGoalModel;
-import com.example.Project4.models.bmi.PersonHealModel;
 import com.example.Project4.repository.auth.UserRepository;
 import com.example.Project4.repository.bmi.PersonHealGoalRepository;
 import com.example.Project4.repository.bmi.PersonHealRepository;
@@ -25,8 +29,8 @@ public class BmiServiceImpl implements BmiService {
     private UserRepository userRepository;
 
     @Override
-    public PersonHealModel saveData(PersonHealDataRequest dto, int userId) {
-        UserModel user = userRepository.findById(userId).orElse(null);
+    public PersonalHealthDTO saveData(PersonHealDataRequest dto, String userId) {
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             throw new RuntimeException("User not found");
         }
@@ -39,15 +43,15 @@ public class BmiServiceImpl implements BmiService {
             health.setBmi((dto.getWeight() / Math.pow(dto.getHeight(), 2)) * 10000);
             health.setCreatedAt(LocalDateTime.now());
             pRepository.save(health);
-            return health;
+            return BmiMapper.toHealthDTO(healthUser);
         } else {
             throw new RuntimeException("User have already BMI");
         }
     }
 
     @Override
-    public PersonHealModel updateData(PersonTargetGoalRequest req, int userId) {
-        UserModel user = userRepository.findById(userId).orElse(null);
+    public PersonalHealthDTO updateData(PersonTargetGoalRequest req, String userId) {
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             throw new RuntimeException("User not found");
         }
@@ -62,12 +66,12 @@ public class BmiServiceImpl implements BmiService {
         newHealth.setBmi((req.getTargetWeight() / Math.pow(oldHealth.getHeight(), 2)) * 10000);
         newHealth.setCreatedAt(LocalDateTime.now());
         pRepository.save(newHealth);
-        return newHealth;
+        return BmiMapper.toHealthDTO(newHealth);
     }
 
     @Override
-    public PersonHealGoalModel saveGoal(PersonTargetGoalRequest req, int userId) {
-        UserModel user = userRepository.findById(userId).orElse(null);
+    public PersonalHealthGoalDTO saveGoal(PersonTargetGoalRequest req, String userId) {
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             throw new RuntimeException("User not found");
         }
@@ -78,7 +82,7 @@ public class BmiServiceImpl implements BmiService {
             goal.setTargetWeight(req.getTargetWeight());
             goal.setCreatedAt(LocalDateTime.now());
             goalRepository.save(goal);
-            return goal;
+            return BmiMapper.toGoalDTO(goalUser);
         } else {
             throw new RuntimeException("User have already BMI Goal");
         }
@@ -86,8 +90,8 @@ public class BmiServiceImpl implements BmiService {
     }
 
     @Override
-    public PersonHealGoalModel updateGoal(PersonTargetGoalRequest req, int userId) {
-        UserModel user = userRepository.findById(userId).orElse(null);
+    public PersonalHealthGoalDTO updateGoal(PersonTargetGoalRequest req, String userId) {
+        User user = userRepository.findById(userId).orElse(null);
         if (user == null) {
             throw new RuntimeException("User not found");
         }
@@ -100,17 +104,17 @@ public class BmiServiceImpl implements BmiService {
         newGoal.setTargetWeight(req.getTargetWeight());
         newGoal.setCreatedAt(LocalDateTime.now());
         goalRepository.save(newGoal);
-        return newGoal;
+        return BmiMapper.toGoalDTO(newGoal);
     }
 
     @Override
-    public List<PersonHealModel> getDataByUserId(int userId) {
-        return pRepository.findAllHealthByUserId(userId);
+    public List<PersonalHealthDTO> getDataByUserId(String userId) {
+        return pRepository.findAllHealthByUserId(userId).stream().map(BmiMapper::toHealthDTO).collect(Collectors.toList());
     }
 
     @Override
-    public List<PersonHealGoalModel> getGoalByUserId(int userId) {
-        return goalRepository.findAllGoalByUserId(userId);
+    public List<PersonalHealthGoalDTO> getGoalByUserId(String userId) {
+        return goalRepository.findAllGoalByUserId(userId).stream().map(BmiMapper::toGoalDTO).collect(Collectors.toList());
     }
 
 }

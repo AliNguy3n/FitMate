@@ -9,7 +9,8 @@ export 'package:projectflutter/domain/auth/usecase/logout_usecase.dart';
 export 'package:projectflutter/domain/auth/usecase/signin_usecase.dart';
 export 'package:projectflutter/domain/auth/usecase/signup_usecase.dart';
 export 'package:projectflutter/domain/auth/usecase/verify_usecase.dart';
-
+export 'package:projectflutter/domain/auth/usecase/get_user_by_username.dart';
+export 'package:projectflutter/domain/auth/usecase/ensure_valid_token.dart';
 // BMI
 export 'package:projectflutter/data/bmi/repository/bmi_repository_impl.dart';
 export 'package:projectflutter/domain/bmi/repository/bmi_repository.dart';

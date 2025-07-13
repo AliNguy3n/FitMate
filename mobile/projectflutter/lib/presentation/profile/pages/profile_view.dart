@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:intl/intl.dart';
 import 'package:projectflutter/common/api/shared_preference_service.dart';
 import 'package:projectflutter/core/config/themes/app_color.dart';
 import 'package:projectflutter/core/config/themes/app_font_size.dart';
@@ -40,8 +39,6 @@ class ProfilePage extends StatelessWidget {
               }
               if (state is UserInfoLoaded) {
                 final user = state.user;
-                final formatedDate =
-                DateFormat('dd/MM/yyyy').format(user.createdAt!);
                 return BlocBuilder<HealthCubit, HealthState>(
                   builder: (context, state) {
                     if (state is LoadedHealthFailure) {
@@ -80,18 +77,11 @@ class ProfilePage extends StatelessWidget {
                                       CrossAxisAlignment.start,
                                       children: [
                                         Text(
-                                          '${user.firstname} ${user.lastname}',
+                                          '${user.firstName} ${user.lastName}',
                                           style: TextStyle(
                                               color: AppColors.black,
                                               fontSize: AppFontSize.value16Text(context),
                                               fontWeight: FontWeight.bold),
-                                        ),
-                                        Text(
-                                          'Joined on: $formatedDate',
-                                          style: TextStyle(
-                                              color: AppColors.gray,
-                                              fontSize: AppFontSize.value14Text(context),
-                                              fontWeight: FontWeight.normal),
                                         ),
                                       ],
                                     )

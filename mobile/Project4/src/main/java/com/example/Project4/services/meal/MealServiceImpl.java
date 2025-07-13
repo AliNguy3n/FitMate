@@ -8,19 +8,12 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.Project4.payload.meal.UserMealsRequest;
-import com.example.Project4.dto.meal.MealCategoryDTO;
-import com.example.Project4.dto.meal.MealSubCategoryDTO;
-import com.example.Project4.dto.meal.MealsDTO;
-import com.example.Project4.dto.meal.UserMealDTO;
+import com.example.Project4.payload.meal.*;
+import com.example.Project4.dto.meal.*;
+import com.example.Project4.entity.meal.*;
 import com.example.Project4.mapper.MealMapper;
-import com.example.Project4.models.meal.MealsModel;
-import com.example.Project4.models.meal.UserMealsModel;
 import com.example.Project4.repository.auth.UserRepository;
-import com.example.Project4.repository.meal.MealCategoryRepository;
-import com.example.Project4.repository.meal.MealsRepository;
-import com.example.Project4.repository.meal.MealSubCategoryRepository;
-import com.example.Project4.repository.meal.UserMealsRepository;
+import com.example.Project4.repository.meal.*;
 
 @Service
 public class MealServiceImpl implements MealService {
@@ -67,7 +60,7 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public List<UserMealDTO> getRecordMeal(int userId) {
+    public List<UserMealDTO> getRecordMeal(String userId) {
         List<UserMealsModel> records = uMealsRepository.findByUserId(userId);
         List<UserMealDTO> dtos = records.stream()
                                     .map(MealMapper::toUserMealDTO)
@@ -101,7 +94,7 @@ public class MealServiceImpl implements MealService {
     }
 
     @Override
-    public void deleteAllRecordMeal(int userId, LocalDate targetDate) {
+    public void deleteAllRecordMeal(String userId, LocalDate targetDate) {
         uMealsRepository.deleteAllByUserIdAndCreatedAtDate(userId, targetDate);
     }
 

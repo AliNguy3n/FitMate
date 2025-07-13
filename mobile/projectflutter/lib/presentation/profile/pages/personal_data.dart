@@ -116,12 +116,12 @@ class PersonalDataPage extends StatelessWidget {
         ListTile(
           leading: const Icon(Icons.person),
           title: const Text('First Name'),
-          subtitle: Text(user.firstname),
+          subtitle: Text(user.firstName),
         ),
         ListTile(
           leading: const Icon(Icons.account_circle),
           title: const Text('Last Name'),
-          subtitle: Text(user.lastname),
+          subtitle: Text(user.lastName),
         ),
         ListTile(
           leading: const Icon(Icons.calendar_today),

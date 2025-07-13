@@ -8,47 +8,13 @@ import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.Project4.payload.exercise.ExerciseFavoriteRequest;
-import com.example.Project4.payload.exercise.ExerciseScheduleRequest;
-import com.example.Project4.payload.exercise.ExerciseSessionBatchRequest;
-import com.example.Project4.payload.exercise.ExerciseSessionRequest;
-import com.example.Project4.payload.exercise.ExerciseUpdateScheduleRequest;
-import com.example.Project4.dto.exercise.EquipmentsDTO;
-import com.example.Project4.dto.exercise.ExerciseCategoryDTO;
-import com.example.Project4.dto.exercise.ExerciseFavoriteDTO;
-import com.example.Project4.dto.exercise.ExerciseProgressDTO;
-import com.example.Project4.dto.exercise.ExerciseScheduleDTO;
-import com.example.Project4.dto.exercise.ExerciseSessionDTO;
-import com.example.Project4.dto.exercise.ExerciseSubCategoryDTO;
-import com.example.Project4.dto.exercise.ExerciseSubCategoryProgramDTO;
-import com.example.Project4.dto.exercise.ExerciseUserDTO;
-import com.example.Project4.dto.exercise.ExercisesDTO;
-import com.example.Project4.dto.exercise.FavoritesDTO;
+import com.example.Project4.payload.exercise.*;
+import com.example.Project4.dto.exercise.*;
+import com.example.Project4.entity.auth.User;
+import com.example.Project4.entity.exercise.*;
 import com.example.Project4.mapper.ExerciseMapper;
-import com.example.Project4.models.auth.UserModel;
-import com.example.Project4.models.exercise.EquipmentsModel;
-import com.example.Project4.models.exercise.ExerciseFavoriteModel;
-import com.example.Project4.models.exercise.ExerciseModeModel;
-import com.example.Project4.models.exercise.ExerciseProgressModel;
-import com.example.Project4.models.exercise.ExerciseScheduleModel;
-import com.example.Project4.models.exercise.ExerciseSessionModel;
-import com.example.Project4.models.exercise.ExerciseSubCategoryModel;
-import com.example.Project4.models.exercise.ExerciseUserModel;
-import com.example.Project4.models.exercise.ExercisesModel;
-import com.example.Project4.models.exercise.FavoritesModel;
-import com.example.Project4.repository.auth.UserRepository;
-import com.example.Project4.repository.exercise.EquipmentsRepository;
-import com.example.Project4.repository.exercise.ExerciseCategoryRepository;
-import com.example.Project4.repository.exercise.ExerciseFavoriteRepository;
-import com.example.Project4.repository.exercise.ExerciseModeRepository;
-import com.example.Project4.repository.exercise.ExerciseProgressRepository;
-import com.example.Project4.repository.exercise.ExerciseScheduleRepository;
-import com.example.Project4.repository.exercise.ExerciseSessionRepository;
-import com.example.Project4.repository.exercise.ExerciseSubCategoryProgramRepository;
-import com.example.Project4.repository.exercise.ExerciseSubCategoryRepository;
-import com.example.Project4.repository.exercise.ExerciseUserRepository;
-import com.example.Project4.repository.exercise.ExercisesRepository;
-import com.example.Project4.repository.exercise.FavoritesRepository;
+import com.example.Project4.repository.auth.*;
+import com.example.Project4.repository.exercise.*;
 
 import jakarta.transaction.Transactional;
 
@@ -101,19 +67,19 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-    public List<ExerciseProgressDTO> getAllExerciseProgressByUserId(int userId) {
+    public List<ExerciseProgressDTO> getAllExerciseProgressByUserId(String userId) {
         return exerciseProgressRepository.findAllProgressByUserId(userId).stream()
                 .map(ExerciseMapper::toExerciseProgressDto).collect(Collectors.toList());
     }
 
     @Override
-    public List<ExerciseUserDTO> getAllExerciseResultByUserId(int userId) {
+    public List<ExerciseUserDTO> getAllExerciseResultByUserId(String userId) {
         return exerciseUserRepository.findAllExerciseByUserId(userId).stream()
                 .map(ExerciseMapper::toExerciseUserDto).collect(Collectors.toList());
     }
 
     @Override
-    public List<ExerciseSessionDTO> getAllExerciseSessionByUserId(int userId) {
+    public List<ExerciseSessionDTO> getAllExerciseSessionByUserId(String userId) {
         return exerciseSessionRepository.findAllSessionByUserId(userId).stream()
                 .map(ExerciseMapper::toSessionDto).collect(Collectors.toList());
     }
@@ -134,7 +100,7 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
 public ExerciseProgressDTO startMultipleExercises(ExerciseSessionBatchRequest req) {
-    UserModel user = userRepository.findById(req.getUserId())
+    User user = userRepository.findById(req.getUserId())
             .orElseThrow(() -> new RuntimeException("User not found"));
 
     ExerciseSubCategoryModel subCategory = exerciseSubCategoryRepository
@@ -201,13 +167,13 @@ public ExerciseProgressDTO startMultipleExercises(ExerciseSessionBatchRequest re
 
 
     @Override
-    public List<ExerciseScheduleDTO> getAllScheduleByUserId(int userId) {
+    public List<ExerciseScheduleDTO> getAllScheduleByUserId(String userId) {
         return exerciseScheduleRepository.findAllScheduleByUserId(userId).stream().map(ExerciseMapper::toScheduleDto)
                 .collect(Collectors.toList());
     }
 
     @Override
-    public boolean findByIdAndUserId(int scheduleId, int userId) {
+    public boolean findByIdAndUserId(int scheduleId, String userId) {
         exerciseScheduleRepository.findByIdAndUser_Id(scheduleId, userId)
                 .orElseThrow(() -> new RuntimeException("Schedule not found or access denied"));
         return true;
@@ -217,7 +183,7 @@ public ExerciseProgressDTO startMultipleExercises(ExerciseSessionBatchRequest re
     public ExerciseScheduleDTO scheduleExercise(ExerciseScheduleRequest req) {
         ExerciseSubCategoryModel subCategory = exerciseSubCategoryRepository.findById(req.getSubCategory())
                 .orElseThrow(() -> new RuntimeException("Sub Category not found"));
-        UserModel user = userRepository.findById(req.getUser())
+        User user = userRepository.findById(req.getUser())
                 .orElseThrow(() -> new RuntimeException("User not found"));
         ExerciseScheduleModel newSchedule = new ExerciseScheduleModel();
         newSchedule.setUser(user);
@@ -255,8 +221,8 @@ public ExerciseProgressDTO startMultipleExercises(ExerciseSessionBatchRequest re
 
     // Favorite
     @Override
-    public List<FavoritesDTO> getAllFavoriteByUserId(int userId) {
-        UserModel user = userRepository.findById(userId)
+    public List<FavoritesDTO> getAllFavoriteByUserId(String userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         return favoritesRepository.findAllFavoriteByUserId(user.getId()).stream().map(ExerciseMapper::toFavoritesDto)
                 .collect(Collectors.toList());
@@ -264,8 +230,8 @@ public ExerciseProgressDTO startMultipleExercises(ExerciseSessionBatchRequest re
 
     @Override
     public List<ExerciseFavoriteDTO> getAllExerciseFavoriteByUserId(
-            int userId, int favoriteId) {
-        UserModel user = userRepository.findById(userId)
+            String userId, int favoriteId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         FavoritesModel favorite = favoritesRepository.findById(favoriteId)
                 .orElseThrow(() -> new RuntimeException("Favorite not found"));
@@ -275,8 +241,8 @@ public ExerciseProgressDTO startMultipleExercises(ExerciseSessionBatchRequest re
     }
 
     @Override
-    public FavoritesDTO addNewFavoriteByUserId(int userId, String favoriteName) {
-        UserModel user = userRepository.findById(userId)
+    public FavoritesDTO addNewFavoriteByUserId(String userId, String favoriteName) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         FavoritesModel newFavorite = new FavoritesModel();
         newFavorite.setUser(user);
@@ -286,8 +252,8 @@ public ExerciseProgressDTO startMultipleExercises(ExerciseSessionBatchRequest re
     }
 
     @Override
-    public ExerciseFavoriteDTO addExerciseFavoriteByUserId(ExerciseFavoriteRequest req, int userId) {
-        UserModel user = userRepository.findById(userId)
+    public ExerciseFavoriteDTO addExerciseFavoriteByUserId(ExerciseFavoriteRequest req, String userId) {
+        User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
         FavoritesModel favorite = favoritesRepository.findById(req.getFavorite())
                 .orElseThrow(() -> new RuntimeException("Favorite not found"));
@@ -354,7 +320,7 @@ public ExerciseProgressDTO startMultipleExercises(ExerciseSessionBatchRequest re
     }
 
     @Override
-    public int getResetBatchBySubCategory(int userId, int subCategoryId) {
+    public int getResetBatchBySubCategory(String userId, int subCategoryId) {
         int batch = 0;
         int maxBatch = 1000;
         while (batch < maxBatch) {
