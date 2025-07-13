@@ -1,4 +1,4 @@
-package aptech.finalproject.entity.exercise;
+package aptech.finalproject.entity.product;
 
 import jakarta.persistence.*;
 import lombok.*;
@@ -11,13 +11,15 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ExerciseMode {
+public class SCategory {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String name;
+    private String  name;
 
-    @OneToMany(mappedBy = "mode")
-    private List<ExerciseSubCategory> subCategory;
+    private String description;
+
+    @ManyToMany
+    private List<Supplement> supplements;
 }

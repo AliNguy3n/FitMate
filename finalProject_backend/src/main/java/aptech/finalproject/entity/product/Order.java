@@ -1,4 +1,4 @@
-package aptech.finalproject.entity.exercise;
+package aptech.finalproject.entity.product;
 
 import aptech.finalproject.entity.User;
 import jakarta.persistence.*;
@@ -12,15 +12,22 @@ import java.time.Instant;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class ExerciseSchedule {
+public class Order {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private Instant scheduleTime;
+    private Instant orderDate;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private Integer totalAmount;
+
+    private Boolean status;
+
+    @ManyToOne
     @JoinColumn( name = "user_id")
     private User user;
 
+    @OneToOne( cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinColumn( name = "payment_id")
+    private Payment payment;
 }

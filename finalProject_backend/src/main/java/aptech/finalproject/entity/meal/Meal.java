@@ -22,7 +22,7 @@ public class Meal {
     private String name;
 
     @OneToOne(cascade = { CascadeType.PERSIST, CascadeType.MERGE })
-    @JoinColumn(name = "image")
+    @JoinColumn(name = "image_id")
     private FileMetadata image;
 
     private Long weight;

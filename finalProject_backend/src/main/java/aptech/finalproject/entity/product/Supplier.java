@@ -1,4 +1,4 @@
-package aptech.finalproject.entity.meal;
+package aptech.finalproject.entity.product;
 
 import aptech.finalproject.entity.FileMetadata;
 import jakarta.persistence.*;
@@ -6,23 +6,29 @@ import lombok.*;
 
 import java.util.List;
 
-@Entity(name = "MealCategory")
+@Entity
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class MealCategory {
+public class Supplier {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;
+
+    private String type;
 
     private String name;
 
+    private String contact;
+
+    private String address;
+
     @OneToOne( cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "image_id")
+    @JoinColumn( name = "image_id")
     private FileMetadata image;
 
-    @OneToMany(mappedBy = "category", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    private List<MealSubCategory> subCategories;
+    @OneToMany( mappedBy = "supplier")
+    private List<Product> products;
 }

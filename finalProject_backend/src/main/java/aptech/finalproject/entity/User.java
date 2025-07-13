@@ -1,7 +1,9 @@
 package aptech.finalproject.entity;
 
+import aptech.finalproject.entity.exercise.*;
 import aptech.finalproject.entity.meal.Meal;
 import aptech.finalproject.entity.meal.UserMeal;
+import aptech.finalproject.entity.product.Order;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Size;
 import lombok.*;
@@ -55,4 +57,21 @@ public class User {
     @OneToMany(mappedBy = "user",cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     private List<UserMeal> meals;
 
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<ExerciseProgress> progress;
+
+    @OneToMany( mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Health> health;
+
+    @OneToMany( mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<HealthGoal> healthGoal;
+
+    @OneToMany( mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Favorite> favorite;
+
+    @OneToMany(mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<ExerciseSchedule> schedules;
+
+    @OneToMany( mappedBy = "user", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    private List<Order> orders;
 }

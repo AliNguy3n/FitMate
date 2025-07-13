@@ -21,7 +21,7 @@ public class MealSubCategory {
     private String name;
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "image")
+    @JoinColumn(name = "image_id")
     private FileMetadata image;
 
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})

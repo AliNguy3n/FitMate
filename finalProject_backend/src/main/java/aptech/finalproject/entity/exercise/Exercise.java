@@ -3,6 +3,8 @@ package aptech.finalproject.entity.exercise;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -22,5 +24,10 @@ public class Exercise {
 
     private Long totalKcal;
 
+    @OneToMany(mappedBy = "exercise",cascade = {CascadeType.MERGE, CascadeType.PERSIST})
+    private List<ExerciseSession> sessions;
 
+    @ManyToOne
+    @JoinColumn( name = "sub_category_id")
+    private ExerciseSubCategory subCategory;
 }
