@@ -1,6 +1,6 @@
 package aptech.finalproject.entity.product;
 
-import aptech.finalproject.entity.FileMetadata;
+import aptech.finalproject.entity.auth.FileMetadata;
 import jakarta.persistence.*;
 import lombok.*;
 

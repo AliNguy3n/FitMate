@@ -3,7 +3,7 @@ package aptech.finalproject.service;
 import aptech.finalproject.dto.request.UserCreationRequest;
 import aptech.finalproject.dto.request.UserUpdateRequest;
 import aptech.finalproject.dto.response.UserResponse;
-import aptech.finalproject.entity.User;
+import aptech.finalproject.entity.auth.User;
 import aptech.finalproject.exception.ApiException;
 
 import java.util.List;

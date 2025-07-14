@@ -1,11 +1,11 @@
 package aptech.finalproject.dto.response;
 
-import aptech.finalproject.entity.Role;
-
 import lombok.*;
 
 import java.time.LocalDate;
 import java.util.Set;
+
+import aptech.finalproject.entity.auth.Role;
 
 @Setter
 @Getter

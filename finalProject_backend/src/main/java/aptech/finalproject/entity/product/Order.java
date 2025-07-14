@@ -1,10 +1,11 @@
 package aptech.finalproject.entity.product;
 
-import aptech.finalproject.entity.User;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+
+import aptech.finalproject.entity.auth.User;
 
 @Entity
 @Setter

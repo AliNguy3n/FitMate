@@ -1,7 +1,7 @@
 package aptech.finalproject.service;
 
 import aptech.finalproject.emums.FileType;
-import aptech.finalproject.entity.FileMetadata;
+import aptech.finalproject.entity.auth.FileMetadata;
 import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.repository.FileMetadataRepository;

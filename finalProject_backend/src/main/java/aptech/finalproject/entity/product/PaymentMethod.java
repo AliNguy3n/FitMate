@@ -1,10 +1,11 @@
 package aptech.finalproject.entity.product;
 
-import aptech.finalproject.entity.FileMetadata;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+
+import aptech.finalproject.entity.auth.FileMetadata;
 
 @Entity
 @Setter

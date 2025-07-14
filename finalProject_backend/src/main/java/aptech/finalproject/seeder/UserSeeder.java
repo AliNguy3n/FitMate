@@ -2,9 +2,9 @@ package aptech.finalproject.seeder;
 
 import aptech.finalproject.emums.PredefinedPermission;
 import aptech.finalproject.emums.PredefinedRole;
-import aptech.finalproject.entity.Permission;
-import aptech.finalproject.entity.Role;
-import aptech.finalproject.entity.User;
+import aptech.finalproject.entity.auth.Permission;
+import aptech.finalproject.entity.auth.Role;
+import aptech.finalproject.entity.auth.User;
 import aptech.finalproject.repository.PermissionRepository;
 import aptech.finalproject.repository.RoleRepository;
 import aptech.finalproject.repository.UserRepository;

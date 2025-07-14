@@ -1,8 +1,8 @@
 package aptech.finalproject.service;
 
 import aptech.finalproject.dto.request.ResetPasswordRequest;
-import aptech.finalproject.entity.PasswordResetToken;
-import aptech.finalproject.entity.User;
+import aptech.finalproject.entity.auth.PasswordResetToken;
+import aptech.finalproject.entity.auth.User;
 import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.repository.PasswordResetTokenRepository;

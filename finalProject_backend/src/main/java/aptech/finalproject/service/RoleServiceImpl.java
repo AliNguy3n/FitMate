@@ -3,8 +3,8 @@ package aptech.finalproject.service;
 
 import aptech.finalproject.dto.request.RoleCreationRequest;
 import aptech.finalproject.dto.response.RoleCreationResponse;
-import aptech.finalproject.entity.Permission;
-import aptech.finalproject.entity.Role;
+import aptech.finalproject.entity.auth.Permission;
+import aptech.finalproject.entity.auth.Role;
 import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.exception.GlobalExceptionHandler;

@@ -1,8 +1,8 @@
 package aptech.finalproject.repository;
 
 import aptech.finalproject.emums.DeviceType;
-import aptech.finalproject.entity.Token;
-import aptech.finalproject.entity.User;
+import aptech.finalproject.entity.auth.Token;
+import aptech.finalproject.entity.auth.User;
 import jakarta.validation.constraints.Size;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
