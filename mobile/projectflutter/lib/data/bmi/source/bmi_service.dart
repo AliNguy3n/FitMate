@@ -38,8 +38,6 @@ class BmiServiceImpl extends BmiService {
         return const Left('No data to found');
       }
       prefs.setString("bmi_exist", response.body);
-      print('Decoded health response: ${response.body}');
-      print('Type: ${jsonDecode(response.body).runtimeType}');
       List<dynamic> responseData = jsonDecode(response.body);
       return Right(responseData);
     } catch (err) {

@@ -145,10 +145,13 @@ class AuthServiceImpl extends AuthService {
           'Authorization': 'Bearer $token',
         },
       );
+      if (response.statusCode == 401) {
+        await logout();
+        return const Left('Session expired. Please login again.');
+      }
       if (response.statusCode == 404) {
         return const Left('User not found');
       }
-      print('Response Body Get User: ${response.body}');
       return Right(response.body);
     } catch (err) {
       return Left('Error Message: $err');
