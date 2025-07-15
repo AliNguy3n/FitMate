@@ -5,15 +5,28 @@ import HomePage from "./pages/HomePage";
 import AboutPage from "./pages/AboutPage";
 import CartPage from "./pages/CartPage";
 import AuthPage from "./pages/AuthPage";
+import ProductPage from "./pages/ProductPage";
+import ProgressPage from "./pages/ProgressPage";
+import WorkoutPage from "./pages/WorkoutPage";
+import WorkoutDetailPage from "./pages/WorkoutDetailPage";
+import PromotionPage from "./pages/PromotionPage";
+import AAAPage from "./pages/AAAPage";
 
 function App() {
   return (
     <Router>
       <Routes>
+        <Route path="/a" element={<AAAPage />} />
         <Route path="/" element={<HomePage />} />
+        <Route path="/products" element={<ProductPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/cart" element={<CartPage />} />
-        <Route path="/auth" element={<AuthPage />} />
+        <Route path="/login" element={<AuthPage mode="login"/>} />
+        <Route path="/register" element={<AuthPage mode="register"/>} />
+        <Route path="/progress" element={<ProgressPage/>}/>
+        <Route path="/workout" element={<WorkoutPage />}/>
+        <Route path="/workout/1" element={<WorkoutDetailPage />}/>
+        <Route path="/promotions" element={<PromotionPage />}/>
       </Routes>
     </Router>
   );

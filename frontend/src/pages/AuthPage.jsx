@@ -1,9 +1,11 @@
+import LoginForm from "../components/auth/LoginForm";
+import RegisterForm from "../components/auth/RegisterForm";
 import AuthLayout from "../layouts/AuthLayout";
 
-function AuthPage() {
+function AuthPage({ mode }) {
   return (
     <AuthLayout>
-      <h1>Auth Page</h1>
+      {mode === "login" ? <LoginForm /> : <RegisterForm />}
     </AuthLayout>
   );
 }

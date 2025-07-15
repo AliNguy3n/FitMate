@@ -1,5 +1,8 @@
 # GYM FRONT-END
 
+- React with Vite : `Javacript`
+- Nodejs: 22.16.0 LTS
+
 ## COMMANDS
 
 - `npx create-react-app gym-fe`
@@ -15,19 +18,21 @@
 **Core Packages:**
 
 - HOT RELOAD: `react-devtools`
-- MANAGER STATE: `zutant`, `zustand/middleware`
+- MANAGER STATE: `zustant`, `zustand/middleware`
 - FORM VALIDATION: `formik`, `yup`
-- UI : `bootstrap`, `fontawesome`
+- UI : `tailwindcss`, `font-awesome`
 - ROUTE : `react-router-dom`
 - API : `axios`
 - FONT: `@fontsource/roboto`
 
-**Fontawesome Packages:**
+## Reference
 
-- `@fortawesome/react-fontawesome` : use `FontAwesomeIcon` to use **fontawesome**
-- `@fortawesome/fontawesome-svg-core` : manage library (add: fas, far, fab)
-- `@fortawesome/free-solid-svg-icons` : fas prefix
-- `@fortawesome/free-regular-svg-icons` : far prefix
-- `@fortawesome/free-brands-svg-icons` : fab prefix
+### How to use Font-awesome Packages:**
+
+- `@fortawesome/react-fontawesome` : uses `FontAwesomeIcon` component
+- `@fortawesome/fontawesome-svg-core` : manages `library` (add: fas, far, fab)
+- `@fortawesome/free-solid-svg-icons` : `fas` prefix
+- `@fortawesome/free-regular-svg-icons` : `far` prefix
+- `@fortawesome/free-brands-svg-icons` : `fab` prefix
 
 ## DOCUMENT

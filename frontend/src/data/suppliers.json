@@ -1,0 +1,30 @@
+[
+  {
+    "supplierId": "1",
+    "name": "Rogue Fitness",
+    "contact": "info@roguefitness.com",
+    "image": "https://wod.guru/wp-content/uploads/2024/08/37-1.png",
+    "address": "545 E 5th Ave, Columbus, OH 43201, USA"
+  },
+  {
+    "supplierId": "2",
+    "name": "Technogym",
+    "contact": "info@technogym.com",
+    "image": "https://wod.guru/wp-content/uploads/2024/08/13-7.jpg",
+    "address": "Via Calcinaro 2861, 47521 Cesena, Italy"
+  },
+  {
+    "supplierId": "3",
+    "name": "Life Fitness",
+    "contact": "contact@lifefitness.com",
+    "image": "https://wod.guru/wp-content/uploads/2024/08/1-11.jpg",
+    "address": "5100 River Road, Schiller Park, IL 60176, USA"
+  },
+  {
+    "supplierId": "4",
+    "name": "Precor",
+    "contact": "support@precor.com",
+    "image": "https://wod.guru/wp-content/uploads/2024/08/5-12.jpg",
+    "address": "20031 142nd Ave NE, Woodinville, WA 98072, USA"
+  }
+]
