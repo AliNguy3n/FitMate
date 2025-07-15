@@ -5,8 +5,20 @@ import {
   faShoppingCart,
   faAnglesLeft,
   faAnglesRight,
+  faDownLong,
+  faXmark,
+  faToolbox,
+  faPills,
+  faStar,
+  faPlus,
+  faMinus,
+  faTrash,
+  faTimesCircle,
+  faCheckCircle
 } from "@fortawesome/free-solid-svg-icons"; // Solid icons : fas
-import { far } from "@fortawesome/free-regular-svg-icons"; // Regular icons : far
+import {
+  faBell,
+ } from "@fortawesome/free-regular-svg-icons"; // Regular icons : far
 import {
   faFacebook,
   faFacebookMessenger,
@@ -14,11 +26,30 @@ import {
   faWhatsapp,
   faApplePay,
   faPaypal,
+  faFacebookF,
+  faGooglePlusG,
+  faGooglePlay
 } from "@fortawesome/free-brands-svg-icons"; // Brand icons : fab
 
 // Add icons to library
 library.add(faAnglesLeft, faAnglesRight);
-library.add(faHome, faUser, faShoppingCart);
+library.add(faHome, faUser, faDownLong, faShoppingCart, faXmark, faStar, faPlus, faMinus, faTrash, faTimesCircle, faCheckCircle);
 library.add(faFacebook, faFacebookMessenger, faXTwitter, faWhatsapp);
 library.add(faApplePay, faPaypal);
-library.add(far);
+library.add(faFacebookF, faGooglePlusG, faGooglePlay);
+library.add(faBell);
+library.add(faToolbox, faPills);
+
+/*
+ https://docs.fontawesome.com/v5/web/use-with/react
+
+ Basic use:
+
+ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+ <FontAwesomeIcon icon={["fas", "shopping-cart"]} size="2x" />
+
+- Attributes:
+  - icon
+  - size
+  - spin
+*/

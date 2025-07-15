@@ -1,11 +1,9 @@
-import Header from "../components/Header";
-import Footer from "../components/Footer";
-
 function AuthLayout({ children }) {
   return (
-    <body>
-      <main className="container p-5">{children}</main>
-    </body>
+    <div className="min-h-screen">
+      {/* Global Container */}
+      <main className="flex items-center justify-center min-h-screen bg-rose-50">{children}</main>
+    </div>
   );
 }
 

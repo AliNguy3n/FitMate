@@ -1,32 +1,11 @@
 [
-    {
-        "id": 1,
-        "category": "course",
-        "r_id": "1",
-        "name": "ahha",
-        "quality": 2,
-        "image": "/"
-    },
-    {
-        "id": 2,
-        "category": "product",
-        "r_id": "2",
-        "name": "ahha",
-        "quality": 2,
-        "image": "/"
-    },
-    {
-        "id": 3,
-        "category": "video",
-        "r_id": "2",
-        "quality": 2,
-        "image": "/"
-    },
-    {
-        "id": 4,
-        "category": "product",
-        "r_id": "1",
-        "quality": 10,
-        "image": "/"
-    }
+  {
+    "id": 1,
+    "type": "equipment",
+    "name": "Body Sculpture Push Up Bar",
+    "price": 599.99,
+    "quantity": 4,
+    "image": "https://supersports.com.vn/cdn/shop/products/BB-6331EG-B-2_8e6282d1-189a-44b6-9f70-728c297cb526.jpg?v=1668161227&width=1600",
+    "stock": 10
+  }
 ]
