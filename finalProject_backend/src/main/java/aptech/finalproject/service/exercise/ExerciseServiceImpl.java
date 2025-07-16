@@ -308,9 +308,6 @@ public ExerciseProgressDTO startMultipleExercises(ExerciseSessionBatchRequest re
     @Override
     public List<EquipmentsDTO> getAllEquipmentBySubCategoryId(int subCategoryId) {
         List<EquipmentsModel> listEquipment = equipmentRepository.getAllEquipmentBySubCategoryId(subCategoryId);
-        if (listEquipment.isEmpty()) {
-            throw new RuntimeException("No equipment for sub category exercise");
-        }
         return listEquipment.stream().map(ExerciseMapper::toEquipmentsDto).collect(Collectors.toList());
     }
 

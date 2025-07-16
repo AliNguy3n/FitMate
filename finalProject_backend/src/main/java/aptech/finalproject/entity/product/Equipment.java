@@ -32,5 +32,4 @@ public class Equipment {
 
     @OneToOne
     private Product product;
-
 }

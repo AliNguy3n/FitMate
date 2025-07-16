@@ -31,7 +31,7 @@ public class ExerciseSubCategoryModel {
 
     @ManyToMany(mappedBy = "subCategory")
     private Set<ExercisesModel> exercises = new HashSet<>();
-    @ManyToMany(mappedBy = "subCategory")
+    @OneToMany(mappedBy = "subCategory")
     private Set<ExerciseFavoriteModel> favorite = new HashSet<>();
     @OneToMany(mappedBy = "subCategory", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ExerciseScheduleModel> schedules = new ArrayList<>();

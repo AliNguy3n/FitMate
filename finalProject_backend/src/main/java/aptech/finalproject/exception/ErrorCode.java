@@ -66,8 +66,42 @@ public enum ErrorCode {
     //Validation
     USERNAME_INVALID(400, "Username must be between 3 and 30 characters"),
     PASSWORD_INVALID(400, "Password must be between 3 and 30 characters"),
-    KEYWORD_INVALID(400, "Keyword not valid");
+    KEYWORD_INVALID(400, "Keyword not valid"),
+
+    //Product
+    PRODUCT_NOT_FOUND(404, "Product not found."),
+
+    //Supplier
+    SUPPLIER_NOT_FOUND(404, "Supplier not found."),
+
+    //Supplement
+    SUPPLEMENT_NOT_FOUND(404, "Supplement not found."),
+
+    //SCategory
+    SCATEGORY_NOT_FOUND(404, "Scategory not found."),
+
+    //Promotion
+    PROMOTION_NOT_FOUND(404, "Promotion not found."),
+
+    //Payment
+    PAYMENT_NOT_FOUND(404, "Payment not found."),
+
+    //PaymentMethod
+    PAYMENT_METHOD_NOT_FOUND(404, "Payment method not found."),
+
+    //Order
+    ORDER_NOT_FOUND(404, "Order not found."),
+
+    //OrderDetail
+    ORDER_DETAIL_NOT_FOUND(404, "Order detail not found."),
+
+    //Equipment
+    EQUIPMENT_NOT_FOUND(404, "Equipment not found."),
+
+    //ECategory
+    ECategory_NOT_FOUND(404, "Category not found."),
     ;
+
 
     private int code;
     private String exception;

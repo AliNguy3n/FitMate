@@ -20,6 +20,7 @@ public class ExerciseFavoriteModel {
     @JoinColumn(name = "favorite_id", referencedColumnName = "id")
     @JsonIgnore
     private FavoritesModel favorite;
+
     @ManyToOne
     @JoinColumn(name = "sub_category_id", referencedColumnName = "id")
     private ExerciseSubCategoryModel subCategory;

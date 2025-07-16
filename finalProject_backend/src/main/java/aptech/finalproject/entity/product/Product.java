@@ -4,6 +4,8 @@ import aptech.finalproject.entity.auth.FileMetadata;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
+
 @Entity
 @Getter
 @Setter
@@ -44,4 +46,12 @@ public class Product {
     @OneToOne(mappedBy = "product", cascade = { CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn( name = "supplement_id")
     private Supplement supplement;
+
+    @ManyToMany( cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @JoinTable(
+            name = "product_category",
+            joinColumns = @JoinColumn(name = "product_id"),
+            inverseJoinColumns = @JoinColumn( name = "category_id")
+    )
+    private List<Category> category;
 }
