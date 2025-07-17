@@ -10,6 +10,7 @@ import aptech.finalproject.mapper.PromotionMapper;
 import aptech.finalproject.repository.product.ProductRepository;
 import aptech.finalproject.repository.product.PromotionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -26,6 +27,7 @@ public class PromotionServiceImpl implements PromotionService {
     @Autowired
     private ProductRepository productRepository;
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public PromotionResponse createPromotion(PromotionRequest promotionRequest) {
         Promotion promotion = promotionMapper.toPromotion(promotionRequest);
 
@@ -37,6 +39,7 @@ public class PromotionServiceImpl implements PromotionService {
         return promotionMapper.toPromotionResponse(promotionRepository.save(promotion));
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public PromotionResponse updatePromotion(Long id, PromotionRequest promotionRequest) {
         Promotion promotion = promotionRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.PROMOTION_NOT_FOUND));
@@ -51,6 +54,7 @@ public class PromotionServiceImpl implements PromotionService {
         return promotionMapper.toPromotionResponse(promotionRepository.save(promotion));
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public void deletePromotion(Long id) {
         if (!promotionRepository.existsById(id)) {
             throw new ApiException(ErrorCode.PROMOTION_NOT_FOUND);

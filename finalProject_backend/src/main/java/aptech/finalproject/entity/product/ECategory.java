@@ -1,5 +1,6 @@
 package aptech.finalproject.entity.product;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -27,5 +28,6 @@ public class ECategory {
     private String description;
 
     @ManyToMany
+    @JsonIgnore
     private List<Equipment> equipment;
 }

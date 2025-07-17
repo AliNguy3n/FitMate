@@ -13,6 +13,7 @@ import aptech.finalproject.repository.product.EquipmentRepository;
 import aptech.finalproject.repository.product.ProductRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -32,7 +33,7 @@ public class EquipmentServiceImpl implements EquipmentService{
     @Autowired
     private ECategoryRepository eCategoryRepository;
 
-    @Override
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public EquipmentResponse createEquipment(EquipmentRequest equipmentRequest) {
         Equipment equipment = equipmentMapper.toEquipment(equipmentRequest);
 
@@ -48,6 +49,7 @@ public class EquipmentServiceImpl implements EquipmentService{
         return equipmentMapper.toEquipmentResponse(equipmentRepository.save(equipment));
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public EquipmentResponse updateEquipment(Long id, EquipmentRequest equipmentRequest) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.EQUIPMENT_NOT_FOUND));
@@ -66,6 +68,7 @@ public class EquipmentServiceImpl implements EquipmentService{
         return equipmentMapper.toEquipmentResponse(equipmentRepository.save(equipment));
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public void deleteEquipment(Long id) {
         if (!equipmentRepository.existsById(id)) {
             throw new ApiException(ErrorCode.EQUIPMENT_NOT_FOUND);
@@ -73,13 +76,14 @@ public class EquipmentServiceImpl implements EquipmentService{
         equipmentRepository.deleteById(id);
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public EquipmentResponse getEquipmentById(Long id) {
         Equipment equipment = equipmentRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.EQUIPMENT_NOT_FOUND));
         return equipmentMapper.toEquipmentResponse(equipment);
     }
 
-    public List<EquipmentResponse> getAllEquipment(Pageable pageable) {
+    public List<EquipmentResponse> getAllEquipments(Pageable pageable) {
         return equipmentRepository.findAll(pageable)
                 .stream()
                 .map(equipmentMapper::toEquipmentResponse)

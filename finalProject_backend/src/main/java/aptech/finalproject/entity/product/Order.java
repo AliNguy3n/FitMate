@@ -13,6 +13,7 @@ import aptech.finalproject.entity.auth.User;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
+@Table(name = "orders")
 public class Order {
     @Id
     @GeneratedValue( strategy = GenerationType.IDENTITY)

@@ -12,6 +12,7 @@ public enum ErrorCode {
     //Authentication and Authorization
         //USER
     USER_UNAUTHORIZED(403, "Unauthorized"),
+    USERNAME_OR_PASSWORD_INCORRECT(401, "Username or password incorrect"),
     USER_FORBIDDEN(403, "Forbidden"),
     USER_EXISTED(400, "User existed."),
     USER_NOT_FOUND(404, "User not found."),
@@ -70,6 +71,7 @@ public enum ErrorCode {
 
     //Product
     PRODUCT_NOT_FOUND(404, "Product not found."),
+    PRODUCT_CREATION_FAILED(409, "Product creation failed."),
 
     //Supplier
     SUPPLIER_NOT_FOUND(404, "Supplier not found."),
@@ -99,7 +101,9 @@ public enum ErrorCode {
     EQUIPMENT_NOT_FOUND(404, "Equipment not found."),
 
     //ECategory
-    ECategory_NOT_FOUND(404, "Category not found."),
+    ECATEGORY_NOT_FOUND(404, "Category not found."),
+    ECATEGORY_CREATION_FAILED(409, "Category creation failed."),
+
     ;
 
 

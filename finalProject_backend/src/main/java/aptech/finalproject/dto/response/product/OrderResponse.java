@@ -20,7 +20,7 @@ public class OrderResponse {
 
     private Boolean status;
 
-    private Long user;
+    private String user;
 
     private Long payment;
 }

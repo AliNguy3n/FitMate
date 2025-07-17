@@ -12,6 +12,7 @@ import aptech.finalproject.repository.product.ProductRepository;
 import aptech.finalproject.repository.product.SCategoryRepository;
 import aptech.finalproject.repository.product.SupplementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -31,6 +32,7 @@ public class SupplementServiceImpl implements SupplementService {
     @Autowired
     private SCategoryRepository sCategoryRepository;
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public SupplementResponse createSupplement(SupplementRequest supplementRequest) {
         Supplement supplement = supplementMapper.toSupplement(supplementRequest);
 
@@ -46,6 +48,7 @@ public class SupplementServiceImpl implements SupplementService {
         return supplementMapper.toSupplementResponse(supplementRepository.save(supplement));
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public SupplementResponse updateSupplement(Long id, SupplementRequest supplementRequest) {
         Supplement supplement = supplementRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.SUPPLEMENT_NOT_FOUND));
@@ -64,6 +67,7 @@ public class SupplementServiceImpl implements SupplementService {
         return supplementMapper.toSupplementResponse(supplementRepository.save(supplement));
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public void deleteSupplement(Long id) {
         if (!supplementRepository.existsById(id)) {
             throw new ApiException(ErrorCode.SUPPLEMENT_NOT_FOUND);

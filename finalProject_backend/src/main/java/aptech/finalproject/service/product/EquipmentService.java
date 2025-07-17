@@ -15,5 +15,5 @@ public interface EquipmentService {
 
     EquipmentResponse getEquipmentById(Long id);
 
-    List<EquipmentResponse> getAllEquipment(Pageable pageable);
+    List<EquipmentResponse> getAllEquipments(Pageable pageable);
 }

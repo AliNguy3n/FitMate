@@ -10,11 +10,14 @@ import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.mapper.ProductMapper;
 import aptech.finalproject.repository.FileMetadataRepository;
 import aptech.finalproject.repository.product.*;
+import aptech.finalproject.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,13 +42,15 @@ public class ProductServiceImpl implements ProductService {
 
     @Autowired
     private SupplementRepository supplementRepository;
+    @Autowired
+    private FileService fileService;
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public ProductResponse createProduct(ProductRequest productRequest) {
         Product product = productMapper.toProduct(productRequest);
 
-        if (productRequest.getImageId() != null) {
-            FileMetadata image = fileMetadataRepository.findById(productRequest.getImageId().toString())
-                    .orElseThrow(() -> new ApiException(ErrorCode.FILE_NOT_FOUND));
+        if (productRequest.getImage() != null && !productRequest.getImage().isEmpty()) {
+            FileMetadata image = fileService.saveFile(productRequest.getImage(), Optional.of("product"));
             product.setImage(image);
         }
 
@@ -76,15 +81,15 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toProductResponse(productRepository.save(product));
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public ProductResponse updateProduct(Long productId, ProductRequest productRequest) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ApiException(ErrorCode.PRODUCT_NOT_FOUND));
 
         productMapper.updateProduct(product, productRequest);
 
-        if (productRequest.getImageId() != null) {
-            FileMetadata image = fileMetadataRepository.findById(productRequest.getImageId().toString())
-                    .orElseThrow(() -> new ApiException(ErrorCode.FILE_NOT_FOUND));
+        if (productRequest.getImage() != null && !productRequest.getImage().isEmpty()) {
+            FileMetadata image = fileService.saveFile(productRequest.getImage(), Optional.of("product"));
             product.setImage(image);
         }
 
@@ -115,6 +120,7 @@ public class ProductServiceImpl implements ProductService {
         return productMapper.toProductResponse(productRepository.save(product));
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public void deleteProduct(Long productId) {
         if (!productRepository.existsById(productId)) {
             throw new ApiException(ErrorCode.PRODUCT_NOT_FOUND);
@@ -122,10 +128,17 @@ public class ProductServiceImpl implements ProductService {
         productRepository.deleteById(productId);
     }
 
-    public ProductResponse getProduct(Long productId) {
+    public ProductResponse getProductById(Long productId) {
         Product product = productRepository.findById(productId)
                 .orElseThrow(() -> new ApiException(ErrorCode.PRODUCT_NOT_FOUND));
         return productMapper.toProductResponse(product);
+    }
+
+    public List<ProductResponse> getProductsByName(String productName) {
+        return productRepository.findByNameLike(productName)
+                .stream()
+                .map(productMapper::toProductResponse)
+                .collect(Collectors.toList());
     }
 
     public List<ProductResponse> getAllProducts() {

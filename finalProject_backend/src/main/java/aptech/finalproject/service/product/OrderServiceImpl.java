@@ -8,15 +8,19 @@ import aptech.finalproject.entity.product.Payment;
 import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.mapper.OrderMapper;
+import aptech.finalproject.model.CustomUserPrincipal;
 import aptech.finalproject.repository.UserRepository;
 import aptech.finalproject.repository.product.OrderRepository;
 import aptech.finalproject.repository.product.PaymentRepository;
+import aptech.finalproject.security.jwt.AuthenticationFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,38 +37,43 @@ public class OrderServiceImpl implements OrderService{
     @Autowired
     private PaymentRepository paymentRepository;
 
+    @Autowired
+    private AuthenticationFacade authFacade;
+
+    @Autowired
+    private AuthenticationFacade authenticationFacade;
+
     public OrderResponse createOrder(OrderRequest orderRequest) {
         Order order = orderMapper.toOrder(orderRequest);
 
-        User user = userRepository.findById(orderRequest.getUserId())
+        User user =userRepository.findById(authFacade.getCurrentUser().getId())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
         order.setUser(user);
 
-        Payment payment = paymentRepository.findById(orderRequest.getPaymentId())
-                .orElseThrow(() -> new ApiException(ErrorCode.PAYMENT_NOT_FOUND));
-        order.setPayment(payment);
+//        Payment payment = paymentRepository.findById(orderRequest.getPaymentId())
+//                .orElseThrow(() -> new ApiException(ErrorCode.PAYMENT_NOT_FOUND));
+//        order.setPayment(payment);
 
         return orderMapper.toOrderResponse(orderRepository.save(order));
     }
 
     @Transactional
     public OrderResponse updateOrder(Long id, OrderRequest orderRequest) {
+        CustomUserPrincipal currentUser = authenticationFacade.getCurrentUser();
+
         Order order = orderRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.ORDER_NOT_FOUND));
 
-        orderMapper.updateOrder(order, orderRequest);
-
-        User user = userRepository.findById(orderRequest.getUserId())
-                .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
-        order.setUser(user);
 
         Payment payment = paymentRepository.findById(orderRequest.getPaymentId())
                 .orElseThrow(() -> new ApiException(ErrorCode.PAYMENT_NOT_FOUND));
+
+        orderMapper.updateOrder(order, orderRequest);
         order.setPayment(payment);
 
         return orderMapper.toOrderResponse(orderRepository.save(order));
     }
-
+    @PreAuthorize("hasAuthority('MANAGE_ORDERS')")
     public void deleteOrder(Long id) {
         if (!orderRepository.existsById(id)) {
             throw new ApiException(ErrorCode.ORDER_NOT_FOUND);
@@ -78,10 +87,22 @@ public class OrderServiceImpl implements OrderService{
         return orderMapper.toOrderResponse(order);
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_ORDERS')")
     public List<OrderResponse> getAllOrders(Pageable pageable) {
         return orderRepository.findAll(pageable)
                 .stream()
                 .map(orderMapper::toOrderResponse)
                 .collect(Collectors.toList());
+    }
+
+    private void authorizeOwnerOrManager(String userId, CustomUserPrincipal currentUser) {
+        if (!isManagerOrAdmin(currentUser) && !Objects.equals(userId, currentUser.getId())) {
+            throw new ApiException(ErrorCode.UNAUTHORIZED);
+        }
+    }
+
+    private boolean isManagerOrAdmin(CustomUserPrincipal user) {
+        String role = user.getRole();
+        return "ADMIN".equals(role) || "MANAGER".equals(role);
     }
 }

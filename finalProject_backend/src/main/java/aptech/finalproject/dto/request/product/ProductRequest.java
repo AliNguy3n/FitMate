@@ -14,6 +14,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
+import org.springframework.web.multipart.MultipartFile;
 
 @Setter
 @Getter
@@ -37,7 +38,8 @@ public class ProductRequest {
     @PositiveOrZero(message = "Rating must be zero or more")
     private Float rating;
 
-    private Long imageId;
+    private MultipartFile image;
+
     private Long supplierId;
     private Long promotionId;
     private Long equipmentId;

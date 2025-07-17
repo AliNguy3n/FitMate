@@ -10,6 +10,7 @@ import aptech.finalproject.mapper.SCategoryMapper;
 import aptech.finalproject.repository.product.SCategoryRepository;
 import aptech.finalproject.repository.product.SupplementRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -27,6 +28,7 @@ public class SCategoryServiceImpl implements SCategoryService{
     @Autowired
     private SupplementRepository supplementRepository;
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public SCategoryResponse createSCategory(SCategoryRequest sCategoryRequest) {
         SCategory sCategory = sCategoryMapper.toSCategory(sCategoryRequest);
 
@@ -38,6 +40,7 @@ public class SCategoryServiceImpl implements SCategoryService{
         return sCategoryMapper.toSCategoryResponse(sCategoryRepository.save(sCategory));
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     @Transactional
     public SCategoryResponse updateSCategory(Long id, SCategoryRequest sCategoryRequest) {
         SCategory sCategory = sCategoryRepository.findById(id)
@@ -53,6 +56,7 @@ public class SCategoryServiceImpl implements SCategoryService{
         return sCategoryMapper.toSCategoryResponse(sCategoryRepository.save(sCategory));
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public void deleteSCategory(Long id) {
         if (!sCategoryRepository.existsById(id)) {
             throw new ApiException(ErrorCode.SCATEGORY_NOT_FOUND);

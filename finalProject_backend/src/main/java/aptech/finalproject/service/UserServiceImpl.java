@@ -46,9 +46,15 @@ public class UserServiceImpl implements UserService {
     @Value("${frontend.domain}")
     private String frontendDomain;
 
+    @Value("${server.address}")
+    private String serverAddress;
+
+    @Value("${server.port}")
+    private String serverPort;
+
     public UserResponse create(UserCreationRequest request) {
         //Create User
-        if(userRepository.existsByUsername(request.getUsername()))
+        if (userRepository.existsByUsername(request.getUsername()))
             throw new ApiException(ErrorCode.USER_EXISTED);
 
         User user = userMapper.toUser(request);
@@ -56,36 +62,38 @@ public class UserServiceImpl implements UserService {
         user.setPassword(passwordEncoder.encode(request.getPassword()));
         var role = roleRepository.findByRole("USER").orElseThrow();
         user.setRole(role);
-        User finalUser =userRepository.save(user);
+        User finalUser = userRepository.save(user);
         //Send Mail
         String token = UUID.randomUUID().toString();
-        AccountActivationToken activationToken =  AccountActivationToken.builder()
+        AccountActivationToken activationToken = AccountActivationToken.builder()
                 .token(token)
                 .user(user)
                 .expiryDate(Instant.now().plusSeconds(600))
                 .build();
         activationTokenRepository.save(activationToken);
         String subject = "Account Activation";
+        String username = user.getUsername();
+        String activationLink = String.format("http://%s:%s/identity/user/activation?token=%s", serverAddress, serverPort, token);
 
         String content = String.format("""
-        <html>
-            <body style="font-family: Arial, sans-serif; line-height: 1.6;">
-                <h2 style="color: #2E86C1;">Hello %s,</h2>
-                <p>Thank you for registering with us.</p>
-                <p>Please click the button below to activate your account:</p>
-                <a href="%s/account-activation?token=%s"
-                   style="display: inline-block; padding: 10px 20px; background-color: #28a745;
-                          color: white; text-decoration: none; border-radius: 5px;">
-                    Activate Account
-                </a>
-                <p>This link will expire in <strong>10 minutes</strong>.</p>
-                <p>If you didn’t request this, please ignore this email.</p>
-                <hr />
-                <p style="font-size: 0.9em; color: #888;">&copy; 2025 FitMat3 Company. All rights reserved.</p>
-            </body>
-        </html>
-        """, user.getUsername(), frontendDomain, token);
-        System.out.println(finalUser.getEmail());
+                <html>
+                    <body style="font-family: Arial, sans-serif; line-height: 1.6;">
+                        <h2 style="color: #2E86C1;">Hello %s,</h2>
+                        <p>Thank you for registering with us.</p>
+                        <p>Please click the button below to activate your account:</p>
+                        <a href="%s"
+                           style="display: inline-block; padding: 10px 20px; background-color: #28a745;
+                                  color: white; text-decoration: none; border-radius: 5px;">
+                            Activate Account
+                        </a>
+                        <p>This link will expire in <strong>10 minutes</strong>.</p>
+                        <p>If you didn’t request this, please ignore this email.</p>
+                        <hr />
+                        <p style="font-size: 0.9em; color: #888;">&copy; 2025 FitMat3 Company. All rights reserved.</p>
+                    </body>
+                </html>
+                """, username, activationLink);
+        System.out.println(content);
         emailService.sendHtml(finalUser.getEmail(), subject, content);
 
         return userMapper.toUserResponse(finalUser);
@@ -93,7 +101,7 @@ public class UserServiceImpl implements UserService {
 
     public void activateAccount(String token) throws ApiException {
         AccountActivationToken userToken = activationTokenRepository.findByToken(token).orElseThrow(
-                ()-> new ApiException(ErrorCode.TOKEN_INVALID)
+                () -> new ApiException(ErrorCode.TOKEN_INVALID)
         );
 
         User user = userToken.getUser();
@@ -110,20 +118,21 @@ public class UserServiceImpl implements UserService {
 
     @PreAuthorize("hasAuthority('MANAGE_USERS') or #userId == authentication.principal.id")
     public User getById(String userId) {
-        return userRepository.findById(userId).orElseThrow(()-> new ApiException(ErrorCode.USER_EXISTED));
+        return userRepository.findById(userId).orElseThrow(() -> new ApiException(ErrorCode.USER_EXISTED));
     }
+
     @PreAuthorize("hasAuthority('MANAGE_USERS') or #username == authentication.principal.username")
     public User getByUsername(String username) {
-        return userRepository.findByUsername(username).orElseThrow(()-> new ApiException(ErrorCode.USER_NOT_FOUND));
+        return userRepository.findByUsername(username).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 
     @PreAuthorize("hasAuthority('MANAGE_USERS')")
     public User getByEmail(String email) {
-        return userRepository.findByEmail(email).orElseThrow(()-> new ApiException(ErrorCode.USER_NOT_FOUND));
+        return userRepository.findByEmail(email).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
     }
 
     @PreAuthorize("hasAuthority('MANAGE_USERS') or #userId == authentication.principal.id")
-    public User update(String userId ,UserUpdateRequest userUpdateRequest) {
+    public User update(String userId, UserUpdateRequest userUpdateRequest) {
         User user = getById(userId);
         if (userUpdateRequest.getPassword() != null) {
             userUpdateRequest.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));

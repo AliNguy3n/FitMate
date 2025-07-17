@@ -22,5 +22,5 @@ public class EquipmentResponse {
 
     private List<Long> category;
 
-    private Long product;
+    private Product product;
 }

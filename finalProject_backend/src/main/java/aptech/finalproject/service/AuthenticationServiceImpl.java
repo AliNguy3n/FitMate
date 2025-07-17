@@ -57,11 +57,11 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     );
 
     public AuthenticationResponse authenticated(AuthenticationRequest request, String deviceType, HttpServletRequest httpRequest) {
-        var user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        var user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new ApiException(ErrorCode.USERNAME_OR_PASSWORD_INCORRECT));
         DeviceType device = resolveDeviceType(deviceType);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if (!authenticated)
-            throw new ApiException(ErrorCode.USER_UNAUTHENTICATED);
+            throw new ApiException(ErrorCode.USERNAME_OR_PASSWORD_INCORRECT);
         String username = user.getUsername();
 
         try {

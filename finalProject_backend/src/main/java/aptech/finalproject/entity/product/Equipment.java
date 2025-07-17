@@ -1,5 +1,6 @@
 package aptech.finalproject.entity.product;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -31,5 +32,6 @@ public class Equipment {
     private List<ECategory> category;
 
     @OneToOne
+    @JsonIgnore
     private Product product;
 }

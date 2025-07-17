@@ -7,6 +7,7 @@ import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.UUID;
 
 @Setter
 @Getter
@@ -25,9 +26,8 @@ public class OrderRequest {
     @NotNull(message = "Status is required")
     private Boolean status;
 
-    @NotNull(message = "User ID is required")
     private String userId;
 
-    @NotNull(message = "Payment ID is required")
+
     private Long paymentId;
 }

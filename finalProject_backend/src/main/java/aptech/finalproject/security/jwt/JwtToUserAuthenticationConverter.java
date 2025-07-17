@@ -18,7 +18,7 @@ public class JwtToUserAuthenticationConverter implements Converter<Jwt, Abstract
     @Override
     public AbstractAuthenticationToken convert(Jwt jwt) {
         String userId = jwt.getSubject();
-        String preferred_username = jwt.getClaimAsString("preferred_username");
+        String preferredUsername = jwt.getClaimAsString("preferred_username");
 
         List<String> authorities;
 
@@ -38,7 +38,13 @@ public class JwtToUserAuthenticationConverter implements Converter<Jwt, Abstract
                 .map(SimpleGrantedAuthority::new)
                 .collect(Collectors.toList());
 
-        CustomUserPrincipal principal = new CustomUserPrincipal(userId, preferred_username);
+        String role = authorities.stream()
+                .filter(auth -> auth.startsWith("ROLE_"))
+                .findFirst()
+                .orElse(null);
+
+        CustomUserPrincipal principal = new CustomUserPrincipal(userId, preferredUsername, role);
+
         return new UsernamePasswordAuthenticationToken(principal, null, grantedAuthorities);
     }
 }

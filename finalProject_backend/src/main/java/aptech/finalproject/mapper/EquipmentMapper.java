@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Mapper( componentModel = "spring")
 public interface EquipmentMapper {
     @Mapping(target = "category", source = "category", qualifiedByName = "mapCategoryToIds")
-    @Mapping(target = "product", source = "product.id")
+    @Mapping(target = "product", source = "product")
     EquipmentResponse toEquipmentResponse(Equipment equipment);
 
     @Mapping(target = "id", ignore = true)

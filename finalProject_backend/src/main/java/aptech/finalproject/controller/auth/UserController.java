@@ -11,8 +11,10 @@ import aptech.finalproject.mapper.UserMapper;
 import aptech.finalproject.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
 
@@ -24,6 +26,9 @@ public class UserController {
     private UserService userService;
     @Autowired
     private UserMapper userMapper;
+
+    @Value("${frontend.domain}")
+    private String frontendDomain;
 
     @PostMapping("/create")
     public ApiResponse<UserResponse> create(@RequestBody @Valid UserCreationRequest userCreationRequest,
@@ -38,10 +43,10 @@ public class UserController {
         return ApiResponse.created(user, "Created user");
     }
 
-    @PostMapping("/activation")
-    public ApiResponse<?> activateAccount(@RequestBody String token) throws ApiException {
+    @GetMapping("/activation")
+    public RedirectView activateAccount(@RequestParam("token") String token) {
         userService.activateAccount(token);
-        return ApiResponse.ok();
+        return new RedirectView(frontendDomain + "/account-activation-success");
     }
 
     @GetMapping()
@@ -90,6 +95,4 @@ public class UserController {
         userService.delete(userId);
         return ApiResponse.noContent(String.format("Deleted user with id %s", userId));
     }
-
-
 }

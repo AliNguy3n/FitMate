@@ -15,6 +15,9 @@ import aptech.finalproject.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 public class PaymentMethodServiceImpl implements PaymentMethodService {
     @Autowired
@@ -58,7 +61,13 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
         paymentMethodRepository.deleteById(id);
     }
 
-    public PaymentMethodResponse getPaymentMethod(Long id) {
+    public List<PaymentMethodResponse> getAllPaymentMethods() {
+        return paymentMethodRepository.findAll()
+                .stream()
+                .map(paymentMethodMapper::toPaymentMethodResponse)
+                .collect(Collectors.toList());
+    }
+    public PaymentMethodResponse getPaymentMethodById(Long id) {
         PaymentMethod paymentMethod = paymentMethodRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.PAYMENT_METHOD_NOT_FOUND));
         return paymentMethodMapper.toPaymentMethodResponse(paymentMethod);

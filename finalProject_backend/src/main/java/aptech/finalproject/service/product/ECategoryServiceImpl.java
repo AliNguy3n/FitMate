@@ -12,6 +12,7 @@ import aptech.finalproject.repository.product.ECategoryRepository;
 import aptech.finalproject.repository.product.EquipmentRepository;
 import aptech.finalproject.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -19,7 +20,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
-public class ECategoryServiceImpl {
+public class ECategoryServiceImpl implements ECategoryService {
     @Autowired
     private ECategoryRepository eCategoryRepository;
 
@@ -32,7 +33,8 @@ public class ECategoryServiceImpl {
     @Autowired
     private EquipmentRepository equipmentRepository;
 
-    public ECategoryResponse toECategoryResponse(ECategoryRequest eCategoryRequest) {
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
+    public ECategoryResponse createECategory(ECategoryRequest eCategoryRequest) {
         ECategory eCategory = eCategoryMapper.toECategory(eCategoryRequest);
 
         if (eCategoryRequest.getImage() != null && !eCategoryRequest.getImage().isEmpty()) {
@@ -48,9 +50,10 @@ public class ECategoryServiceImpl {
         return eCategoryMapper.toECategoryResponse(eCategoryRepository.save(eCategory));
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public ECategoryResponse updateECategory(Long id, ECategoryRequest eCategoryRequest) {
         ECategory eCategory = eCategoryRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.ECategory_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.ECATEGORY_NOT_FOUND));
 
         eCategoryMapper.updateECategory(eCategory, eCategoryRequest);
 
@@ -67,13 +70,14 @@ public class ECategoryServiceImpl {
         return eCategoryMapper.toECategoryResponse(eCategoryRepository.save(eCategory));
     }
 
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public void deleteECategory(Long id) {
         if (!eCategoryRepository.existsById(id)) {
-            throw new ApiException(ErrorCode.ECategory_NOT_FOUND);
+            throw new ApiException(ErrorCode.ECATEGORY_NOT_FOUND);
         }
         eCategoryRepository.deleteById(id);
     }
-
+    @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public List<ECategoryResponse> getAllCategories() {
         return eCategoryRepository.findAll().stream()
                 .map(eCategoryMapper::toECategoryResponse)
@@ -82,7 +86,7 @@ public class ECategoryServiceImpl {
 
     public ECategoryResponse getCategoryById(Long id) {
         ECategory eCategory = eCategoryRepository.findById(id)
-                .orElseThrow(() -> new ApiException(ErrorCode.ECategory_NOT_FOUND));
+                .orElseThrow(() -> new ApiException(ErrorCode.ECATEGORY_NOT_FOUND));
         return eCategoryMapper.toECategoryResponse(eCategory);
     }
 }

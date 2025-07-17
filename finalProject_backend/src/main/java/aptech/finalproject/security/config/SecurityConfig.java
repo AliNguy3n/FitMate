@@ -50,7 +50,7 @@ public class SecurityConfig {
     private final String[] BLACKLIST = {};
     // Danh sách route IDENTITY được truy cập không cần xác thực hoặc quyền
     private final String[] IDENTITY_WHITELIST = {
-            "/identity/user/create",
+            "/identity/user/**",
     };
 
     //Danh sách route public

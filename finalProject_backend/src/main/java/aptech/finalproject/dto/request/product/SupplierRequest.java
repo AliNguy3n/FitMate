@@ -31,5 +31,5 @@ public class SupplierRequest {
     @NotBlank(message = "Address is required")
     private String address;
 
-    private String imageId;
+    private MultipartFile image;
 }

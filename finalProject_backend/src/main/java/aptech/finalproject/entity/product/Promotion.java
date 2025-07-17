@@ -1,5 +1,6 @@
 package aptech.finalproject.entity.product;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -26,5 +27,6 @@ public class Promotion {
     private Instant endDate;
 
     @OneToMany( mappedBy = "promotion")
+    @JsonIgnore
     private List<Product> products;
 }

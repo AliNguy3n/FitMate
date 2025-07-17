@@ -55,6 +55,8 @@ public class UserSeeder implements CommandLineRunner {
 //                PredefinedRole.SUPER_ADMIN, Arrays.asList(PredefinedPermission.values()),
                 PredefinedRole.ADMIN, Arrays.asList(
                         PredefinedPermission.MANAGE_USERS, PredefinedPermission.VIEW_USERS,
+                        PredefinedPermission.MANAGE_PRODUCTS, PredefinedPermission.VIEW_PRODUCTS,
+                        PredefinedPermission.MANAGE_ORDERS,
                         PredefinedPermission.RESET_PASSWORD, PredefinedPermission.ASSIGN_ROLES,
                         PredefinedPermission.MANAGE_ROLES, PredefinedPermission.VIEW_ROLES, PredefinedPermission.MANAGE_PERMISSIONS,
                         PredefinedPermission.MANAGE_SETTINGS, PredefinedPermission.ACCESS_ADMIN_PANEL,
@@ -63,6 +65,7 @@ public class UserSeeder implements CommandLineRunner {
                 PredefinedRole.MODERATOR, Arrays.asList(
                         PredefinedPermission.VIEW_USERS, PredefinedPermission.RESET_PASSWORD, PredefinedPermission.ASSIGN_ROLES,
                         PredefinedPermission.VIEW_ROLES, PredefinedPermission.VIEW_MESSAGES,
+                        PredefinedPermission.MANAGE_PRODUCTS, PredefinedPermission.VIEW_PRODUCTS,
                         PredefinedPermission.VIEW_AUDIT_LOGS, PredefinedPermission.VIEW_REPORTS,
                         PredefinedPermission.CREATE_POST, PredefinedPermission.EDIT_POST,
                         PredefinedPermission.DELETE_POST, PredefinedPermission.PUBLISH_CONTENT

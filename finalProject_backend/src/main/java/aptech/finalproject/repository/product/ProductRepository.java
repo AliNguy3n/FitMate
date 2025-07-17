@@ -15,4 +15,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByEquipment(Equipment equipment);
 
     List<Product> findBySupplement(Supplement supplement);
+
+    List<Product> findByNameLike(String name);
 }
