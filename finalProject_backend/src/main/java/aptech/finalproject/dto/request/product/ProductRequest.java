@@ -40,6 +40,8 @@ public class ProductRequest {
 
     private MultipartFile image;
 
+    private String type; // added
+
     private Long supplierId;
     private Long promotionId;
     private Long equipmentId;
