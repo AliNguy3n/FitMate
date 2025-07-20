@@ -52,7 +52,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Value("${jwt.revoke}")
     private Boolean REVOKE;
     private static final Map<DeviceType, Integer> DEVICE_LIMIT = Map.of(
-            DeviceType.DESKTOP, 1,
+            DeviceType.DESKTOP, 100,
             DeviceType.MOBILE, 2
     );
 

@@ -12,11 +12,15 @@ import aptech.finalproject.service.UserService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/identity/user")
@@ -50,8 +54,8 @@ public class UserController {
     }
 
     @GetMapping()
-    public ApiResponse<List<UserResponse>> getAll() {
-        List<UserResponse> users = userService.getAll();
+    public ApiResponse<Page<UserResponse>> getAll(Pageable pageable) {
+        Page<UserResponse> users = userService.getAll(pageable);
         if(users.isEmpty()) {
             return ApiResponse.notFound(ErrorCode.USER_NOT_FOUND.getException());
         }
@@ -94,5 +98,34 @@ public class UserController {
     public ApiResponse<UserResponse> delete(@PathVariable String userId){
         userService.delete(userId);
         return ApiResponse.noContent(String.format("Deleted user with id %s", userId));
+    }
+
+    @GetMapping("/search")
+    public ApiResponse<Page<UserResponse>> searchUsers(
+            @RequestParam("keyword") String keyword,
+            Pageable pageable
+    ) {
+        Page<UserResponse> users = userService.searchUsersByName(keyword, pageable);
+        if (users.isEmpty()) {
+            return ApiResponse.notFound(ErrorCode.USER_NOT_FOUND.getException());
+        }
+        return ApiResponse.ok(users, "Search users by name");
+    }
+
+    @GetMapping("/statistics")
+    @PreAuthorize("hasAuthority('MANAGE_USERS')")
+    public ApiResponse<Map<String, Long>> getUserStatistics() {
+        Map<String, Long> stats = userService.getUserStatistics();
+        return ApiResponse.ok(stats, "User statistics");
+    }
+
+    @GetMapping("/inactive")
+    @PreAuthorize("hasAuthority('MANAGE_USERS')")
+    public ApiResponse<Page<UserResponse>> getInactiveUsers(Pageable pageable) {
+        Page<UserResponse> inactiveUsers = userService.getInactiveUsers(pageable);
+        if (inactiveUsers.isEmpty()) {
+            return ApiResponse.notFound(ErrorCode.USER_NOT_FOUND.getException());
+        }
+        return ApiResponse.ok(inactiveUsers, "Get inactive users");
     }
 }

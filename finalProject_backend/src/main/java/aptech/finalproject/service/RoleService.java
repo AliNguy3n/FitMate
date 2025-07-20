@@ -2,6 +2,7 @@ package aptech.finalproject.service;
 
 import aptech.finalproject.dto.request.RoleCreationRequest;
 import aptech.finalproject.dto.response.RoleCreationResponse;
+import aptech.finalproject.dto.response.RolePermissionResponse;
 
 import java.util.List;
 
@@ -13,7 +14,7 @@ public interface RoleService {
 
     void delete(long permission);
 
-    List<RoleCreationResponse> findAll();
+    List<RolePermissionResponse> findAll();
 
     boolean existedRole(String role);
 

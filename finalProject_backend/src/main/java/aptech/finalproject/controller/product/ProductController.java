@@ -40,10 +40,12 @@ public class ProductController {
     public ApiResponse<ProductResponse> update(@PathVariable Long id,
                                                @ModelAttribute @Valid ProductRequest productRequest,
                                                BindingResult result) {
+        System.out.println("id: " + id);
         if (result.hasErrors()) {
             return ApiResponse.badRequest(result);
         }
         ProductResponse updated = productService.updateProduct(id, productRequest);
+
         if (updated == null) {
             return ApiResponse.notFound(ErrorCode.PRODUCT_NOT_FOUND.getException());
         }

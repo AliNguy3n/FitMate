@@ -3,6 +3,7 @@ package aptech.finalproject.service;
 
 import aptech.finalproject.dto.request.RoleCreationRequest;
 import aptech.finalproject.dto.response.RoleCreationResponse;
+import aptech.finalproject.dto.response.RolePermissionResponse;
 import aptech.finalproject.entity.auth.Permission;
 import aptech.finalproject.entity.auth.Role;
 import aptech.finalproject.exception.ApiException;
@@ -41,8 +42,8 @@ public class RoleServiceImpl implements RoleService {
     }
 
     @PreAuthorize("hasAuthority('MANAGE_ROLES')")
-    public List<RoleCreationResponse> findAll() {
-        return roleRepository.findAll().stream().map(roleMapper::toRoleResponse).toList();
+    public List<RolePermissionResponse> findAll() {
+        return roleRepository.findAll().stream().map(roleMapper::toRolePermisionPesponse).toList();
     }
 
     @PreAuthorize("hasAuthority('MANAGE_ROLES')")
