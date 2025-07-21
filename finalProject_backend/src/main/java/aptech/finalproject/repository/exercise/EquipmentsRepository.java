@@ -1,5 +1,6 @@
 package aptech.finalproject.repository.exercise;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -22,4 +23,6 @@ public interface EquipmentsRepository extends JpaRepository<EquipmentsModel, Int
 
     @Query("SELECT DISTINCT e.equipment FROM ExercisesModel e WHERE e.equipment IS NOT NULL")
     List<EquipmentsModel> getAllExerciseEquipment();
+
+    List<EquipmentsModel> findByEquipmentNameContainingIgnoreCase(String equipmentName);
 }

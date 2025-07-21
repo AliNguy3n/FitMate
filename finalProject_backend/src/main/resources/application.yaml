@@ -35,7 +35,7 @@ server:
 
 jwt: #JWT Config
   signerKey: ${JWT_SIGNER_KEY}
-  expiration: 180
+  expiration: 600
   expirationRefreshToken: 604800
   revoke: true
 

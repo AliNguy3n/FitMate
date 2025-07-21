@@ -104,6 +104,26 @@ public enum ErrorCode {
     ECATEGORY_NOT_FOUND(404, "Category not found."),
     ECATEGORY_CREATION_FAILED(409, "Category creation failed."),
 
+    //Meal
+    MEAL_SUBCATEGORY_NOT_FOUND(404, "Meal subcategory not found."),
+    MEAL_TIME_NOT_FOUND(404, "Meal time not found."),
+    MEAL_NOT_FOUND(404, "Meal not found."),
+    MEAL_CATEGORY_NOT_FOUND(404, "Meal category not found."),
+    USER_MEAL_NOT_FOUND(404, "User meal not found."),
+
+    //Exercise
+    EXERCISE_CATEGORY_NOT_FOUND(404, "Exercise category not found."),
+    EXERCISE_NOT_FOUND(404, "Exercise not found."),
+    EXERCISE_MODE_NOT_FOUND(404, "Exercise mode not found."),
+    EXERCISE_SUBCATEGORY_NOT_FOUND(404, "Exercise subcategory not found."),
+
+    EXERCISE_FAVORITE_NOT_FOUND(404, "Exercise favorite not found."),
+    EXERCISE_PROGRAM_NOT_FOUND(404, "Exercise program not found."),
+    EXERCISE_PROGRESS_NOT_FOUND(404, "Exercise progress not found."),
+    EXERCISE_SCHEDULE_NOT_FOUND(404, "Exercise schedule not found."),
+    EXERCISE_SESSION_NOT_FOUND(404, "Exercise session not found."),
+    EXERCISE_USER_NOT_FOUND(404, "Exercise user not found."),
+    EQUIPMENT_CREATION_FAILED(409, "Equipment creation failed.")
     ;
 
 
