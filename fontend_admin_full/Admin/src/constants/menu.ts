@@ -22,6 +22,21 @@ const MENU_ITEMS: MenuItemTypes[] = [
     icon: 'mgc_home_3_line',
     url: '/admin/dashboard'
   },
+
+  {
+    key: 'menu',
+    label: 'Order',
+    isTitle: true,
+  },
+
+  {
+    key: 'orders',
+    label: 'Manage Order',
+    isTitle: false,
+    icon: 'mgc_shopping_cart_2_line',
+    url: '/admin/order/orders',
+  },
+
   {
     key: 'elements',
     label: 'User',
@@ -205,139 +220,20 @@ const MENU_ITEMS: MenuItemTypes[] = [
     ]
   },
 
-  // {
-  //   key: 'apps-kanban',
-  //   label: 'Kanban Board',
-  //   isTitle: false,
-  //   icon: 'mgc_task_2_line',
-  //   url: '/apps/kanban',
-  // },
-  // {
-  //   key: 'apps-project',
-  //   label: 'Project',
-  //   isTitle: false,
-  //   icon: 'mgc_building_2_line',
-  //   children: [
-  //     {
-  //       key: 'project-list',
-  //       label: 'List',
-  //       url: '/apps/project/list',
-  //       parentKey: 'apps-project',
-  //     },
-  //     {
-  //       key: 'project-detail',
-  //       label: 'Detail',
-  //       url: '/apps/project/detail',
-  //       parentKey: 'apps-project',
-  //     },
-  //     {
-  //       key: 'project-create',
-  //       label: 'Create',
-  //       url: '/apps/project/create',
-  //       parentKey: 'apps-project',
-  //     },
-  //   ]
-  // },
-  // {
-  //   key: 'custom',
-  //   label: 'Custom',
-  //   isTitle: true,
-  // },
   
-  // {
-  //   key: 'pages',
-  //   label: 'Extra Pages',
-  //   isTitle: false,
-  //   icon: 'mgc_box_3_line',
-  //   children: [
-  //     {
-  //       key: 'pages-starter',
-  //       label: 'Starter Page',
-  //       url: '/pages/starter',
-  //       parentKey: 'pages',
-  //     },
-  //     {
-  //       key: 'pages-timeline',
-  //       label: 'Timeline',
-  //       url: '/pages/timeline',
-  //       parentKey: 'pages',
-  //     },
-  //     {
-  //       key: 'pages-invoice',
-  //       label: 'Invoice',
-  //       url: '/pages/invoice',
-  //       parentKey: 'pages',
-  //     },
-  //     {
-  //       key: 'pages-gallery',
-  //       label: 'Gallery',
-  //       url: '/pages/gallery',
-  //       parentKey: 'pages',
-  //     },
-  //     {
-  //       key: 'pages-faq',
-  //       label: 'FAQs',
-  //       url: '/pages/faqs',
-  //       parentKey: 'pages',
-  //     },
-  //     {
-  //       key: 'pages-pricing',
-  //       label: 'Pricing',
-  //       url: '/pages/pricing',
-  //       parentKey: 'pages',
-  //     },
-  //     {
-  //       key: 'pages-maintenance',
-  //       label: 'Maintenance',
-  //       url: '/maintenance',
-  //       parentKey: 'pages',
-  //     },
-  //     {
-  //       key: 'pages-comingsoon',
-  //       label: 'Coming Soon',
-  //       url: '/coming-soon',
-  //       parentKey: 'pages',
-  //     },
-  //     {
-  //       key: 'error-404',
-  //       label: 'Error 404',
-  //       url: '/error-404',
-  //       parentKey: 'pages',
-  //     },
-  //     {
-  //       key: 'error-404-alt',
-  //       label: 'Error 404-alt',
-  //       url: '/error-404-alt',
-  //       parentKey: 'pages',
-  //     },
-  //     {
-  //       key: 'error-500',
-  //       label: 'Error 500',
-  //       url: '/error-500',
-  //       parentKey: 'pages',
-  //     },
-  //   ]
-  // },
   {
     key: 'elements',
-    label: 'Products',
+    label: 'Until',
     isTitle: true,
   },
   
-{
-    key: 'apps-tickets',
-    label: 'Order',
-    isTitle: false,
-    icon: 'mgc_shopping_cart_2_line',
-    url: '/admin/apps/tickets',
-  },
-  {
-    key: 'apps-tickets',
-    label: 'Tickets',
-    isTitle: false,
-    icon: 'mgc_coupon_line',
-    url: '/admin/apps/tickets',
-  },
+  // {
+  //   key: 'apps-tickets',
+  //   label: 'Tickets',
+  //   isTitle: false,
+  //   icon: 'mgc_coupon_line',
+  //   url: '/admin/apps/tickets',
+  // },
   {
     key: 'apps-file-manager',
     label: 'File Manager',

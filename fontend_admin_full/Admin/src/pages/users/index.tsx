@@ -131,7 +131,7 @@ const ManageUsers = () => {
             >
               <i className="mgc_settings_3_line"></i>
             </button>
-            <button
+            {/* <button
               type="button"
               className="btn bg-dark/25 text-sm font-medium text-slate-900 dark:text-slate-200/70 hover:text-white hover:bg-dark/90"
             >
@@ -142,7 +142,7 @@ const ManageUsers = () => {
               className="btn bg-dark/25 text-sm font-medium text-slate-900 dark:text-slate-200/70 hover:text-white hover:bg-dark/90"
             >
               Export
-            </button>
+            </button> */}
           </div>
         </div>
         <div className="relative overflow-x-auto">
