@@ -67,6 +67,7 @@ public class PaymentMethodServiceImpl implements PaymentMethodService {
                 .map(paymentMethodMapper::toPaymentMethodResponse)
                 .collect(Collectors.toList());
     }
+
     public PaymentMethodResponse getPaymentMethodById(Long id) {
         PaymentMethod paymentMethod = paymentMethodRepository.findById(id)
                 .orElseThrow(() -> new ApiException(ErrorCode.PAYMENT_METHOD_NOT_FOUND));

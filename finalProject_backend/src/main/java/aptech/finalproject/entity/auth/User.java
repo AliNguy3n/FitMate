@@ -52,6 +52,9 @@ public class User {
     @Column(nullable = true, length = 128)
     private String address;
 
+    @Column(nullable = true, length = 128)
+    private String deliveryAddress;
+
     @Builder.Default
     private boolean active = false;
 

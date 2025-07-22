@@ -19,6 +19,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -53,7 +54,9 @@ public class OrderServiceImpl implements OrderService{
 //        Payment payment = paymentRepository.findById(orderRequest.getPaymentId())
 //                .orElseThrow(() -> new ApiException(ErrorCode.PAYMENT_NOT_FOUND));
 //        order.setPayment(payment);
-
+        order.setOrderDate(Instant.now());
+        order.setDelivered(false);
+        order.setStatus(false);
         return orderMapper.toOrderResponse(orderRepository.save(order));
     }
 

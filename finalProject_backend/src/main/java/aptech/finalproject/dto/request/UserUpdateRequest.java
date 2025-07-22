@@ -25,5 +25,7 @@ public class UserUpdateRequest {
 
     private String address;
 
+    private String roleName;
+
     private LocalDate dob;
 }

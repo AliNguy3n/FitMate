@@ -59,4 +59,8 @@ public class Product {
             inverseJoinColumns = @JoinColumn(name = "category_id")
     )
     private List<Category> category;
+
+    @OneToMany(mappedBy = "product")
+    @JsonIgnore
+    private List<OrderDetail> orderDetails;
 }

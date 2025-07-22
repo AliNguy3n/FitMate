@@ -4,25 +4,28 @@ import aptech.finalproject.dto.request.UserCreationRequest;
 import aptech.finalproject.dto.request.UserUpdateRequest;
 import aptech.finalproject.dto.response.UserResponse;
 import aptech.finalproject.entity.auth.AccountActivationToken;
+import aptech.finalproject.entity.auth.Role;
 import aptech.finalproject.entity.auth.User;
 import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.mapper.UserMapper;
 import aptech.finalproject.repository.AccountActivationTokenRepository;
 import aptech.finalproject.repository.RoleRepository;
+import aptech.finalproject.repository.TokenRepository;
 import aptech.finalproject.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.temporal.ChronoUnit;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -39,7 +42,8 @@ public class UserServiceImpl implements UserService {
     private UserMapper userMapper;
     @Autowired
     private EmailService emailService;
-
+    @Autowired
+    private TokenRepository tokenRepository;
     @Autowired
     private PasswordEncoder passwordEncoder;
 
@@ -110,10 +114,9 @@ public class UserServiceImpl implements UserService {
     }
 
     @PreAuthorize("hasAuthority('MANAGE_USERS')")
-    public List<UserResponse> getAll() {
-        return userRepository.findAll().stream()
-                .map(userMapper::toUserResponse)
-                .collect(Collectors.toList());
+    public Page<UserResponse> getAll(Pageable pageable) {
+        return userRepository.findAll(pageable)
+                .map(userMapper::toUserResponse);
     }
 
     @PreAuthorize("hasAuthority('MANAGE_USERS') or #userId == authentication.principal.id")
@@ -132,17 +135,79 @@ public class UserServiceImpl implements UserService {
     }
 
     @PreAuthorize("hasAuthority('MANAGE_USERS') or #userId == authentication.principal.id")
-    public User update(String userId, UserUpdateRequest userUpdateRequest) {
+    public User update(String userId, UserUpdateRequest request) {
         User user = getById(userId);
-        if (userUpdateRequest.getPassword() != null) {
-            userUpdateRequest.setPassword(passwordEncoder.encode(userUpdateRequest.getPassword()));
+
+        if (request.getFirstName() != null) {
+            user.setFirstName(request.getFirstName());
         }
-        userMapper.updateUser(user, userUpdateRequest);
+
+        if (request.getLastName() != null) {
+            user.setLastName(request.getLastName());
+        }
+
+        if (request.getEmail() != null) {
+            user.setEmail(request.getEmail());
+        }
+
+        if (request.getPhone() != null) {
+            user.setPhone(request.getPhone());
+        }
+
+        if (request.getAddress() != null) {
+            user.setAddress(request.getAddress());
+        }
+
+        if (request.getDob() != null) {
+            user.setDob(request.getDob());
+        }
+
+        if (request.getRoleName() != null) {
+            Role role = roleRepository.findByRole(request.getRoleName())
+                    .orElseThrow(() -> new ApiException(ErrorCode.ROLE_NOT_FOUND));
+            user.setRole(role);
+        }
+
+        if (request.getPassword() != null) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
+
         return userRepository.save(user);
     }
 
     @PreAuthorize("hasAuthority('ADMIN')")
     public void delete(String userId) {
         userRepository.deleteById(userId);
+    }
+
+    @PreAuthorize("hasAuthority('MANAGE_USERS')")
+    public Page<UserResponse> searchUsersByName(String keyword, Pageable pageable) {
+        return userRepository
+                .findByFirstNameContainingIgnoreCaseOrLastNameContainingIgnoreCase(keyword, keyword, pageable)
+                .map(userMapper::toUserResponse);
+    }
+
+    @PreAuthorize("hasAuthority('MANAGE_USERS')")
+    public Map<String, Long> getUserStatistics() {
+        long totalUsers = userRepository.count();
+        long activeUsers = userRepository.countByActive(true);
+        long inactiveUsers = totalUsers - activeUsers;
+
+        Instant sevenDaysAgo = Instant.now().minus(7, ChronoUnit.DAYS);
+        long weeklyActiveUsers = tokenRepository.countDistinctUserActiveSince(sevenDaysAgo);
+
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("totalUsers", totalUsers);
+        stats.put("activeUsers", activeUsers);
+        stats.put("inactiveUsers", inactiveUsers);
+        stats.put("weeklyActiveUsers", weeklyActiveUsers);
+
+        return stats;
+    }
+
+    @PreAuthorize("hasAuthority('MANAGE_USERS')")
+    public Page<UserResponse> getInactiveUsers(Pageable pageable) {
+        return userRepository.findByActiveFalse(pageable)
+                .map(userMapper::toUserResponse);
     }
 }

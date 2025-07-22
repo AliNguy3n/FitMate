@@ -7,7 +7,7 @@ spring:
     driver-class-name: com.mysql.cj.jdbc.Driver
     url: jdbc:mysql://localhost:3306/finalProject
     username: root
-    password: 1234
+    password:
   jpa:
     show-sql: true
     hibernate:
@@ -35,9 +35,16 @@ server:
 
 jwt: #JWT Config
   signerKey: ${JWT_SIGNER_KEY}
-  expiration: 1800
+  expiration: 600
   expirationRefreshToken: 604800
   revoke: true
+
+paypal:
+  clientId: ${PAYPAL_CLIENT_ID}
+  clientSecret: ${PAYPAL_SECRET}
+  mode: sandbox # or live
+  successUrl: http://localhost:8080/api/payment/paypal/success
+  cancelUrl: http://localhost:8080/api/payment/paypal/cancel
 
 frontend: #Frontend Domain
   domain: https://abcd.com

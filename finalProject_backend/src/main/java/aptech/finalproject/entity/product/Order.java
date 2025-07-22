@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.List;
 
 import aptech.finalproject.entity.auth.User;
 
@@ -25,6 +26,8 @@ public class Order {
 
     private Boolean status;
 
+    private Boolean delivered;
+
     @ManyToOne
     @JoinColumn( name = "user_id")
     private User user;
@@ -32,4 +35,7 @@ public class Order {
     @OneToOne( cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn( name = "payment_id")
     private Payment payment;
+
+    @OneToMany(mappedBy = "order", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<OrderDetail> orderDetails;
 }

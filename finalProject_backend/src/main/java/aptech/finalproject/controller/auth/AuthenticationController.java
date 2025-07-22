@@ -33,6 +33,7 @@ public class AuthenticationController {
             @RequestBody AuthenticationRequest request,
             @RequestHeader("X-Device-Type") String deviceType,
             HttpServletRequest httpRequest) throws JOSEException, ParseException {
+
         return ApiResponse.ok(authenticationService.authenticated(request, deviceType, httpRequest));
     }
 
