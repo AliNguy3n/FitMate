@@ -62,10 +62,15 @@ public class AdminExerciseServiceImpl implements AdminExerciseService {
         }
 
         // Thiết lập mode
-        if (request.getModeId() != null) {
-            ExerciseModeModel mode = modeRepository.findById(request.getModeId())
-                    .orElseThrow(() -> new ApiException(ErrorCode.EXERCISE_MODE_NOT_FOUND));
-            exercise.setMode(mode);
+        if (request.getModeIds() != null && !request.getModeIds().isEmpty()) {
+            Set<ExerciseModeModel> modes = request.getModeIds().stream()
+                    .map(id -> modeRepository.findById(id)
+                            .orElseThrow(() -> {
+                                System.out.println("Không tìm thấy ModeId: " + id);
+                                return new ApiException(ErrorCode.EXERCISE_MODE_NOT_FOUND);
+                            }))
+                    .collect(Collectors.toSet());
+            exercise.setModes(modes);
         }
 
 
@@ -106,10 +111,15 @@ public class AdminExerciseServiceImpl implements AdminExerciseService {
         }
 
         // Cập nhật mode
-        if( request.getModeId() != null) {
-            ExerciseModeModel mode = modeRepository.findById(request.getModeId())
-                    .orElseThrow(() -> new ApiException(ErrorCode.EXERCISE_MODE_NOT_FOUND));
-            exercise.setMode(mode);
+        if (request.getModeIds() != null && !request.getModeIds().isEmpty()) {
+            Set<ExerciseModeModel> modes = request.getModeIds().stream()
+                    .map(ids -> modeRepository.findById(ids)
+                            .orElseThrow(() -> {
+                                System.out.println("Not found mode: " + ids);
+                                return new ApiException(ErrorCode.EXERCISE_MODE_NOT_FOUND);
+                            }))
+                    .collect(Collectors.toSet());
+            exercise.setModes(modes);
         }
 
         // Cập nhật subCategory

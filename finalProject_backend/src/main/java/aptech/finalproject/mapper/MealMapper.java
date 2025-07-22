@@ -26,6 +26,7 @@ public class MealMapper {
         if (entity.getCategory() != null) {
             MealCategoryDTO categoryDto = new MealCategoryDTO();
             categoryDto.setId(entity.getCategory().getId());
+            categoryDto.setCategoryImage(entity.getCategory().getCategoryImage());
             categoryDto.setCategoryName(entity.getCategory().getCategoryName());
             dto.setCategory(categoryDto);
         } else {

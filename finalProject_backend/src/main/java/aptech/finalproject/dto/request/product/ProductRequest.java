@@ -1,14 +1,6 @@
 package aptech.finalproject.dto.request.product;
 
-import aptech.finalproject.entity.auth.FileMetadata;
-import aptech.finalproject.entity.product.Equipment;
-import aptech.finalproject.entity.product.Promotion;
-import aptech.finalproject.entity.product.Supplement;
-import aptech.finalproject.entity.product.Supplier;
-import jakarta.persistence.CascadeType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

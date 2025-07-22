@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projectflutter/common/helper/image/switch_image_type.dart';
 import 'package:projectflutter/core/config/assets/app_image.dart';
 import 'package:projectflutter/core/config/themes/app_color.dart';
 import 'package:projectflutter/core/config/themes/app_font_size.dart';
@@ -29,30 +30,27 @@ class WorkoutRow extends StatelessWidget {
       final duration = Duration(seconds: seconds);
       return "${twoDigits(duration.inMinutes)}:${twoDigits(duration.inSeconds.remainder(60))}";
     }
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 8),
       padding: const EdgeInsets.symmetric(vertical: 15, horizontal: 15),
       decoration: BoxDecoration(
           color: AppColors.white,
           borderRadius: BorderRadius.circular(20),
-          border: Border.all(
-            color: AppColors.gray.withOpacity(0.2),
-            width: 1
-          ),
+          border: Border.all(color: AppColors.gray.withOpacity(0.2), width: 1),
           boxShadow: const [BoxShadow(color: Colors.black12, blurRadius: 2)]),
       child: Row(
         children: [
           ClipRRect(
-            borderRadius: BorderRadius.circular(30),
-            child: Image.asset(
-              image,
-              width: 70,
-              height: 70,
-              fit: BoxFit.cover,
-            ),
-          ),
-           SizedBox(
-            width: media.width*0.04,
+              borderRadius: BorderRadius.circular(30),
+              child: SwitchImageType.buildImage(
+                image,
+                width: 70,
+                height: 70,
+                fit: BoxFit.cover,
+              )),
+          SizedBox(
+            width: media.width * 0.04,
           ),
           Expanded(
               child: Column(
@@ -67,7 +65,10 @@ class WorkoutRow extends StatelessWidget {
               ),
               Text(
                 '${kcal.toStringAsFixed(0)} Calories Burn | ${_formatDuration(duration)} mins',
-                style: TextStyle(color: AppColors.gray,fontSize: AppFontSize.content(context),),
+                style: TextStyle(
+                  color: AppColors.gray,
+                  fontSize: AppFontSize.content(context),
+                ),
               ),
               const SizedBox(
                 height: 4,
@@ -91,7 +92,7 @@ class WorkoutRow extends StatelessWidget {
           )),
           IconButton(
             onPressed: onPressed,
-            icon: Image.asset(
+            icon: SwitchImageType.buildImage(
               AppImages.nextIcon,
               width: 35,
               height: 35,

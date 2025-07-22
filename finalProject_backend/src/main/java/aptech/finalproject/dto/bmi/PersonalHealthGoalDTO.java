@@ -11,7 +11,7 @@ import aptech.finalproject.dto.auth.UserDTO;
 @AllArgsConstructor
 
 public class PersonalHealthGoalDTO {
-     private int id;
+    private int id;
     private UserDTO user;
     private double targetWeight;
     private LocalDateTime createdAt;

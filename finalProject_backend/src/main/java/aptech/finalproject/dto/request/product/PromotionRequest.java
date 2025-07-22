@@ -1,7 +1,6 @@
 package aptech.finalproject.dto.request.product;
 
-import aptech.finalproject.entity.product.Product;
-import jakarta.persistence.OneToMany;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;

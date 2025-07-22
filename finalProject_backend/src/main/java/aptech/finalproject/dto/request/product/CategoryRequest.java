@@ -1,6 +1,5 @@
 package aptech.finalproject.dto.request.product;
 
-import aptech.finalproject.entity.product.Product;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
@@ -8,7 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.util.List;
 
 @Setter
 @Getter

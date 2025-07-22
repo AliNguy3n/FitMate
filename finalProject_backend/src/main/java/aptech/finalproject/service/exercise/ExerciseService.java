@@ -9,7 +9,7 @@ import aptech.finalproject.entity.exercise.*;
 public interface ExerciseService {
     List<ExerciseSubCategoryProgramDTO> getAllSubCategoryProgam();
 
-    List<ExerciseModeModel> getAllExerciseMode();
+    List<ExerciseModeDTO> getAllExerciseMode();
 
     List<ExercisesDTO> getAllExercise();
 

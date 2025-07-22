@@ -27,14 +27,12 @@ public class ExercisesModel {
     @Column(name = "total_kcal")
     private double kcal;
     @ManyToMany
-    @JoinTable(name = "exercise_subcategories", 
-    joinColumns = @JoinColumn(name = "exercise_id"), 
-    inverseJoinColumns = @JoinColumn(name = "sub_category_id"))
+    @JoinTable(name = "exercise_subcategories", joinColumns = @JoinColumn(name = "exercise_id"), inverseJoinColumns = @JoinColumn(name = "sub_category_id"))
     private Set<ExerciseSubCategoryModel> subCategory = new HashSet<>();
     @ManyToOne
     @JoinColumn(name = "equipment_id", referencedColumnName = "id")
     private EquipmentsModel equipment;
-    @ManyToOne
-    @JoinColumn(name = "mode_id", referencedColumnName = "id")
-    private ExerciseModeModel mode;
+    @ManyToMany
+    @JoinTable(name = "exercise_modes", joinColumns = @JoinColumn(name = "exercise_id"), inverseJoinColumns = @JoinColumn(name = "mode_id"))
+    private Set<ExerciseModeModel> modes = new HashSet<>();
 }

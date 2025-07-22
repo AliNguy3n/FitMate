@@ -46,7 +46,7 @@ class _OtherPlanSettingState extends State<OtherPlanSetting> {
   List<String> durations = ['<10 min/day', '10-20 min/day', '20-30 min/day', '30-45 min/day'];
   List<bool> _selectedBodyAreas = List.generate(7, (i) => i == 6);
   List<String> bodyArea = ['Arm', 'Shoulder', 'Chest', 'Core','Butt & Leg','Back','Full Body'];
-  List<String> goals = ['Loss Weight', 'Build Muscle', 'Keep Fit'];
+  List<String> goals = ['Lose Weight', 'Build Muscle', 'Keep Fit'];
   String _selectedFocusAreaText = 'Full Body';
   int _selectedDifficultyIndex = 0;
   int _selectedDuraitonIndex = 0;

@@ -1,6 +1,6 @@
 package aptech.finalproject.dto.request.product;
 
-import aptech.finalproject.entity.product.Supplement;
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
 

@@ -1,7 +1,7 @@
 package aptech.finalproject.entity.product;
 
 import aptech.finalproject.entity.auth.FileMetadata;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;

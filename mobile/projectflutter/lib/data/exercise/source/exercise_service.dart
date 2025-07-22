@@ -4,6 +4,7 @@ import 'package:dartz/dartz.dart';
 import 'package:http/http.dart' as http;
 import 'package:projectflutter/common/api/base_api.dart';
 import 'package:projectflutter/common/api/shared_preference_service.dart';
+import 'package:projectflutter/common/api/token_request_helper.dart';
 import 'package:projectflutter/data/exercise/request/exercise_favorite_request.dart';
 import 'package:projectflutter/data/exercise/request/exercise_schedule_request.dart';
 import 'package:projectflutter/data/exercise/request/exercise_session_batch_request.dart';
@@ -51,20 +52,21 @@ class ExerciseServiceImpl extends ExerciseService {
   Future<int?> getResetBatchBySubCategory(int subCategoryId) async {
     try {
       final userId = SharedPreferenceService.userId;
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        Uri.parse(
-            '$baseAPI/api/exercise/reset-batch?userId=$userId&subCategoryId=$subCategoryId'),
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
 
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse(
+            '$baseAPI/api/exercise/reset-batch?userId=$userId&subCategoryId=$subCategoryId');
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       if (response.statusCode == 200) {
         final batch = int.parse(response.body);
 
-        // Lưu local nếu bạn vẫn muốn
         final prefs = await SharedPreferences.getInstance();
         await prefs.setInt("reset_batch_subCategory_$subCategoryId", batch);
 
@@ -79,15 +81,17 @@ class ExerciseServiceImpl extends ExerciseService {
   @override
   Future<Either> getAllSubCategory() async {
     try {
-      Uri url = Uri.parse("$baseAPI/api/exercise/category/sub");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/category/sub");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
+
       if (response.statusCode == 404) {
         return const Left('Category not found');
       }
@@ -102,16 +106,17 @@ class ExerciseServiceImpl extends ExerciseService {
   @override
   Future<Either> getExerciseBySubCategory(int subCategoryId) async {
     try {
-      final Uri url =
-          Uri.parse("$baseAPI/api/exercise/category/sub/$subCategoryId");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url =
+            Uri.parse("$baseAPI/api/exercise/category/sub/$subCategoryId");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       if (response.statusCode == 404) {
         return const Left('Exercise by category not found');
       }
@@ -126,15 +131,16 @@ class ExerciseServiceImpl extends ExerciseService {
   @override
   Future<Either> getExerciseById(int exerciseId) async {
     try {
-      Uri url = Uri.parse("$baseAPI/api/exercise/$exerciseId");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/$exerciseId");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       if (response.statusCode == 404) {
         return const Left('Exercise not found');
       }
@@ -148,15 +154,16 @@ class ExerciseServiceImpl extends ExerciseService {
   @override
   Future<Either> getAllExercise() async {
     try {
-      Uri url = Uri.parse("$baseAPI/api/exercise");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       if (response.statusCode == 404) {
         return const Left('No data');
       }
@@ -170,15 +177,16 @@ class ExerciseServiceImpl extends ExerciseService {
   @override
   Future<Either> getAllCategory() async {
     try {
-      Uri url = Uri.parse("$baseAPI/api/exercise/category");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/category");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       if (response.statusCode == 404) {
         return const Left('No data');
       }
@@ -193,15 +201,16 @@ class ExerciseServiceImpl extends ExerciseService {
   Future<Either> getAllExerciseProgressByUserId() async {
     try {
       final userId = SharedPreferenceService.userId;
-      Uri url = Uri.parse("$baseAPI/api/exercise/progress/$userId");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/progress/$userId");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       if (response.statusCode == 404) {
         return const Left('No data to found');
       }
@@ -216,15 +225,16 @@ class ExerciseServiceImpl extends ExerciseService {
   Future<Either> getAllExerciseResultByUserId() async {
     try {
       final userId = SharedPreferenceService.userId;
-      Uri url = Uri.parse("$baseAPI/api/exercise/user/$userId");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/user/$userId");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       if (response.statusCode == 404) {
         return const Left('No result for user');
       }
@@ -239,15 +249,16 @@ class ExerciseServiceImpl extends ExerciseService {
   Future<Either> getAllExerciseSessionByUserId() async {
     try {
       final userId = SharedPreferenceService.userId;
-      Uri url = Uri.parse("$baseAPI/api/session/$userId");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/session/$userId");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       if (response.statusCode == 404) {
         return const Left('No session by user');
       }
@@ -261,16 +272,17 @@ class ExerciseServiceImpl extends ExerciseService {
   @override
   Future<Either> startMultipleExercises(ExerciseSessionBatchRequest req) async {
     try {
-      Uri url = Uri.parse("$baseAPI/api/exercise/start-session");
-      final token = SharedPreferenceService.token;
-      final response = await http.post(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-        body: json.encode(req.toJson()),
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/start-session");
+        return http.post(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+          body: json.encode(req.toJson()),
+        );
+      });
       return Right(response.body);
     } catch (err) {
       return Left('Error Message: $err');
@@ -281,15 +293,16 @@ class ExerciseServiceImpl extends ExerciseService {
   Future<Either> getAllExerciseScheduleByUserId() async {
     try {
       final userId = SharedPreferenceService.userId;
-      Uri url = Uri.parse("$baseAPI/api/exercise/schedule/$userId");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/schedule/$userId");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       if (response.statusCode == 404) {
         return const Left('No schedule by user');
       }
@@ -304,18 +317,19 @@ class ExerciseServiceImpl extends ExerciseService {
   Future<Either> scheduleExercise(ExerciseScheduleRequest req) async {
     try {
       final userId = SharedPreferenceService.userId;
-      Uri url = Uri.parse("$baseAPI/api/exercise/schedule/save");
-      final token = SharedPreferenceService.token;
-      final response = await http.post(url,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-          body: json.encode({
-            'user': userId,
-            'subCategory': req.subCategory,
-            "scheduleTime": req.scheduleTime.toIso8601String()
-          }));
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/schedule/save");
+        return http.post(url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: json.encode({
+              'user': userId,
+              'subCategory': req.subCategory,
+              "scheduleTime": req.scheduleTime.toIso8601String()
+            }));
+      });
       return Right(response.body);
     } catch (err) {
       return Left('Error Message: $err');
@@ -324,15 +338,16 @@ class ExerciseServiceImpl extends ExerciseService {
 
   @override
   Future<void> deleteExerciseSchdedule(int scheduleId) async {
-    Uri url = Uri.parse("$baseAPI/api/exercise/schedule/$scheduleId");
-    final token = SharedPreferenceService.token;
-    final response = await http.delete(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    final response = await sendRequestWithAutoRefresh((token) {
+      Uri url = Uri.parse("$baseAPI/api/exercise/schedule/$scheduleId");
+      return http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+    });
     if (response.statusCode == 204) {
       print("Record deleted successfully.");
     } else {
@@ -342,15 +357,16 @@ class ExerciseServiceImpl extends ExerciseService {
 
   @override
   Future<void> deleteAllExerciseScheduleByTime() async {
-    Uri url = Uri.parse("$baseAPI/api/exercise/schedule/detele/time");
-    final token = SharedPreferenceService.token;
-    final response = await http.delete(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    final response = await sendRequestWithAutoRefresh((token) {
+      Uri url = Uri.parse("$baseAPI/api/exercise/schedule/delete/time");
+      return http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+    });
     if (response.statusCode == 204) {
       print("Record deleted successfully.");
     } else {
@@ -363,15 +379,16 @@ class ExerciseServiceImpl extends ExerciseService {
   Future<Either> getAllFavorite() async {
     try {
       final userId = SharedPreferenceService.userId;
-      Uri url = Uri.parse("$baseAPI/api/exercise/favorite/all/$userId");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/favorite/all/$userId");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       List<dynamic> responseData = json.decode(response.body);
       List<String> favoriteIdList = responseData
           .map<String>((favorite) => (favorite['id'] as int).toString())
@@ -387,16 +404,17 @@ class ExerciseServiceImpl extends ExerciseService {
   Future<Either> getAllExerciseFavorite(int favoriteId) async {
     try {
       final userId = SharedPreferenceService.userId;
-      Uri url = Uri.parse(
-          "$baseAPI/api/exercise/favorite/exercise/all/$userId/$favoriteId");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse(
+            "$baseAPI/api/exercise/favorite/exercise/all/$userId/$favoriteId");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       List<dynamic> responseData = json.decode(response.body);
       return Right(responseData);
     } catch (err) {
@@ -408,14 +426,15 @@ class ExerciseServiceImpl extends ExerciseService {
   Future<Either> addNewFavoriteByUserId(String favoriteName) async {
     try {
       final userId = SharedPreferenceService.userId;
-      Uri url = Uri.parse("$baseAPI/api/exercise/favorite/new/$userId");
-      final token = SharedPreferenceService.token;
-      final response = await http.post(url,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-          body: favoriteName);
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/favorite/new/$userId");
+        return http.post(url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: favoriteName);
+      });
       return Right(response.body);
     } catch (err) {
       return Left('Error: $err');
@@ -427,16 +446,17 @@ class ExerciseServiceImpl extends ExerciseService {
       ExerciseFavoriteRequest req) async {
     try {
       final userId = SharedPreferenceService.userId;
-      Uri url =
-          Uri.parse("$baseAPI/api/exercise/favorite/add/exercise/$userId");
-      final token = SharedPreferenceService.token;
-      final response = await http.post(url,
-          headers: {
-            'Content-Type': 'application/json',
-            'Authorization': 'Bearer $token',
-          },
-          body: json.encode(
-              {'subCategory': req.subCategory, 'favorite': req.favorite}));
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url =
+            Uri.parse("$baseAPI/api/exercise/favorite/add/exercise/$userId");
+        return http.post(url,
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': 'Bearer $token',
+            },
+            body: json.encode(
+                {'subCategory': req.subCategory, 'favorite': req.favorite}));
+      });
       return Right(response.body);
     } catch (err) {
       return Left('Error: $err');
@@ -445,15 +465,16 @@ class ExerciseServiceImpl extends ExerciseService {
 
   @override
   Future<void> removeFavorite(int favoriteId) async {
-    Uri url = Uri.parse("$baseAPI/api/exercise/favorite/delete/$favoriteId");
-    final token = SharedPreferenceService.token;
-    final response = await http.delete(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    final response = await sendRequestWithAutoRefresh((token) {
+      Uri url = Uri.parse("$baseAPI/api/exercise/favorite/delete/$favoriteId");
+      return http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+    });
     if (response.statusCode == 204) {
       print("Favorite deleted successfully.");
     } else {
@@ -463,16 +484,17 @@ class ExerciseServiceImpl extends ExerciseService {
 
   @override
   Future<void> removeExerciseFavorite(int subCategoryId) async {
-    Uri url = Uri.parse(
-        "$baseAPI/api/exercise/favorite/delete/exercise/$subCategoryId");
-    final token = SharedPreferenceService.token;
-    final response = await http.delete(
-      url,
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer $token',
-      },
-    );
+    final response = await sendRequestWithAutoRefresh((token) {
+      Uri url = Uri.parse(
+          "$baseAPI/api/exercise/favorite/delete/exercise/$subCategoryId");
+      return http.delete(
+        url,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer $token',
+        },
+      );
+    });
     if (response.statusCode == 204) {
       print("Exercise Favorite deleted successfully.");
     } else {
@@ -484,15 +506,16 @@ class ExerciseServiceImpl extends ExerciseService {
   @override
   Future<Either> getAllSubCategoryProgram() async {
     try {
-      Uri url = Uri.parse("$baseAPI/api/exercise/sub/category/program");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/sub/category/program");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       if (response.statusCode == 404) {
         return const Left('No sub category program');
       }
@@ -507,15 +530,16 @@ class ExerciseServiceImpl extends ExerciseService {
   @override
   Future<Either> getAllExerciseMode() async {
     try {
-      Uri url = Uri.parse("$baseAPI/api/exercise/mode/all");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/mode/all");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       if (response.statusCode == 404) {
         return const Left('No exercise mode');
       }
@@ -529,16 +553,17 @@ class ExerciseServiceImpl extends ExerciseService {
   @override
   Future<Either> searchBySubCategoryName(String subCategoryName) async {
     try {
-      Uri url = Uri.parse(
-          "$baseAPI/api/exercise/search?subCategoryName=$subCategoryName");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse(
+            "$baseAPI/api/exercise/search?subCategoryName=$subCategoryName");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       if (response.statusCode == 404) {
         return Left('No sub category by $subCategoryName');
       }
@@ -553,15 +578,16 @@ class ExerciseServiceImpl extends ExerciseService {
   @override
   Future<Either> getAllEquipmentBySubCategoryId(int subCategoryId) async {
     try {
-      Uri url = Uri.parse("$baseAPI/api/exercise/equipment/$subCategoryId");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/equipment/$subCategoryId");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       List<dynamic> responseData = jsonDecode(response.body);
       return Right(responseData);
     } catch (err) {
@@ -572,15 +598,16 @@ class ExerciseServiceImpl extends ExerciseService {
   @override
   Future<Either> getAllEquipment() async {
     try {
-      Uri url = Uri.parse("$baseAPI/api/exercise/equipment/all");
-      final token = SharedPreferenceService.token;
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse("$baseAPI/api/exercise/equipment/all");
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       List<dynamic> responseData = jsonDecode(response.body);
       return Right(responseData);
     } catch (err) {

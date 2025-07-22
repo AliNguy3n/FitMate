@@ -13,4 +13,5 @@ abstract class AuthRepository {
   Future<Either> getByUsername();
   Future<Either> introspectToken();
   Future<bool> ensureValidToken();
+  Future<Either> getInactiveUsers();
 }

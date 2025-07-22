@@ -1,8 +1,7 @@
 package aptech.finalproject.util;
 
 import aptech.finalproject.emums.FileType;
-import aptech.finalproject.exception.ApiException;
-import aptech.finalproject.exception.ErrorCode;
+
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.Arrays;

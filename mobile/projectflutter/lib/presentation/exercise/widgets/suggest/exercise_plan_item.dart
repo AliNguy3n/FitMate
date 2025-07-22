@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import 'package:projectflutter/domain/exercise/entity/exercise_sub_category_entity.dart';
 import 'package:projectflutter/domain/exercise/entity/exercises_entity.dart';
 import 'package:projectflutter/presentation/exercise/widgets/suggest/exercise_plan_day_item.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ExercisePlanItem extends StatefulWidget {
   final Map<int, List<ExercisesEntity>> groupedSubCategory;
@@ -10,12 +10,16 @@ class ExercisePlanItem extends StatefulWidget {
   final Map<int, double> kcalBySubCategory;
   final List<ExerciseSubCategoryEntity> subCategories;
   final List<bool> selectedDays;
+  final Map<int, bool> isCompleted;
+  final Map<int, String> levelBySubCategoryId;
   const ExercisePlanItem(
       {super.key,
       required this.groupedSubCategory,
       required this.durationBySubCategory,
       required this.kcalBySubCategory,
       required this.subCategories,
+        required this.isCompleted,
+        required this.levelBySubCategoryId,
       required this.selectedDays});
 
   @override
@@ -24,78 +28,106 @@ class ExercisePlanItem extends StatefulWidget {
 
 class _ExercisePlanItemState extends State<ExercisePlanItem> {
   late final int totalDays = 28;
-
+  Future<DateTime?> _loadStartDate() async {
+    final prefs = await SharedPreferences.getInstance();
+    final startDateString = prefs.getString('plan_start_date');
+    if (startDateString != null) {
+      return DateTime.parse(startDateString);
+    } else {
+      final now = DateTime.now();
+      await prefs.setString('plan_start_date', now.toIso8601String());
+      return now;
+    }
+  }
   @override
   Widget build(BuildContext context) {
-    final today = DateTime.now();
-    final List<Widget> planItems = [];
-    int? currentWeek;
-    int actualDayCount = 0;
+    return FutureBuilder<DateTime?>(
+      future: _loadStartDate(),
+      builder: (context, snapshot) {
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
 
-    for (int index = 0; index < widget.subCategories.length; index++) {
-      final itemDate = today.add(Duration(days: index));
-      final weekdayIndex = itemDate.weekday - 1;
+        final startDate = snapshot.data!;
+        DateTime _normalize(DateTime date) => DateTime(date.year, date.month, date.day);
 
-      if (!widget.selectedDays[weekdayIndex]) continue;
+        DateTime _findTodayDate(DateTime startDate) {
+          final today = _normalize(DateTime.now());
+          int offset = 0;
 
-      actualDayCount++;
-      final startOfWeek = today.subtract(Duration(days: today.weekday - 1));
-      final weekNumber = ((itemDate.difference(startOfWeek).inDays) ~/ 7) + 1;
+          while (offset < 100) {
+            final date = _normalize(startDate.add(Duration(days: offset)));
+            final weekdayIndex = date.weekday - 1;
 
-      final isToday = _isSameDate(itemDate, today);
-      final isUpcoming =
-          _isSameDate(itemDate, today.add(const Duration(days: 1)));
-      final isLast = index == totalDays - 1;
-      final isFirstDay = actualDayCount == 1;
-      final showWeekHeader = currentWeek != weekNumber;
-      currentWeek = weekNumber;
+            if (widget.selectedDays[weekdayIndex] && date == today) {
+              return date;
+            }
+            offset++;
+          }
 
-      final subCategory = widget.subCategories[index];
-      final subCategoryId = subCategory.id;
-      final imagePath = subCategory.subCategoryImage;
-      final duration =
-          _formatDuration(widget.durationBySubCategory[subCategoryId] ?? 0);
-      final kcal = widget.kcalBySubCategory[subCategoryId] ?? 0.0;
+          return today;
+        }
+        final todayDate = _findTodayDate(startDate);
 
-      final exercises = widget.groupedSubCategory[subCategoryId] ?? [];
-      final level = exercises
-              .firstWhere(
-                (e) => e.mode != null,
-                orElse: () => exercises.isNotEmpty
-                    ? exercises.first
-                    : ExercisesEntity.empty(),
-              )
-              .mode
-              ?.modeName ??
-          'Unknown';
+        final List<Widget> planItems = [];
+        int? currentWeek;
+        int currentOffset = 0;
+        int actualDayCount = 0;
 
-      planItems.add(
-        ExercisePlanDayItem(
-          itemDateFormatted: DateFormat("MMM dd, EEE").format(itemDate),
-          actualDay: actualDayCount,
-          isToday: isToday,
-          isUpcoming: isUpcoming,
-          isFirstDay: isFirstDay,
-          isLast: isLast,
-          showWeekHeader: showWeekHeader,
-          weekNumber: weekNumber,
-          level: level,
-          duration: duration,
-          kcal: kcal,
-          imagePath: imagePath,
-          subCategoryId: subCategoryId,
-        ),
-      );
-    }
 
-    return ListView(
-      padding: const EdgeInsets.all(30),
-      children: planItems,
+        while (actualDayCount < widget.subCategories.length && currentOffset < 100) {
+          final itemDate = startDate.add(Duration(days: currentOffset));
+          final weekdayIndex = itemDate.weekday - 1;
+
+          if (!widget.selectedDays[weekdayIndex]) {
+            currentOffset++;
+            continue;
+          }
+
+          final subCategory = widget.subCategories[actualDayCount];
+          final subCategoryId = subCategory.id;
+
+          final duration = _formatDuration(widget.durationBySubCategory[subCategoryId] ?? 0);
+          final kcal = widget.kcalBySubCategory[subCategoryId] ?? 0.0;
+          final level = widget.levelBySubCategoryId[subCategoryId] ?? 'Unknown';
+
+          final startOfWeek = startDate.subtract(Duration(days: startDate.weekday - 1));
+          final weekNumber = ((itemDate.difference(startOfWeek).inDays) ~/ 7) + 1;
+
+          final isFirstDay = actualDayCount == 0;
+          final isLast = actualDayCount == widget.subCategories.length - 1;
+          final showWeekHeader = currentWeek != weekNumber;
+          currentWeek = weekNumber;
+
+          planItems.add(
+            ExercisePlanDayItem(
+              itemDate: itemDate,
+              todayDate: todayDate,
+              actualDay: actualDayCount + 1, // 1-based
+              isFirstDay: isFirstDay,
+              isLast: isLast,
+              showWeekHeader: showWeekHeader,
+              isCompleted: widget.isCompleted,
+              weekNumber: weekNumber,
+              level: level,
+              duration: duration,
+              kcal: kcal,
+              imagePath: subCategory.subCategoryImage,
+              subCategoryId: subCategoryId,
+            ),
+          );
+
+          actualDayCount++;
+          currentOffset++;
+        }
+
+        return ListView(
+          padding: const EdgeInsets.all(30),
+          children: planItems,
+        );
+      },
     );
   }
-
-  bool _isSameDate(DateTime a, DateTime b) =>
-      a.day == b.day && a.month == b.month && a.year == b.year;
 
   String _formatDuration(int seconds) {
     final duration = Duration(seconds: seconds);

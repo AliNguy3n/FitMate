@@ -1,11 +1,8 @@
 package aptech.finalproject.dto.request.product;
 
-import aptech.finalproject.entity.auth.FileMetadata;
-import aptech.finalproject.entity.product.Payment;
+
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
-
-import java.util.List;
 
 @Setter
 @Getter

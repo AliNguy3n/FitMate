@@ -1,8 +1,6 @@
 package aptech.finalproject.dto.request.product;
 
-import aptech.finalproject.entity.auth.FileMetadata;
-import aptech.finalproject.entity.product.Equipment;
-import jakarta.persistence.*;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.*;

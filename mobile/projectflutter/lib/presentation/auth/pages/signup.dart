@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
 import 'package:projectflutter/common/bloc/button/button_state.dart';
 import 'package:projectflutter/common/bloc/button/button_state_cubit.dart';
+import 'package:projectflutter/common/helper/image/switch_image_type.dart';
 import 'package:projectflutter/common/helper/navigation/app_navigator.dart';
 import 'package:projectflutter/core/config/assets/app_image.dart';
 import 'package:projectflutter/core/config/themes/app_color.dart';
@@ -116,19 +117,17 @@ class _SignupPageState extends State<SignupPage> {
                       children: [
                         const SizedBox(height: 30),
                         Center(
-                          child: Image.asset(
+                          child: SwitchImageType.buildImage(
                             AppImages.signinLogo,
                             height: 120,
                             fit: BoxFit.contain,
                           ),
                         ),
                         const SizedBox(height: 30),
-
                         ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: BackdropFilter(
-                            filter:
-                            ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                            filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
                             child: Container(
                               width: double.infinity,
                               padding: const EdgeInsets.all(20),
@@ -137,7 +136,7 @@ class _SignupPageState extends State<SignupPage> {
                                 autovalidateMode: _autovalidateMode,
                                 child: Column(
                                   children: [
-                                     Align(
+                                    Align(
                                       alignment: Alignment.center,
                                       child: Column(
                                         children: [
@@ -145,7 +144,8 @@ class _SignupPageState extends State<SignupPage> {
                                             'Create Account',
                                             style: TextStyle(
                                               color: Colors.black,
-                                              fontSize: AppFontSize.heading1(context),
+                                              fontSize:
+                                                  AppFontSize.heading1(context),
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -155,7 +155,8 @@ class _SignupPageState extends State<SignupPage> {
                                             textAlign: TextAlign.center,
                                             style: TextStyle(
                                               color: Colors.black,
-                                              fontSize: AppFontSize.body(context),
+                                              fontSize:
+                                                  AppFontSize.body(context),
                                             ),
                                           ),
                                         ],
@@ -167,8 +168,7 @@ class _SignupPageState extends State<SignupPage> {
                                       hintText: 'Username',
                                       icon: Icons.account_box,
                                       validator: (value) {
-                                        if (value == null ||
-                                            value.isEmpty) {
+                                        if (value == null || value.isEmpty) {
                                           return 'Username is required';
                                         }
                                         return null;
@@ -180,8 +180,7 @@ class _SignupPageState extends State<SignupPage> {
                                       hintText: 'First Name',
                                       icon: Icons.person,
                                       validator: (value) {
-                                        if (value == null ||
-                                            value.isEmpty) {
+                                        if (value == null || value.isEmpty) {
                                           return 'First name is required';
                                         }
                                         return null;
@@ -193,8 +192,7 @@ class _SignupPageState extends State<SignupPage> {
                                       hintText: 'Last Name',
                                       icon: Icons.person,
                                       validator: (value) {
-                                        if (value == null ||
-                                            value.isEmpty) {
+                                        if (value == null || value.isEmpty) {
                                           return 'Last name is required';
                                         }
                                         return null;
@@ -219,8 +217,7 @@ class _SignupPageState extends State<SignupPage> {
                                       hintText: "Address",
                                       icon: Icons.location_city,
                                       validator: (value) {
-                                        if (value == null ||
-                                            value.isEmpty) {
+                                        if (value == null || value.isEmpty) {
                                           return 'Address is required';
                                         }
                                         return null;
@@ -233,11 +230,10 @@ class _SignupPageState extends State<SignupPage> {
                                       inputType: TextInputType.number,
                                       icon: Icons.phone,
                                       validator: (value) {
-                                        if (value == null ||
-                                            value.isEmpty) {
+                                        if (value == null || value.isEmpty) {
                                           return 'Phone is required';
-                                        }
-                                        else if(value.length < 10 || value.length > 15){
+                                        } else if (value.length < 10 ||
+                                            value.length > 15) {
                                           return 'Phone number must be valid and contain 10 to 15 digits!';
                                         }
                                         return null;
@@ -261,12 +257,11 @@ class _SignupPageState extends State<SignupPage> {
                                       alignment: Alignment.centerLeft,
                                       child: SwitchPageButton(
                                         questionText:
-                                        "Already have an account?",
+                                            "Already have an account?",
                                         buttonText: "Sign in",
                                         onTap: () {
                                           AppNavigator.pushReplacement(
-                                              context,
-                                              const SigninPage());
+                                              context, const SigninPage());
                                         },
                                       ),
                                     )
@@ -276,7 +271,6 @@ class _SignupPageState extends State<SignupPage> {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 30),
                       ],
                     ),

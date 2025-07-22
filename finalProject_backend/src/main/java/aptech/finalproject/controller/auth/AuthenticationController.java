@@ -9,7 +9,6 @@ import aptech.finalproject.dto.response.AuthenticationResponse;
 import aptech.finalproject.dto.response.IntrospectResponse;
 import aptech.finalproject.service.AuthenticationService;
 import aptech.finalproject.service.PasswordResetTokenService;
-import aptech.finalproject.service.UserService;
 import com.nimbusds.jose.JOSEException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;

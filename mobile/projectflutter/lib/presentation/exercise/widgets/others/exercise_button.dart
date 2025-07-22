@@ -12,10 +12,16 @@ class ExerciseButton extends StatelessWidget {
   final List<ExercisesEntity> exercises;
   final double kcal;
   final int subCategoryId;
+  final bool markAsDayCompleted;
+  final int? day;
+  final int? duration;
   const ExerciseButton(
       {super.key,
       required this.exercises,
       required this.kcal,
+        required this.duration,
+        this.day,
+        this.markAsDayCompleted = false,
       required this.subCategoryId});
   @override
   Widget build(BuildContext context) {
@@ -40,14 +46,6 @@ class ExerciseButton extends StatelessWidget {
           height: 48,
           child: ElevatedButton.icon(
             onPressed: () async {
-              // final cubit = context.read<ButtonExerciseCubit>();
-              // final hasProgress = await cubit.hasProgress(subCategoryId);
-
-              // int resetBatch = 0;
-              // if (hasProgress) {
-              //   await cubit.incrementResetBatch(subCategoryId);
-              //   resetBatch = cubit.getResetBatch();
-              // }
 
               if (context.mounted) {
                 AppNavigator.push(
@@ -55,6 +53,8 @@ class ExerciseButton extends StatelessWidget {
                   ExerciseStart(
                     exercises: exercises,
                     kcal: kcal,
+                    markAsDayCompleted: markAsDayCompleted,
+                    day: day,
                     subCategoryId: subCategoryId,
                   ),
                 );

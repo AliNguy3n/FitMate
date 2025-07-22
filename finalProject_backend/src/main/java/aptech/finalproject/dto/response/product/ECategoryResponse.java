@@ -1,6 +1,6 @@
 package aptech.finalproject.dto.response.product;
 
-import aptech.finalproject.entity.product.Equipment;
+
 import lombok.*;
 
 import java.util.List;

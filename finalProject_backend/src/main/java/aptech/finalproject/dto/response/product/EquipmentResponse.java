@@ -1,6 +1,6 @@
 package aptech.finalproject.dto.response.product;
 
-import aptech.finalproject.entity.product.ECategory;
+
 import aptech.finalproject.entity.product.Product;
 import lombok.*;
 

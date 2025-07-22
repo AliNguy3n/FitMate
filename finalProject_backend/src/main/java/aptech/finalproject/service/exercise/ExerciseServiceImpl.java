@@ -57,7 +57,7 @@ public class ExerciseServiceImpl implements ExerciseService {
 
     @Override
     public List<ExercisesDTO> getAllExercise() {
-        return exercisesRepository.findAll().stream().map(ExerciseMapper::toDto).collect(Collectors.toList());
+        return exercisesRepository.findAllWithSubCategoryAndModes().stream().map(ExerciseMapper::toDto).collect(Collectors.toList());
     }
 
     @Override
@@ -99,72 +99,72 @@ public class ExerciseServiceImpl implements ExerciseService {
     }
 
     @Override
-public ExerciseProgressDTO startMultipleExercises(ExerciseSessionBatchRequest req) {
-    User user = userRepository.findById(req.getUserId())
-            .orElseThrow(() -> new RuntimeException("User not found"));
+    public ExerciseProgressDTO startMultipleExercises(ExerciseSessionBatchRequest req) {
+        User user = userRepository.findById(req.getUserId())
+                .orElseThrow(() -> new RuntimeException("User not found"));
 
-    ExerciseSubCategoryModel subCategory = exerciseSubCategoryRepository
-            .findById(req.getSubCategoryId())
-            .orElseThrow(() -> new RuntimeException("SubCategory not found"));
+        ExerciseSubCategoryModel subCategory = exerciseSubCategoryRepository
+                .findById(req.getSubCategoryId())
+                .orElseThrow(() -> new RuntimeException("SubCategory not found"));
 
-    ExerciseProgressModel lastProgressModel = null;
+        ExerciseProgressModel lastProgressModel = null;
 
-    for (ExerciseSessionRequest sessionReq : req.getSessions()) {
-        ExercisesModel exercise = exercisesRepository.findById(sessionReq.getExerciseId())
-                .orElseThrow(() -> new RuntimeException("Exercise not found: " + sessionReq.getExerciseId()));
+        for (ExerciseSessionRequest sessionReq : req.getSessions()) {
+            ExercisesModel exercise = exercisesRepository.findById(sessionReq.getExerciseId())
+                    .orElseThrow(() -> new RuntimeException("Exercise not found: " + sessionReq.getExerciseId()));
 
-        boolean exists = !exerciseSessionRepository
-                .findByUserAndExerciseAndResetBatch(user.getId(), exercise.getId(), req.getResetBatch())
-                .isEmpty();
+            boolean exists = !exerciseSessionRepository
+                    .findByUserAndExerciseAndResetBatch(user.getId(), exercise.getId(), req.getResetBatch())
+                    .isEmpty();
 
-        if (exists) continue;
+            if (exists)
+                continue;
 
-        // ❗️Tính completed trước khi thêm bài mới
-        long total = exercisesRepository.countBySubCategoryId(subCategory.getId());
-        long completedBefore = exerciseSessionRepository.countByUserIdAndSubCategoryIdAndResetBatch(
-                req.getUserId(), subCategory.getId(), req.getResetBatch());
+            // ❗️Tính completed trước khi thêm bài mới
+            long total = exercisesRepository.countBySubCategoryId(subCategory.getId());
+            long completedBefore = exerciseSessionRepository.countByUserIdAndSubCategoryIdAndResetBatch(
+                    req.getUserId(), subCategory.getId(), req.getResetBatch());
 
-        double progress = (total > 0)
-                ? ((double) (completedBefore + 1) / total) * 100
-                : 0.0;
+            double progress = (total > 0)
+                    ? ((double) (completedBefore + 1) / total) * 100
+                    : 0.0;
 
-        // Tạo session
-        ExerciseSessionModel session = new ExerciseSessionModel();
-        session.setUser(user);
-        session.setExercise(exercise);
-        session.setSubCategory(subCategory);
-        session.setDuration(sessionReq.getDuration());
-        session.setResetBatch(req.getResetBatch());
-        session.setKcal(exercise.getKcal());
-        session.setCreatedAt(LocalDateTime.now());
-        exerciseSessionRepository.save(session);
+            // Tạo session
+            ExerciseSessionModel session = new ExerciseSessionModel();
+            session.setUser(user);
+            session.setExercise(exercise);
+            session.setSubCategory(subCategory);
+            session.setDuration(sessionReq.getDuration());
+            session.setResetBatch(req.getResetBatch());
+            session.setKcal(exercise.getKcal());
+            session.setCreatedAt(LocalDateTime.now());
+            exerciseSessionRepository.save(session);
 
-        // Tạo exercise user
-        ExerciseUserModel exerciseUser = new ExerciseUserModel();
-        exerciseUser.setUser(user);
-        exerciseUser.setSession(session);
-        exerciseUser.setKcal(session.getKcal());
-        exerciseUser.setCreatedAt(LocalDateTime.now());
-        exerciseUserRepository.save(exerciseUser);
+            // Tạo exercise user
+            ExerciseUserModel exerciseUser = new ExerciseUserModel();
+            exerciseUser.setUser(user);
+            exerciseUser.setSession(session);
+            exerciseUser.setKcal(session.getKcal());
+            exerciseUser.setCreatedAt(LocalDateTime.now());
+            exerciseUserRepository.save(exerciseUser);
 
-        // Lưu progress tương ứng
-        ExerciseProgressModel progressModel = new ExerciseProgressModel();
-        progressModel.setUser(user);
-        progressModel.setExercise(session);
-        progressModel.setProgress(progress);
-        progressModel.setLastUpdated(LocalDateTime.now());
-        exerciseProgressRepository.save(progressModel);
+            // Lưu progress tương ứng
+            ExerciseProgressModel progressModel = new ExerciseProgressModel();
+            progressModel.setUser(user);
+            progressModel.setExercise(session);
+            progressModel.setProgress(progress);
+            progressModel.setLastUpdated(LocalDateTime.now());
+            exerciseProgressRepository.save(progressModel);
 
-        lastProgressModel = progressModel;
+            lastProgressModel = progressModel;
+        }
+
+        if (lastProgressModel != null) {
+            return ExerciseMapper.toExerciseProgressDto(lastProgressModel);
+        } else {
+            throw new RuntimeException("No new sessions created");
+        }
     }
-
-    if (lastProgressModel != null) {
-        return ExerciseMapper.toExerciseProgressDto(lastProgressModel);
-    } else {
-        throw new RuntimeException("No new sessions created");
-    }
-}
-
 
     @Override
     public List<ExerciseScheduleDTO> getAllScheduleByUserId(String userId) {
@@ -289,8 +289,8 @@ public ExerciseProgressDTO startMultipleExercises(ExerciseSessionBatchRequest re
     }
 
     @Override
-    public List<ExerciseModeModel> getAllExerciseMode() {
-        return exerciseModeRepository.findAll();
+    public List<ExerciseModeDTO> getAllExerciseMode() {
+        return exerciseModeRepository.findAll().stream().map(ExerciseMapper::toModeDto).collect(Collectors.toList());
     }
 
     // Search

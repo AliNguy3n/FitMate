@@ -1,7 +1,6 @@
 package aptech.finalproject.dto.response.product;
 
 import aptech.finalproject.entity.product.Product;
-import aptech.finalproject.entity.product.SCategory;
 import lombok.*;
 
 import java.util.List;

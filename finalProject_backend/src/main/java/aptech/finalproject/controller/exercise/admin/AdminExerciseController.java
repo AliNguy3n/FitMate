@@ -33,6 +33,7 @@ public class AdminExerciseController {
     public ApiResponse<ExercisesResponse> updateExercise(@PathVariable int id,
                                                          @ModelAttribute @Valid ExercisesRequest request,
                                                          BindingResult result) {
+                                                            
         if (result.hasErrors()) {
             return ApiResponse.badRequest(result);
         }

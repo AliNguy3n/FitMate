@@ -16,7 +16,7 @@ type ExerciseForm = {
   kcal: number | "";
   subCategoryIds: number[];
   equipmentId: number | "";
-  modeId: number | "";
+  modeIds: number[];
 };
 
 const AddEditExercise = () => {
@@ -33,7 +33,7 @@ const AddEditExercise = () => {
     kcal: "",
     subCategoryIds: [],
     equipmentId: "",
-    modeId: "",
+    modeIds: [],
   });
   const [preview, setPreview] = useState<string | null>(null);
   const [subCategories, setSubCategories] = useState<any[]>([]);
@@ -65,7 +65,7 @@ const AddEditExercise = () => {
         kcal: data.kcal || "",
         subCategoryIds: Array.from(data.subCategoryIds || []),
         equipmentId: data.equipmentId || "",
-        modeId: data.modeId || "",
+        modeIds: data.modeIds || [],
       });
       if (data.exerciseImage) {
         setPreview(`${BASE_URL}/resources/${data.exerciseImage}`);
@@ -87,7 +87,7 @@ const AddEditExercise = () => {
       if (files && files[0]) {
         setPreview(URL.createObjectURL(files[0]));
       }
-    } else if (name === "duration" || name === "kcal" || name === "equipmentId" || name === "modeId") {
+    } else if (name === "duration" || name === "kcal" || name === "equipmentId" || name === "modeIds") {
       setForm((prev) => ({
         ...prev,
         [name]: value === "" ? "" : Number(value),
@@ -137,7 +137,7 @@ const AddEditExercise = () => {
     formData.append("kcal", String(form.kcal));
     form.subCategoryIds.forEach((id) => formData.append("subCategoryIds", id.toString()));
     formData.append("equipmentId", String(form.equipmentId));
-    formData.append("modeId", String(form.modeId));
+    form.modeIds.forEach((id) => formData.append("modeIds", id.toString()));
 
 
     for (let pair of formData.entries()) {
@@ -176,12 +176,12 @@ const AddEditExercise = () => {
 
   const equipmentOptions = equipments.map((e) => ({
     value: e.id,
-    label: e.equipmentName, 
+    label: e.equipmentName,
   }));
 
   const modeOptions = modes.map((m) => ({
     value: m.id,
-    label: m.modeName, 
+    label: m.modeName,
   }));
 
   return (
@@ -304,21 +304,22 @@ const AddEditExercise = () => {
               </div>
               <div>
                 <label className="block mb-1 font-medium">Mode</label>
-                <select
-                  name="modeId"
-                  value={form.modeId}
-                  onChange={handleChange}
-                  className="form-input w-full"
-                  disabled={loading}
-                >
-                  <option value="">Select mode</option>
-                  {modeOptions.map((m) => (
-                    <option key={m.value} value={m.value}>
-                      {m.label}
-                    </option>
-                  ))}
-                </select>
-                {errors.modeId && <div className="text-red-500">{errors.modeId}</div>}
+                <Select
+                  name="modeIds"
+                  className="basic-multi-select"
+                  classNamePrefix="select"
+                  options={modeOptions}
+                  isMulti
+                  value={modeOptions.filter((opt) => form.modeIds.includes(opt.value))}
+                  onChange={(options) =>
+                    setForm((prev) => ({
+                      ...prev,
+                      modeIds: options ? options.map((opt: any) => opt.value) : [],
+                    }))
+                  }
+                  isDisabled={loading}
+                />
+                {errors.modeIds && <div className="text-red-500">{errors.modeId}</div>}
               </div>
               {errors.submit && <div className="text-red-500">{errors.submit}</div>}
               <div className="flex gap-2 justify-end">

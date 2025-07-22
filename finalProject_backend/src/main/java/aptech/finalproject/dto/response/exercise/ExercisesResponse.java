@@ -20,5 +20,5 @@ public class ExercisesResponse {
     private double kcal;
     private Set<Integer> subCategoryIds;
     private Integer equipmentId;
-    private Integer modeId;
+    private Set<Integer> modeIds;
 }

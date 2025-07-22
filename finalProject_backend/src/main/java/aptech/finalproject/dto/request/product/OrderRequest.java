@@ -1,13 +1,12 @@
 package aptech.finalproject.dto.request.product;
 
-import aptech.finalproject.entity.auth.User;
-import aptech.finalproject.entity.product.Payment;
+
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 
 import java.time.Instant;
-import java.util.UUID;
+
 
 @Setter
 @Getter

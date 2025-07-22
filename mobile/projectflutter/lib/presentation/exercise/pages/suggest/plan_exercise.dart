@@ -11,6 +11,7 @@ import 'package:projectflutter/presentation/exercise/bloc/exercise_sub_category_
 import 'package:projectflutter/presentation/exercise/bloc/exercise_sub_category_state.dart';
 import 'package:projectflutter/presentation/exercise/bloc/exercises_cubit.dart';
 import 'package:projectflutter/presentation/exercise/bloc/exercises_state.dart';
+import 'package:projectflutter/presentation/exercise/helper/exercise_filter_helper.dart';
 import 'package:projectflutter/presentation/exercise/pages/suggest/setting_plan.dart';
 import 'package:projectflutter/presentation/exercise/widgets/suggest/exercise_plan_item.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -27,48 +28,55 @@ class _PlanExercisePageState extends State<PlanExercisePage> {
   bool _isScheduled = false;
   int _selectedDifficultyIndex = 0;
   int _selectedGoalIndex = 0;
-  int _selectedDuraitonIndex = 0;
-  List<String> _selectedEquipments = [];
-  List<bool> _selectedBodyAreas = List.generate(7, (i) => i == 6);
-  final Map<String, int> categoryMap = {
-    'Full Body': 1,
-    'Arm': 2,
-    'Butt & Leg': 3,
-    'Shoulder': 4,
-    'Back': 5,
-    'Chest': 6,
-    'Core': 7,
-  };
-  final List<String> _bodyArea = [
-    'Full Body',
-    'Arm',
-    'Butt & Leg',
-    'Shoulder',
-    'Back',
-    'Chest',
-    'Core',
-  ];
-  final List<String> goals = ['Loss Weight', 'Build Muscle', 'Keep Fit'];
-  List<String> difficulties = ['Beginner', 'Intermediate', 'Advanced'];
-  List<String> durations = [
-    '<10 min/day',
-    '10-20 min/day',
-    '20-30 min/day',
-    '30-45 min/day'
-  ];
+  int _selectedDurationIndex = 0;
   bool _isLoading = true;
+  List<String> _selectedEquipments = [];
+  final subCategoryGoalsMap = <int, Set<String>>{};
+  List<bool> _selectedBodyAreas = List.generate(7, (_) => false);
+  Map<int, bool> completedDays = {};
+
+  Future<void> resetPlanIfMonthChanged() async {
+    final prefs = await SharedPreferences.getInstance();
+    final startDateStr = prefs.getString('plan_start_date');
+
+    if (startDateStr != null) {
+      final startDate = DateTime.parse(startDateStr);
+      final now = DateTime.now();
+
+      if (now.month != startDate.month || now.year != startDate.year) {
+        await prefs.remove('plan_start_date');
+        for (int i = 1; i <= 28; i++) {
+          await prefs.remove('day_${i}_completed');
+        }
+      }
+    }
+  }
 
   Future<void> _loadFilterSettings() async {
     final prefs = await SharedPreferences.getInstance();
     _isScheduled = prefs.getBool('isScheduled') ?? false;
     _selectedDifficultyIndex = prefs.getInt('selectedDifficultyIndex') ?? 0;
     _selectedGoalIndex = prefs.getInt('selectedGoalIndex') ?? 0;
-    _selectedDuraitonIndex = prefs.getInt('selectedDurationIndex') ?? 0;
+    _selectedDurationIndex = prefs.getInt('selectedDurationIndex') ?? 0;
     _selectedEquipments = prefs.getStringList('selectedEquipments') ?? [];
     final savedDays = prefs.getStringList('selectedDays');
-
+    final savedAreas = prefs.getStringList('selectedBodyAreas');
+    if (savedAreas != null && savedAreas.length <= bodyAreas.length) {
+      _selectedBodyAreas = List.generate(
+          bodyAreas.length, (i) => savedAreas.contains(bodyAreas[i]));
+    } else {
+      _selectedBodyAreas = List.generate(bodyAreas.length, (_) => false);
+    }
     if (savedDays != null && savedDays.length == 7) {
-      _selectedDays = savedDays.map((e) => e == 'true').toList();
+      final days = savedDays.map((e) => e == 'true').toList();
+      _selectedDays = _isScheduled ? days : List.generate(7, (_) => true);
+    } else {
+      _selectedDays = List.generate(7, (_) => true);
+    }
+
+    for (int i = 1; i <= 28; i++) {
+      final done = prefs.getBool('day_${i}_completed') ?? false;
+      completedDays[i] = done;
     }
 
     setState(() {
@@ -76,24 +84,11 @@ class _PlanExercisePageState extends State<PlanExercisePage> {
     });
   }
 
-  bool _checkDurationByIndex(int duration, int index) {
-    switch (index) {
-      case 1:
-        return duration < 600;
-      case 2:
-        return duration >= 600 && duration <= 1200;
-      case 3:
-        return duration > 1200 && duration <= 1800;
-      case 4:
-        return duration > 1800;
-      default:
-        return true;
-    }
-  }
 
   @override
   void initState() {
     super.initState();
+    resetPlanIfMonthChanged();
     _loadFilterSettings();
   }
 
@@ -127,12 +122,10 @@ class _PlanExercisePageState extends State<PlanExercisePage> {
             create: (context) => ExercisesCubit()..listExercise(),
           ),
           BlocProvider(
-            create: (context) =>
-                ExerciseEquipmentCubit()..listExerciseEquipment(),
+            create: (context) => ExerciseEquipmentCubit()..listExerciseEquipment(),
           ),
           BlocProvider(
-            create: (context) =>
-                ExerciseSubCategoryProgramCubit()..listSubCategoryProgram(),
+            create: (context) => ExerciseSubCategoryProgramCubit()..listSubCategoryProgram(),
           ),
         ],
         child: BlocBuilder<ExerciseSubCategoryCubit, ExerciseSubCategoryState>(
@@ -155,10 +148,6 @@ class _PlanExercisePageState extends State<PlanExercisePage> {
                   }
                   if (exerciseState is ExercisesLoaded) {
                     final rawList = exerciseState.entity;
-
-                    Map<int, List<ExercisesEntity>> groupedSubCategory = {};
-                    Map<int, int> durationBySubCategory = {};
-                    Map<int, double> kcalBySubCategory = {};
                     return BlocBuilder<ExerciseSubCategoryProgramCubit,
                         ExerciseSubCategoryProgramState>(
                       builder: (context, programState) {
@@ -166,108 +155,71 @@ class _PlanExercisePageState extends State<PlanExercisePage> {
                           return Center(child: Text(programState.errorMessage));
                         }
                         if (programState is SubCategoryProgramLoaded) {
-                          final subCategoryGoalMap = {
-                            for (var item in programState.entity)
-                              if (item.subCategory != null &&
-                                  item.program != null)
-                                item.subCategory!.id:
-                                    item.program!.programName ?? '',
-                          };
+                          final durationMap = <int, int>{};
+                          final kcalMap = <int, double>{};
+                          final validGrouped = <int, List<ExercisesEntity>>{};
 
-                          final filteredList = rawList.where((exercise) {
-                            final modeName = exercise.mode?.modeName;
-                            final matchesDifficulty =
-                                _selectedDifficultyIndex == 0 ||
-                                    modeName ==
-                                        difficulties[_selectedDifficultyIndex];
+                          for (var item in programState.entity) {
+                            final sub = item.subCategory;
+                            final program = item.program;
+                            if (sub != null && program != null) {
+                              subCategoryGoalsMap
+                                  .putIfAbsent(sub.id, () => {})
+                                  .add(program.programName ?? '');
+                            }
+                          }
 
-                            final matchesGoal = _selectedGoalIndex == 0 ||
-                                exercise.subCategory.any((sub) =>
-                                    subCategoryGoalMap[sub.id] ==
-                                    goals[_selectedGoalIndex]);
+                          final filteredList = rawList.where((e) =>
+                              matchesExerciseFilter(
+                                e,
+                                _selectedGoalIndex,
+                                _selectedDifficultyIndex,
+                                _selectedEquipments,
+                                _selectedBodyAreas,
+                                subCategoryGoalsMap,
+                              )).toList();
 
-                            final matchesDuration = _selectedDuraitonIndex ==
-                                    0 ||
-                                _checkDurationByIndex(
-                                    exercise.duration, _selectedDuraitonIndex);
+                          final levelBySubCategoryId = buildLevelBySubCategoryId(filteredList);
+                          final expectedLevel = difficulties[_selectedDifficultyIndex];
 
-                            final equipmentName =
-                                exercise.equipment?.equipmentName;
-                            final matchesEquipment = _selectedEquipments.isEmpty ||
-                                _selectedEquipments.any((e) =>
-                                    equipmentName!.toLowerCase().contains(e.toLowerCase()));
-                            final matchesBodyArea = _selectedBodyAreas.contains(true)
-                                ? exercise.subCategory.any((sub) {
-                              for (var cat in sub.category) {
-                                for (int i = 0; i < _bodyArea.length; i++) {
-                                  final selected = _selectedBodyAreas[i];
-                                  final expectedId = categoryMap[_bodyArea[i]];
-                                  if (selected && cat.id == expectedId) {
-                                    return true;
-                                  }
-                                }
-                              }
-                              return false;
-                            })
-                                : true;
-                            final isValidExercise =
-                                exercise.duration != null &&
-                                    exercise.kcal != null &&
-                                    exercise.duration > 0 &&
-                                    exercise.kcal > 0;
-                            final result = matchesDifficulty &&
-                                matchesGoal &&
-                                matchesDuration &&
-                                matchesEquipment
-                                && matchesBodyArea && isValidExercise;
-                            return result;
-                          }).toList();
+                          for (final sub in listSubCategory) {
+                            final subId = sub.id;
+                            final subExercises = filteredList
+                                .where((e) => e.subCategory.any((s) => s.id == subId))
+                                .toList();
 
-                          if (filteredList.isEmpty) {
+                            if (subExercises.isEmpty) continue;
+                            final firstExercise = findFirstValidExerciseInSub(subExercises, subId, expectedLevel);
+                            if (firstExercise == null) continue;
+
+                            final totalDuration = subExercises.fold(0, (sum, e) => sum + e.duration);
+                            final totalKcal = subExercises.fold(0.0, (sum, e) => sum + e.kcal);
+
+                            if (checkDurationByIndex(totalDuration, _selectedDurationIndex)) {
+                              validGrouped[subId] = subExercises;
+                              durationMap[subId] = totalDuration;
+                              kcalMap[subId] = totalKcal;
+                            }
+                          }
+
+                          if (validGrouped.isEmpty) {
                             return const Center(
                               child: Text('No exercises match your filters.',
                                   style: TextStyle(fontSize: 16)),
                             );
                           }
 
-                          for (var exercise in filteredList) {
-                            final validSubCategories = exercise.subCategory.where((sub) {
-                              return sub.category.any((cat) {
-                                final expectedIdList = _selectedBodyAreas
-                                    .asMap()
-                                    .entries
-                                    .where((entry) => entry.value)
-                                    .map((entry) => categoryMap[_bodyArea[entry.key]])
-                                    .toList();
-                                return expectedIdList.contains(cat.id);
-                              });
-                            });
-
-                            for (var sub in validSubCategories) {
-                              final subCategoryId = sub.id;
-                              groupedSubCategory
-                                  .putIfAbsent(subCategoryId, () => [])
-                                  .add(exercise);
-                            }
-                          }
-
-                          groupedSubCategory
-                              .forEach((subCategoryId, exercises) {
-                            durationBySubCategory[subCategoryId] = exercises
-                                .fold(0, (sum, item) => sum + item.duration);
-                            kcalBySubCategory[subCategoryId] = exercises.fold(
-                                0.0, (sum, item) => sum + item.kcal);
-                          });
                           return ExercisePlanItem(
-                            groupedSubCategory: groupedSubCategory,
-                            durationBySubCategory: durationBySubCategory,
-                            kcalBySubCategory: kcalBySubCategory,
+                            groupedSubCategory: validGrouped,
+                            durationBySubCategory: durationMap,
+                            isCompleted: completedDays,
+                            kcalBySubCategory: kcalMap,
+                            levelBySubCategoryId: levelBySubCategoryId,
                             subCategories: listSubCategory
-                                .where((sub) => groupedSubCategory.containsKey(sub.id))
+                                .where((sub) => validGrouped.containsKey(sub.id))
                                 .toList(),
                             selectedDays: _selectedDays,
                           );
-                          // grouping và return ExercisePlanItem như cũ
                         }
                         return const Center(child: CircularProgressIndicator());
                       },
@@ -283,4 +235,5 @@ class _PlanExercisePageState extends State<PlanExercisePage> {
       ),
     );
   }
+
 }
