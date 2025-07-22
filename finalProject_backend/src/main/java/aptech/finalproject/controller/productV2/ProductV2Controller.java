@@ -3,13 +3,16 @@ package aptech.finalproject.controller.productV2;
 import aptech.finalproject.dto.productV2.ProductCardDTO;
 import aptech.finalproject.dto.response.ApiResponse;
 import aptech.finalproject.dto.response.product.ECategoryResponse;
+import aptech.finalproject.dto.response.product.EquipmentResponse;
 import aptech.finalproject.dto.response.product.SCategoryResponse;
+import aptech.finalproject.dto.response.product.SupplementResponse;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.service.product.ECategoryService;
 import aptech.finalproject.service.product.SCategoryService;
 import aptech.finalproject.service.productV2.ProductV2Service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -46,5 +49,17 @@ public class ProductV2Controller {
             return ApiResponse.notFound(ErrorCode.ECATEGORY_NOT_FOUND.getException());
         }
         return ApiResponse.ok(list, "Get all equipment categories");
+    }
+
+    @GetMapping("/equipment/{id}")
+    public ApiResponse<EquipmentResponse> getEquitmentById(@PathVariable Long id) {
+        EquipmentResponse response = productV2Service.getEquipmentById(id);
+        return ApiResponse.ok(response, "Get Equipment by ID");
+    }
+
+    @GetMapping("/supplement/{id}")
+    public ApiResponse<SupplementResponse> getSupplementById(@PathVariable Long id) {
+        SupplementResponse response = productV2Service.getSupplementById(id);
+        return ApiResponse.ok(response, "Get Supplement by ID");
     }
 }

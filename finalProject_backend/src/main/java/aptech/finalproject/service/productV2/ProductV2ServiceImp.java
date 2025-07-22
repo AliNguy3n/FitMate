@@ -1,15 +1,18 @@
 package aptech.finalproject.service.productV2;
 
 import aptech.finalproject.dto.productV2.ProductCardDTO;
-import aptech.finalproject.dto.response.product.ECategoryResponse;
-import aptech.finalproject.dto.response.product.SCategoryResponse;
-import aptech.finalproject.dto.response.product.SupplierResponse;
+import aptech.finalproject.dto.response.product.*;
 import aptech.finalproject.entity.product.ECategory;
+import aptech.finalproject.entity.product.Equipment;
 import aptech.finalproject.entity.product.SCategory;
+import aptech.finalproject.entity.product.Supplement;
+import aptech.finalproject.exception.ApiException;
+import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.mapper.ECategoryMapper;
+import aptech.finalproject.mapper.EquipmentMapper;
 import aptech.finalproject.mapper.SCategoryMapper;
+import aptech.finalproject.mapper.SupplementMapper;
 import aptech.finalproject.repository.product.*;
-import aptech.finalproject.service.product.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -43,6 +46,10 @@ public class ProductV2ServiceImp implements ProductV2Service {
     private ECategoryMapper eCategoryMapper;
     @Autowired
     private SCategoryMapper sCategoryMapper;
+    @Autowired
+    private EquipmentMapper equipmentMapper;
+    @Autowired
+    private SupplementMapper supplementMapper;
 
 
     @Override
@@ -73,7 +80,7 @@ public class ProductV2ServiceImp implements ProductV2Service {
             if ("equipment".equals(product.getType()) && product.getEquipment() != null) {
                 var eId = product.getEquipment().getId();
                 equipmentRepository.findById(eId).ifPresent(equipment -> {
-                    List<Long> categoryIds = equipment.getCategory().stream()
+                    List<Long> categoryIds = equipment.getEcategories().stream()
                             .map(ECategory::getId)
                             .collect(Collectors.toList());
                     productCardDTO.setCategoryIds(categoryIds);
@@ -107,5 +114,17 @@ public class ProductV2ServiceImp implements ProductV2Service {
                 .stream()
                 .map(sCategoryMapper::toSCategoryResponse)
                 .collect(Collectors.toList());
+    }
+
+    public EquipmentResponse getEquipmentById(Long id) {
+        Equipment equipment = equipmentRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorCode.EQUIPMENT_NOT_FOUND));
+        return equipmentMapper.toEquipmentResponse(equipment);
+    }
+
+    public SupplementResponse getSupplementById(Long id) {
+        Supplement supplement = supplementRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorCode.SUPPLEMENT_NOT_FOUND));
+        return supplementMapper.toSupplementResponse(supplement);
     }
 }

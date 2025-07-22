@@ -19,5 +19,5 @@ public class SupplementResponse {
 
     private Product product;
 
-    private List<Long> scategories;
+    private List<Long> categoryIds; // change to categoryIds
 }
