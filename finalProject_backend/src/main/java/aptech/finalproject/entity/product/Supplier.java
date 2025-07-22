@@ -19,7 +19,7 @@ public class Supplier {
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String type;
+//    private String type; // remove
 
     private String name;
 

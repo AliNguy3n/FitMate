@@ -29,6 +29,9 @@ public class Product {
 
     private Float rating;
 
+    private String type; // added - equipment | supplement |...
+
+
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "image_id")
     private FileMetadata image;

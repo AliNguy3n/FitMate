@@ -26,6 +26,8 @@ public class ProductResponse {
 
     private String image;
 
+    private String type; // added
+
     private Long supplier;
 
     private Long promotion;

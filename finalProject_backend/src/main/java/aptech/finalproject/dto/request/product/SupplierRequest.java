@@ -19,8 +19,8 @@ import java.util.List;
 @Builder
 public class SupplierRequest {
 
-    @NotBlank(message = "Supplier type is required")
-    private String type;
+//    @NotBlank(message = "Supplier type is required") // removed
+//    private String type;
 
     @NotBlank(message = "Supplier name is required")
     private String name;

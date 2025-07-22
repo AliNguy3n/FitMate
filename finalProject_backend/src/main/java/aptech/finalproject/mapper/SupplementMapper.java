@@ -15,7 +15,7 @@ import java.util.stream.Collectors;
 @Mapper( componentModel = "spring")
 public interface SupplementMapper {
     @Mapping(target = "product", source = "product")
-    @Mapping(target = "scategories", source = "scategories", qualifiedByName = "mapSCategoryListToIds")
+    @Mapping(target = "categoryIds", source = "scategories", qualifiedByName = "mapSCategoryListToIds")
     SupplementResponse toSupplementResponse(Supplement supplement);
 
     @Mapping(target = "id", ignore = true)

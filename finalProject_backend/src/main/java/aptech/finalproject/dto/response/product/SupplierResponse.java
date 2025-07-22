@@ -13,7 +13,7 @@ import java.util.List;
 public class SupplierResponse {
     private Long id;
 
-    private String type;
+//    private String type; // removed
 
     private String name;
 

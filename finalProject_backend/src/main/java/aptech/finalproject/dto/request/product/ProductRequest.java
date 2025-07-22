@@ -40,6 +40,7 @@ public class ProductRequest {
 
     private MultipartFile image;
 
+    private String type; // added
     @NotNull(message = "SupplierId is required")
     private Long supplierId;
 

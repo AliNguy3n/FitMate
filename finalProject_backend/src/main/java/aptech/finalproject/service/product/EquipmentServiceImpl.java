@@ -43,7 +43,7 @@ public class EquipmentServiceImpl implements EquipmentService{
 
         if (equipmentRequest.getCategoryIds() != null && !equipmentRequest.getCategoryIds().isEmpty()) {
             List<ECategory> categories = eCategoryRepository.findAllById(equipmentRequest.getCategoryIds());
-            equipment.setCategory(categories);
+            equipment.setEcategories(categories);
         }
 
         return equipmentMapper.toEquipmentResponse(equipmentRepository.save(equipment));
@@ -62,7 +62,7 @@ public class EquipmentServiceImpl implements EquipmentService{
 
         if (equipmentRequest.getCategoryIds() != null) {
             List<ECategory> categories = eCategoryRepository.findAllById(equipmentRequest.getCategoryIds());
-            equipment.setCategory(categories);
+            equipment.setEcategories(categories);
         }
 
         return equipmentMapper.toEquipmentResponse(equipmentRepository.save(equipment));
