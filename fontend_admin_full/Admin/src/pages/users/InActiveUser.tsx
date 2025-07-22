@@ -106,11 +106,11 @@ const InactiveUsers = () => {
                           : user.dob || ""}
                       </td>
                       <td className="whitespace-nowrap px-3 py-4 text-center text-sm">
-                        <Link to={`/manage-users/edit/${user.id}`} title="Edit">
+                        <Link to={`/admin/manage-users/edit/${user.id}`} title="Edit">
                           <i className="mgc_edit_line text-lg me-2"></i>
                         </Link>
                         <Link
-                          to={`/manage-users/detail/${user.id}`}
+                          to={`/admin/manage-users/detail/${user.id}`}
                           title="Detail"
                         >
                           <i className="mgc_information_line text-xl"></i>

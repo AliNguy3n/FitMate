@@ -69,7 +69,7 @@ const EditUser = () => {
     setError(null);
     try {
       await updateUser(id, form);
-      navigate("/manage-users/users");
+      navigate("/admin/manage-users/users");
     } catch (err: any) {
       setError("Update failed");
     } finally {

@@ -243,14 +243,14 @@ const ManageUsers = () => {
                     </td>
                     <td className="whitespace-nowrap py-4 px-3 text-center text-sm font-medium">
                       <Link
-                        to={`/manage-users/edit/${user.id}`}
+                        to={`/admin/manage-users/edit/${user.id}`}
                         className="me-0.5 inline-block"
                         title="Edit"
                       >
                         <i className="mgc_edit_line text-lg"></i>
                       </Link>
                       <Link
-                        to={`/manage-users/detail/${user.id}`}
+                        to={`/admin/manage-users/detail/${user.id}`}
                         className="ms-0.5 inline-block"
                         title="Detail"
                       >
