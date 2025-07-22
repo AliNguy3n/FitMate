@@ -39,6 +39,13 @@ jwt: #JWT Config
   expirationRefreshToken: 604800
   revoke: true
 
+paypal:
+  clientId: ${PAYPAL_CLIENT_ID}
+  clientSecret: ${PAYPAL_SECRET}
+  mode: sandbox # or live
+  successUrl: http://localhost:8080/api/payment/paypal/success
+  cancelUrl: http://localhost:8080/api/payment/paypal/cancel
+
 frontend: #Frontend Domain
   domain: https://abcd.com
 

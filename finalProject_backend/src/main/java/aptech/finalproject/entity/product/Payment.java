@@ -25,6 +25,8 @@ public class Payment {
 
     private Boolean status;
 
+    private String currency;
+
     @OneToOne
     private Order order;
 
