@@ -19,9 +19,9 @@ public class AdminExerciseController {
     @Autowired
     private AdminExerciseService exerciseService;
 
-    @PostMapping(value ="/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/create", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<ExercisesResponse> createExercise(@ModelAttribute @Valid ExercisesRequest request,
-                                                         BindingResult result) {
+            BindingResult result) {
         if (result.hasErrors()) {
             return ApiResponse.badRequest(result);
         }
@@ -29,11 +29,13 @@ public class AdminExerciseController {
         return ApiResponse.created(created, "Exercise created successfully");
     }
 
-    @PutMapping(value="/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PutMapping(value = "/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ApiResponse<ExercisesResponse> updateExercise(@PathVariable int id,
-                                                         @ModelAttribute @Valid ExercisesRequest request,
-                                                         BindingResult result) {
-                                                            
+            @ModelAttribute @Valid ExercisesRequest request,
+            BindingResult result) {
+                
+
+        System.out.println("🛠️ Controller updateExercise called with id = " + id);
         if (result.hasErrors()) {
             return ApiResponse.badRequest(result);
         }
@@ -65,4 +67,3 @@ public class AdminExerciseController {
         return ApiResponse.ok(results, "Exercises search result");
     }
 }
-
