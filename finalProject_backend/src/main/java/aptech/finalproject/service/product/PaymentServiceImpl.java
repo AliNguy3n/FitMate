@@ -152,6 +152,6 @@ public class PaymentServiceImpl implements PaymentService{
 
     private boolean isManagerOrAdmin(CustomUserPrincipal user) {
         String role = user.getRole();
-        return "ADMIN".equals(role) || "MANAGER".equals(role);
+        return "ROLE_ADMIN".equals(role) || "ROLE_MANAGER".equals(role);
     }
 }

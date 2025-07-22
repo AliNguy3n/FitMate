@@ -23,8 +23,9 @@ public class OrderRequest {
     @Positive(message = "Total amount must be positive")
     private Integer totalAmount;
 
-    @NotNull(message = "Status is required")
     private Boolean status;
+
+    private Boolean delivered;
 
     private String userId;
 

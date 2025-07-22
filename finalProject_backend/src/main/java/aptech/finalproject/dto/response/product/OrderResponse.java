@@ -20,6 +20,8 @@ public class OrderResponse {
 
     private Boolean status;
 
+    private Boolean delivered;
+
     private String user;
 
     private Long payment;
