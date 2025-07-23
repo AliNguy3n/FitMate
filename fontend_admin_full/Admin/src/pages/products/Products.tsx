@@ -99,34 +99,49 @@ const Products = () => {
               <div className="text-center py-8">Loading...</div>
             ) : (
               <Grid
-                data={products.map((p) => [
-                  p.id,
-                  p.image
-                    ? html(
-                        `<img src="${IMAGE_BASE_URL + p.image}" alt="${p.name}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" />`
-                      )
-                    : "",
-                  p.name,
-                  p.description,
-                  p.price,
-                  p.stock,
-                  p.rating,
-                  supplierMap[Number(p.supplier)] || "",
-                  promotionMap[Number(p.promotion)] || "",
-                  equipmentMap[Number(p.equipment)] || "",
-                  supplementMap[Number(p.supplement)] || "",
-                  
-                  html(`
-      <span class="inline-flex" style="min-width:70px;max-width:140px;">
-        <a href="/admin/product/edit/${p.id}" class="me-2" title="Edit">
-          <i class="mgc_edit_line text-lg"></i>
-        </a>
-        <a href="/admin/product/delete/${p.id}" class="ms-2 disabled" title="Delete" tabindex="-1" aria-disabled="true" onclick="event.preventDefault();">
-          <i class="mgc_delete_line text-lg"></i>
-        </a>
-      </span>
-    `),
-                ])}
+                data={products.map((p) => {
+                  const supplier = supplierMap[Number(p.supplier)] || "";
+                  const promotion = promotionMap[Number(p.promotion)] || "";
+                  const equipment = equipmentMap[Number(p.equipment)] || "";
+                  const supplement = supplementMap[Number(p.supplement)] || "";
+
+                  // Kiểm tra nếu bất kỳ cột nào rỗng thì không hiển thị nút xóa
+                  const canDelete = supplier && promotion && equipment && supplement;
+
+                  return [
+                    p.id,
+                    p.image
+                      ? html(
+                          `<img src="${IMAGE_BASE_URL + p.image}" alt="${p.name}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" />`
+                        )
+                      : "",
+                    p.name,
+                    p.description,
+                    p.price,
+                    p.stock,
+                    p.rating,
+                    supplier,
+                    promotion,
+                    equipment,
+                    supplement,
+                    html(`
+                      <span class="inline-flex" style="min-width:70px;max-width:140px;">
+                        <a href="/admin/product/edit/${p.id}" class="me-2" title="Edit">
+                          <i class="mgc_edit_line text-lg"></i>
+                        </a>
+                        ${
+                          canDelete
+                            ? `<a href="/admin/product/delete/${p.id}" class="ms-2" title="Delete">
+                                <i class="mgc_delete_line text-lg"></i>
+                              </a>`
+                            : `<a class="ms-2 disabled" title="Delete" tabindex="-1" aria-disabled="true" onclick="event.preventDefault();">
+                                <i class="mgc_delete_line text-lg text-gray-300"></i>
+                              </a>`
+                        }
+                      </span>
+                    `),
+                  ];
+                })}
                 columns={[
                   { name: "ID", width: "4%" },
                   { name: "Image", width: "8%" },

@@ -15,12 +15,27 @@ import { authApiResponseSuccess, authApiResponseError } from "./actions";
 import { AuthActionTypes } from "./constants";
 
 function mapUserData(apiData: any) {
-  // Nếu backend trả về nhiều trường hơn, bạn có thể bổ sung tại đây
+
+  const decoded = apiData.token ? parseJwt(apiData.token) : {};
+  let roles: string[] = [];
+  if (Array.isArray(decoded?.authorities)) {
+    roles = decoded.authorities.filter((r: string) => r.startsWith("ROLE_"));
+  } else if (typeof decoded?.authorities === "string") {
+    roles = decoded.authorities
+      .split(" ")
+      .filter((r: string) => r.startsWith("ROLE_"));
+  } else if (Array.isArray(decoded?.roles)) {
+    roles = decoded.roles.filter((r: string) => r.startsWith("ROLE_"));
+  } else if (typeof decoded?.roles === "string") {
+    roles = decoded.roles
+      .split(" ")
+      .filter((r: string) => r.startsWith("ROLE_"));
+  }
   return {
     token: apiData.token,
     refreshToken: apiData.refreshToken,
     authenticated: apiData.authenticated,
-    // Thêm các trường khác nếu cần
+    role: roles.length === 1 ? roles[0] : roles, 
   };
 }
 
@@ -76,7 +91,8 @@ function* login({ payload: { username, password } }: UserData): SagaIterator {
 
     if (
       !authorities.includes("ROLE_ADMIN") &&
-      !authorities.includes("ROLE_MODERATOR")
+      !authorities.includes("ROLE_MODERATOR")&&
+      !authorities.includes("ROLE_MANAGER")
     ) {
       yield put(
         authApiResponseError(
@@ -88,7 +104,7 @@ function* login({ payload: { username, password } }: UserData): SagaIterator {
       return;
     }
 
-    localStorage.setItem("authUser", JSON.stringify(user));
+    localStorage.setItem("authUser", JSON.stringify(user)); // user đã có trường role
     yield put(authApiResponseSuccess(AuthActionTypes.LOGIN_USER, user));
   } catch (error: any) {
     yield put(authApiResponseError(AuthActionTypes.LOGIN_USER, "Login failed. Please check your credentials."));

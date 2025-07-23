@@ -62,12 +62,7 @@ const Orders = () => {
           <div className="card-header">
             <div className="flex justify-between items-center">
               <h4 className="card-title">Order List</h4>
-              <Link
-                to="/admin/order/add"
-                className="btn bg-primary/20 text-sm font-medium text-primary hover:text-white hover:bg-primary"
-              >
-                <i className="mgc_add_circle_line me-2"></i> Add New Order
-              </Link>
+              
             </div>
           </div>
           <div className="p-6">

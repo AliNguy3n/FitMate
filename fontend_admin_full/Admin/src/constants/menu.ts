@@ -24,6 +24,20 @@ const MENU_ITEMS: MenuItemTypes[] = [
   },
 
   {
+    key: 'finance',
+    label: 'Order',
+    isTitle: true,
+  },
+
+  {
+    key: 'finance',
+    label: 'Financial Overview',
+    isTitle: false,
+    icon: 'mgc_currency_dollar_line',
+    url: '/admin/finance',
+  },
+
+  {
     key: 'menu',
     label: 'Order',
     isTitle: true,
@@ -38,7 +52,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
   },
 
   {
-    key: 'elements',
+    key: 'auth',
     label: 'User',
     isTitle: true,
   },
@@ -234,13 +248,13 @@ const MENU_ITEMS: MenuItemTypes[] = [
   //   icon: 'mgc_coupon_line',
   //   url: '/admin/apps/tickets',
   // },
-  {
-    key: 'apps-file-manager',
-    label: 'File Manager',
-    isTitle: false,
-    icon: 'mgc_folder_2_line',
-    url: '/admin/apps/file-manager',
-  },
+  // {
+  //   key: 'apps-file-manager',
+  //   label: 'File Manager',
+  //   isTitle: false,
+  //   icon: 'mgc_folder_2_line',
+  //   url: '/admin/apps/file-manager',
+  // },
 
   
 ];

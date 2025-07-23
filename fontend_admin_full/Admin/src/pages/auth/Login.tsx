@@ -22,7 +22,7 @@ interface UserData {
 const BottomLink = () => {
   return (
     <p className="text-gray-500 dark:text-gray-400 text-center">Don't have an account ?
-      <Link to="/adminadmin/auth/register" className="text-primary ms-1">
+      <Link to="/admin/auth/register" className="text-primary ms-1">
         <b>
           Register
         </b>
@@ -67,7 +67,7 @@ const Login = () => {
   const location = useLocation();
 
   // redirection back to where user got redirected from
-  const redirectUrl = location?.search?.slice(6) || "/";
+  const redirectUrl = location?.search?.slice(6) || "/admin/dashboard";
 
   return (
     <>
@@ -89,7 +89,7 @@ const Login = () => {
         <VerticalForm<UserData>
           onSubmit={onSubmit}
           resolver={schemaResolver}
-          defaultValues={{ username: "admin@fitmate.com", password: "fitmate" }}
+          defaultValues={{ username: "", password: "" }}
         >
           <FormInput
             label="Email Address"
@@ -122,7 +122,7 @@ const Login = () => {
               labelClassName="ms-2"
               className="form-checkbox rounded"
             />
-            <Link to="/adminadmin/auth/recover-password" className="text-sm text-primary border-b border-dashed border-primary">Forget Password ?</Link>
+            <Link to="/admin/auth/recover-password" className="text-sm text-primary border-b border-dashed border-primary">Forget Password ?</Link>
           </div>
 
           <div className="flex justify-center mb-6">

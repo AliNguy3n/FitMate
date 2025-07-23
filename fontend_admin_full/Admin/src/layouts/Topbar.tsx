@@ -197,7 +197,7 @@ const Topbar = () => {
     dispatch(resetAuth());
     dispatch(logoutUser());
     if (userLoggedIn || user) {
-      navigate("/auth/login");
+      navigate("/admin/auth/login");
     }
   };
 
@@ -215,7 +215,7 @@ const Topbar = () => {
           </span>
         </button>
 
-        <Link to="/" className="logo-box">
+        <Link to="/admin/dashboard" className="logo-box">
           <div className="logo-light">
             <img src={logoLight} className="logo-lg h-6" alt="Light logo" />
             <img src={logoSm} className="logo-sm" alt="Small logo" />

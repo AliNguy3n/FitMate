@@ -171,6 +171,9 @@ public class UserServiceImpl implements UserService {
         if (request.getPassword() != null) {
             user.setPassword(passwordEncoder.encode(request.getPassword()));
         }
+        if (request.isActive() != user.isActive()) {
+            user.setActive(request.isActive());
+        }
 
         return userRepository.save(user);
     }

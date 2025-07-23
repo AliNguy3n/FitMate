@@ -36,7 +36,7 @@ const ProfileDropDown = ({ menuItems, profiliePic }: ProfileDropDownProps) => {
     dispatch(resetAuth());
     dispatch(logoutUser());
     if (userLoggedIn || user) {
-      navigate("/auth/login");
+      navigate("/admin/auth/login");
     }
   }
 

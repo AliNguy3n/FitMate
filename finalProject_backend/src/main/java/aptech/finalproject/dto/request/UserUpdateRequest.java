@@ -28,4 +28,6 @@ public class UserUpdateRequest {
     private String roleName;
 
     private LocalDate dob;
+
+    private boolean active;
 }

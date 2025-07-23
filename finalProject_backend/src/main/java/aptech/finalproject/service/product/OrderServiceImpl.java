@@ -108,4 +108,12 @@ public class OrderServiceImpl implements OrderService{
         String role = user.getRole();
         return "ADMIN".equals(role) || "MANAGER".equals(role);
     }
+
+    @PreAuthorize("hasAuthority('MANAGE_ORDERS') or #userId == authentication.principal.id")
+    public List<OrderResponse> getOrdersByUserId(String userId) {
+        List<Order> orders = orderRepository.findByUserId(userId);
+        return orders.stream()
+                .map(orderMapper::toOrderResponse)
+                .collect(Collectors.toList());
+    }
 }

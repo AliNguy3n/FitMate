@@ -16,4 +16,5 @@ public interface OrderDetailService {
     List<OrderDetailResponse> getAllOrderDetails(Pageable pageable);
 
     OrderDetailResponse getOrderDetailById(Long id);
+
 }

@@ -21,7 +21,7 @@ const Error404 = () => {
             <p className="text-3xl font-semibold text-primary">404!</p>
             <h1 className="text-4xl font-bold tracking-tight dark:text-gray-100">Page not found.</h1>
             <p className="text-base text-gray-600 dark:text-gray-300">Sorry, we couldn’t find the page you’re looking for.</p>
-            <Link to="/" className="text-base font-medium text-primary"> Go back home </Link>
+            <Link to="/admin/dashboard" className="text-base font-medium text-primary"> Go back home </Link>
           </div>
         </div>
       </div>

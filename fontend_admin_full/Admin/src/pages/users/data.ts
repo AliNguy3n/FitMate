@@ -26,6 +26,7 @@ export interface UserResponse {
   address?: string | null;
   dob?: string | number[] | null;
   role: Role;
+  active?: boolean;
 }
 
 export interface UserUpdateRequest {
@@ -36,6 +37,7 @@ export interface UserUpdateRequest {
   address?: string;
   dob?: string;
   roleName?: string; // đổi từ roleId sang roleName
+  active?: boolean; // Thêm trường active
 }
 
 export interface UserStatistic {
@@ -80,7 +82,9 @@ export async function fetchUserByUsername(username: string): Promise<UserRespons
 
 // Update user
 export async function updateUser(userId: string, data: UserUpdateRequest) {
+  console.log("fetchUserById", data);
   const res = await api.update(`/identity/user/${userId}`, data);
+  
   return res.data.data;
 }
 
@@ -92,6 +96,14 @@ export async function fetchRoles(): Promise<RoleOption[]> {
     label: role.role,
   }));
 }
+
+const updateRolePermissions = async (roleId: number, permissionIds: number[]) => {
+  const payload = {
+    roleId,
+    permissionIds,
+  };
+  return api.update("/identity/role/update-role-permissions", payload);
+};
 
 // Lấy tất cả role (kèm permission)
 export async function fetchRolesAll(): Promise<Role[]> {

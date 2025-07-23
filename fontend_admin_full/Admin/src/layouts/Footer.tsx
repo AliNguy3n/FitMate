@@ -6,13 +6,13 @@ const Footer = () => {
         <div>
           {new Date().getFullYear()} © Fitmate - <a href="https://coderthemes.com/" target="_blank" rel="noreferrer">Final Project Team 1</a>
         </div>
-        <div className="md:flex hidden gap-4 item-center md:justify-end">
+        {/* <div className="md:flex hidden gap-4 item-center md:justify-end">
           <a href="" className="text-sm leading-5 text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">About</a>
           <span className="border-e border-gray-300 dark:border-gray-700"></span>
           <a href="" className="text-sm leading-5 text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">Support</a>
           <span className="border-e border-gray-300 dark:border-gray-700"></span>
           <a href="" className="text-sm leading-5 text-zinc-600 transition hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-white">Contact Us</a>
-        </div>
+        </div> */}
       </div>
     </footer>
   )

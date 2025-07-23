@@ -18,6 +18,7 @@ public enum ErrorCode {
     USER_NOT_FOUND(404, "User not found."),
     USER_UNAUTHENTICATED(401, "Unauthenticated"),
     USER_CREATION_FAILED(400, "User creation failed"),
+    USER_NOT_ACTIVE(403, "User not active"),
         //ROLE
     ROLE_NOT_FOUND(404, "Role not found."),
     ROLE_ALREADY_EXISTED(409, "Role already existed."),

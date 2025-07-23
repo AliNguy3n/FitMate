@@ -184,4 +184,5 @@ public class PaymentController {
     public String cancel() {
         return "Payment canceled.";
     }
+
 }

@@ -18,10 +18,24 @@ import logoLight from '../assets/images/logo-light.png'
 import logoDark from '../assets/images/logo-dark.png'
 import logoSm from '../assets/images/logo-sm.png'
 
+const userData = JSON.parse(localStorage.getItem("authUser") || "null");
+
 /* Sidebar content */
 const SideBarContent = () => {
+  // Lấy menu gốc
+  const menu = getMenuItems();
+
+  // Lọc menu: chỉ hiển thị item 'auth' nếu user có ROLE_ADMIN
+  const filteredMenu = menu.filter(item => {
+    if (item.key === "auth" || item.key === "finance") {
+      // userData.role hoặc userData.roles (tùy backend trả về)
+      if (!userData?.role || userData.role !== "ROLE_ADMIN") return false;
+    }
+    return true;
+  });
+
   return (
-    <AppMenu menuItems={getMenuItems()} />
+    <AppMenu menuItems={filteredMenu} />
   )
 }
 
@@ -66,7 +80,7 @@ const LeftSideBar = ({ isCondensed, hideLogo }: LeftSideBarProps) => {
   return (
     <React.Fragment>
       <div className="app-menu">
-        <Link to="/" className="logo-box">
+        <Link to="/admin/dashboard" className="logo-box">
           <div className="logo-light">
             <img src={logoLight} className="logo-lg h-8" alt="Light logo" />
             <img src={logoSm} className="logo-lg" alt="Small logo" />

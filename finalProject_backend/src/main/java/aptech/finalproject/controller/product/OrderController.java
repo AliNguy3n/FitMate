@@ -60,4 +60,13 @@ public class OrderController {
         orderService.deleteOrder(id);
         return ApiResponse.noContent("Deleted order with id: " + id);
     }
+
+    @GetMapping("/user/{userId}")
+    public ApiResponse<List<OrderResponse>> getOrdersByUserId(@PathVariable String userId) {
+        List<OrderResponse> orders = orderService.getOrdersByUserId(userId);
+        if (orders.isEmpty()) {
+            return ApiResponse.notFound(ErrorCode.ORDER_NOT_FOUND.getException());
+        }
+        return ApiResponse.ok(orders, "Get all orders by userId");
+    }
 }

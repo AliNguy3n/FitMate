@@ -87,7 +87,9 @@ public class UserController {
         if(result.hasErrors()) {
             return ApiResponse.badRequest(result);
         }
+
         User updated = userService.update(userId, userUpdateRequest);
+
         if (updated == null) {
             return ApiResponse.notFound(ErrorCode.USER_NOT_FOUND.getException());
         }

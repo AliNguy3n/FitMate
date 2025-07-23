@@ -1,6 +1,7 @@
 package aptech.finalproject.controller.auth;
 
 import aptech.finalproject.dto.request.RoleCreationRequest;
+import aptech.finalproject.dto.request.RolePermissionUpdateRequest;
 import aptech.finalproject.dto.response.ApiResponse;
 import aptech.finalproject.service.RoleService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,5 +40,11 @@ public class RoleController {
     public ApiResponse<?> delete(@PathVariable long roleId) {
         roleService.delete(roleId);
         return ApiResponse.ok("Role " + roleId + " deleted successfully");
+    }
+
+    @PutMapping("/update-role-permissions")
+    public ApiResponse<?> updateRolePermissions(@RequestBody RolePermissionUpdateRequest request) {
+        roleService.updateRolePermissions(request.getRoleId() , request.getPermissionIds());
+        return ApiResponse.ok("Role permissions updated successfully");
     }
 }

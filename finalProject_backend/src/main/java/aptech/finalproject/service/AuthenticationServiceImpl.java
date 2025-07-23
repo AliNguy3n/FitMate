@@ -64,6 +64,10 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             throw new ApiException(ErrorCode.USERNAME_OR_PASSWORD_INCORRECT);
         String username = user.getUsername();
 
+        if (!user.isActive()) {
+            throw new ApiException(ErrorCode.USER_NOT_ACTIVE);
+        }
+
         try {
             return AuthenticationResponse.builder()
                     .authenticated(true)
