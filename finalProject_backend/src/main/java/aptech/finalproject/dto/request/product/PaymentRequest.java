@@ -1,8 +1,6 @@
 package aptech.finalproject.dto.request.product;
 
-import aptech.finalproject.entity.product.Order;
-import aptech.finalproject.entity.product.PaymentMethod;
-import jakarta.persistence.*;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

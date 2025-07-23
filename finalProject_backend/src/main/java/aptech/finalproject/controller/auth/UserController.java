@@ -5,7 +5,6 @@ import aptech.finalproject.dto.request.UserUpdateRequest;
 import aptech.finalproject.dto.response.ApiResponse;
 import aptech.finalproject.dto.response.UserResponse;
 import aptech.finalproject.entity.auth.User;
-import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.mapper.UserMapper;
 import aptech.finalproject.service.UserService;
@@ -19,7 +18,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.view.RedirectView;
 
-import java.util.List;
 import java.util.Map;
 
 @RestController

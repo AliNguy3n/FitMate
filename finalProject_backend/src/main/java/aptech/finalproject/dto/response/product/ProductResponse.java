@@ -1,9 +1,6 @@
 package aptech.finalproject.dto.response.product;
 
-import aptech.finalproject.entity.product.Equipment;
-import aptech.finalproject.entity.product.Promotion;
-import aptech.finalproject.entity.product.Supplement;
-import aptech.finalproject.entity.product.Supplier;
+
 import lombok.*;
 
 @Setter
@@ -25,6 +22,8 @@ public class ProductResponse {
     private Float rating;
 
     private String image;
+
+    private String type; // added
 
     private Long supplier;
 

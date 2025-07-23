@@ -43,7 +43,7 @@ public class BmiServiceImpl implements BmiService {
             health.setBmi((dto.getWeight() / Math.pow(dto.getHeight(), 2)) * 10000);
             health.setCreatedAt(LocalDateTime.now());
             pRepository.save(health);
-            return BmiMapper.toHealthDTO(healthUser);
+            return BmiMapper.toHealthDTO(health);
         } else {
             throw new RuntimeException("User have already BMI");
         }
@@ -82,7 +82,7 @@ public class BmiServiceImpl implements BmiService {
             goal.setTargetWeight(req.getTargetWeight());
             goal.setCreatedAt(LocalDateTime.now());
             goalRepository.save(goal);
-            return BmiMapper.toGoalDTO(goalUser);
+            return BmiMapper.toGoalDTO(goal);
         } else {
             throw new RuntimeException("User have already BMI Goal");
         }

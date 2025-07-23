@@ -1,6 +1,6 @@
 package aptech.finalproject.dto.response.product;
 
-import aptech.finalproject.entity.product.Product;
+
 import lombok.*;
 
 import java.util.List;
@@ -13,7 +13,7 @@ import java.util.List;
 public class SupplierResponse {
     private Long id;
 
-    private String type;
+//    private String type; // removed
 
     private String name;
 

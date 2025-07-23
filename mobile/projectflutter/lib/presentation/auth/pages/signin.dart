@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:projectflutter/common/bloc/button/button_state.dart';
 import 'package:projectflutter/common/bloc/button/button_state_cubit.dart';
+import 'package:projectflutter/common/helper/image/switch_image_type.dart';
 import 'package:projectflutter/common/helper/navigation/app_navigator.dart';
 import 'package:projectflutter/core/config/assets/app_image.dart';
 import 'package:projectflutter/core/config/themes/app_color.dart';
@@ -85,39 +86,59 @@ class _SigninPageState extends State<SigninPage> {
                   );
                 }
                 if (state is ButtonSuccessState) {
-                  await secureStorage.writeSecureData('username', _usernameCon.text);
-                  await secureStorage.writeSecureData('password', _passwordCon.text);
-                  await sl<GetUserByUsernameUseCase>().call();
-                  showDialog(
-                    context: context,
-                    builder: (context) => const ShowAlertCustom(
-                      status: 'Successful',
-                      content: 'Login Successfully',
-                      color: Colors.green,
-                      icon: Icons.check,
-                    ),
-                  );
-                  await Future.delayed(const Duration(seconds: 1));
-                  AppNavigator.pushReplacement(context, const WelcomePage());
+                  await secureStorage.writeSecureData(
+                      'username', _usernameCon.text);
+                  await secureStorage.writeSecureData(
+                      'password', _passwordCon.text);
+                  final result = await sl<GetUserByUsernameUseCase>().call();
+                  result.fold((err) {
+                    print('Error Message: $err');
+                  }, (user) async {
+                    if (!user.active) {
+                      showDialog(
+                        context: context,
+                        builder: (_) => const ShowAlertCustom(
+                          status: 'Account not activated',
+                          content:
+                              'Please check your email to activate your account.',
+                          color: Colors.red,
+                          icon: Icons.close,
+                        ),
+                      );
+                      return;
+                    }
+                    showDialog(
+                      context: context,
+                      builder: (context) => const ShowAlertCustom(
+                        status: 'Successful',
+                        content: 'Login Successfully',
+                        color: Colors.green,
+                        icon: Icons.check,
+                      ),
+                    );
+                    await Future.delayed(const Duration(seconds: 1));
+                    AppNavigator.pushReplacement(context, const WelcomePage());
+                  });
+
+
                 }
               },
               child: SafeArea(
                 child: SingleChildScrollView(
                   child: Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 24),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         const SizedBox(height: 30),
                         Center(
-                          child: Image.asset(
-                            AppImages.signinLogo,
-                            height: 120,
-                            fit: BoxFit.contain,
-                          ),
-                        ),
+                            child: SwitchImageType.buildImage(
+                          AppImages.signinLogo,
+                          height: 120,
+                          fit: BoxFit.contain,
+                        )),
                         const SizedBox(height: 30),
-
                         ClipRRect(
                           borderRadius: BorderRadius.circular(20),
                           child: BackdropFilter(
@@ -138,7 +159,8 @@ class _SigninPageState extends State<SigninPage> {
                                             'Welcome Back!',
                                             style: TextStyle(
                                               color: Colors.black,
-                                              fontSize: AppFontSize.heading1(context),
+                                              fontSize:
+                                                  AppFontSize.heading1(context),
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -147,7 +169,8 @@ class _SigninPageState extends State<SigninPage> {
                                             'Log in to continue your FitMate',
                                             style: TextStyle(
                                               color: Colors.black,
-                                              fontSize: AppFontSize.body(context),
+                                              fontSize:
+                                                  AppFontSize.body(context),
                                             ),
                                           ),
                                         ],
@@ -162,7 +185,8 @@ class _SigninPageState extends State<SigninPage> {
                                       alignment: Alignment.centerRight,
                                       child: ForgotPassword(
                                         onTap: () {
-                                          AppNavigator.push(context, ForgetPasswordPage());
+                                          AppNavigator.push(
+                                              context, ForgetPasswordPage());
                                         },
                                       ),
                                     ),
@@ -179,7 +203,8 @@ class _SigninPageState extends State<SigninPage> {
                                         questionText: "Do you have an account?",
                                         buttonText: "Sign up",
                                         onTap: () {
-                                          AppNavigator.pushReplacement(context, const SignupPage());
+                                          AppNavigator.pushReplacement(
+                                              context, const SignupPage());
                                         },
                                       ),
                                     ),
@@ -189,7 +214,6 @@ class _SigninPageState extends State<SigninPage> {
                             ),
                           ),
                         ),
-
                         const SizedBox(height: 30),
                       ],
                     ),
@@ -202,5 +226,4 @@ class _SigninPageState extends State<SigninPage> {
       ),
     );
   }
-
 }

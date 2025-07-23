@@ -1,7 +1,6 @@
 package aptech.finalproject.entity.auth;
 
 import aptech.finalproject.emums.DeviceType;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;

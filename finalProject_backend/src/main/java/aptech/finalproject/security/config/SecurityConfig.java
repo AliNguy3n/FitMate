@@ -1,7 +1,6 @@
 package aptech.finalproject.security.config;
 
 import aptech.finalproject.dto.response.ApiResponse;
-import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.security.jwt.CustomAuthenticationEntryPoint;
 import aptech.finalproject.security.jwt.JwtToUserAuthenticationConverter;
@@ -10,10 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.web.server.ErrorPage;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -49,6 +46,7 @@ public class SecurityConfig {
     private final String[] WHITELIST = {
             "/auth/**",
             "/resources/**",
+            "/api/productV2/**"
     };
 
     // Danh sách route tạm thời ngưng truy cập

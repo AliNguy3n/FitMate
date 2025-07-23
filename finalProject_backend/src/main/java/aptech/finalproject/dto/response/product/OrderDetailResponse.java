@@ -1,14 +1,11 @@
 package aptech.finalproject.dto.response.product;
 
-import aptech.finalproject.entity.auth.User;
-import aptech.finalproject.entity.product.Payment;
+
 import aptech.finalproject.entity.product.Product;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+
 import lombok.*;
 
-import java.time.Instant;
+
 
 @Setter
 @Getter

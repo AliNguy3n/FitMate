@@ -21,7 +21,7 @@ import aptech.finalproject.service.bmi.BmiService;
 @RestController
 @RequestMapping("/api/bmi")
 public class BMICaculatorController {
-    @Autowired
+     @Autowired
     private BmiService bmiService;
 
     @GetMapping("/health/{userId}")

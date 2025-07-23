@@ -10,8 +10,8 @@ import 'package:projectflutter/presentation/exercise/widgets/subcategory/exercis
 class ExerciseSubCategoryListPage extends StatelessWidget {
   final List<ExerciseSubCategoryEntity> total;
   final String categoryName;
-  final String level;
-  final Map<String, int> duration;
+  final Map<int, String> level;
+  final Map<int, int> duration;
   const ExerciseSubCategoryListPage(
       {super.key,
       required this.categoryName,
@@ -51,20 +51,21 @@ class ExerciseSubCategoryListPage extends StatelessWidget {
           child: ListView.builder(
             itemCount: total.length,
             itemBuilder: (context, index) {
+              final sub = total[index];
               return Padding(
                 padding: const EdgeInsets.only(bottom: 12),
                 child: ExerciseSubcategoryRow(
-                    image: total[index].subCategoryImage,
-                    name: total[index].subCategoryName,
+                    image: sub.subCategoryImage,
+                    name: sub.subCategoryName,
                     duration: _formatDuration(
-                        duration[total[index].subCategoryName] ?? 0),
-                    level: level,
+                        duration[total[index].id] ?? 0),
+                    level: level[sub.id] ?? 'Unknown',
                     onPressed: () {
                       AppNavigator.push(
                           context,
                           ExerciseBySubCategoryView(
                             subCategoryId: total[index].id,
-                            level: level,
+                            level: level[sub.id] ?? 'Unknown',
                             image: total[index].subCategoryImage,
                           ));
                     }),

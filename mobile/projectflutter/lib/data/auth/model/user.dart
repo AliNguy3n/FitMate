@@ -10,6 +10,7 @@ class UserModel {
   final String password;
   final DateTime? dob;
   final int gender;
+  final bool active;
   final String phone;
   final String address;
 
@@ -22,6 +23,7 @@ class UserModel {
         required this.password,
         required this.dob,
         required this.gender,
+        required this.active,
         required this.phone,
         required this.address});
 
@@ -35,6 +37,7 @@ class UserModel {
       'password': password,
       'dob': dob,
       'gender': gender,
+      'active': active,
       'phone': phone,
       'address': address
     };
@@ -58,6 +61,7 @@ class UserModel {
         password: map['password'] ?? '',
         dob: parsedDob,
         gender: map['gender'] != null ? map['gender'] as int : 0,
+        active: map['active'] ?? false,
         phone: map['phone']  ?? '',
         address: map['address']  ?? '');
   }
@@ -80,6 +84,7 @@ extension UserXModel on UserModel {
         password: password,
         dob: dob!,
         gender: gender,
+        active: active,
         phone: phone,
         address: address);
   }

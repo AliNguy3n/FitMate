@@ -108,7 +108,7 @@ const Exercises = () => {
                     .map((id) => subCategoryMap[id] || id)
                     .join(", "),
                   equipmentMap[e.equipmentId] || "",
-                  modeMap[e.modeId] || "",
+                  (e.modeIds || []).map((id: number) => modeMap[id] || id).join(", "),
                   html(`
       <span class="inline-flex" style="min-width:70px;max-width:140px;">
         <a href="/admin/exercise/exercise/edit/${e.id}" class="me-2" title="Edit">

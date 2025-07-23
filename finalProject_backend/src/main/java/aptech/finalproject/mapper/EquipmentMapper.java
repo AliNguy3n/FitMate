@@ -14,18 +14,18 @@ import java.util.stream.Collectors;
 
 @Mapper( componentModel = "spring")
 public interface EquipmentMapper {
-    @Mapping(target = "category", source = "category", qualifiedByName = "mapCategoryToIds")
+    @Mapping(target = "categoryIds", source = "ecategories", qualifiedByName = "mapCategoryToIds")
     @Mapping(target = "product", source = "product")
     EquipmentResponse toEquipmentResponse(Equipment equipment);
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "ecategories", ignore = true)
     @Mapping(target = "product", ignore = true)
     Equipment toEquipment(EquipmentRequest equipmentRequest);
 
 
     @Mapping(target = "id", ignore = true)
-    @Mapping(target = "category", ignore = true)
+    @Mapping(target = "ecategories", ignore = true)
     @Mapping(target = "product", ignore = true)
     void updateEquipment(@MappingTarget Equipment equipment, EquipmentRequest equipmentRequest);
 

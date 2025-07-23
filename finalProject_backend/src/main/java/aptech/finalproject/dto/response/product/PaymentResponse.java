@@ -1,7 +1,5 @@
 package aptech.finalproject.dto.response.product;
 
-import aptech.finalproject.entity.product.Order;
-import aptech.finalproject.entity.product.PaymentMethod;
 import lombok.*;
 
 import java.time.Instant;

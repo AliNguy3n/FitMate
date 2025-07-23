@@ -81,4 +81,9 @@ class AuthRepositoryImpl extends AuthRepository {
     // TODO: implement introspectToken
     throw UnimplementedError();
   }
+
+  @override
+  Future<Either> getInactiveUsers() async {
+    return await sl<AuthService>().getInactiveUsers();
+  }
 }

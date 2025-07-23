@@ -51,7 +51,7 @@ public class BmiMapper {
         return model;
     }
 
-    // PersonHealGoalModel → DTO
+    
     public static PersonalHealthGoalDTO toGoalDTO(PersonHealGoalModel model) {
         if (model == null || model.getUser() == null) return null;
 

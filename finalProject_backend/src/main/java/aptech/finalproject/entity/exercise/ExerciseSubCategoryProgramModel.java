@@ -19,6 +19,5 @@ public class ExerciseSubCategoryProgramModel {
     private ExerciseSubCategoryModel subCategory;
     @ManyToOne
     @JoinColumn(name = "program_id", referencedColumnName = "id")
-    private ExerciseProgramsModel program;
-    
+    private ExerciseProgramsModel program; 
 }

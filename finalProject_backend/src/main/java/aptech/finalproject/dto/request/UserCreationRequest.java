@@ -15,11 +15,11 @@ import java.time.LocalDate;
 public class UserCreationRequest {
 
     @NotBlank(message = "Username is required!")
-    @Size(min = 5, message = "Username must be at least 8 characters long!")
+    @Size(min = 5, message = "Username must be at least 5 characters long!")
     private String username;
 
     @NotBlank(message = "Password is required!")
-    @Size(min = 6, max = 100, message = "Password must be between 8 and 100 characters!")
+    @Size(min = 6, max = 100, message = "Password must be between 6 and 100 characters!")
     private String password;
 
     @NotBlank(message = "First name is required!")
@@ -41,9 +41,13 @@ public class UserCreationRequest {
     @NotBlank(message = "Address is required!")
     @Size(max = 200, message = "Address must be less than 200 characters!")
     private String address;
+    
+    @NotNull(message = "Gender is required!")
+    private int gender;
 
     @NotNull(message = "Date of birth is required!")
     @Past(message = "Date of birth must be in the past!")
     private LocalDate dob;
+
 }
 

@@ -1,11 +1,6 @@
 package aptech.finalproject.dto.request.product;
 
-import aptech.finalproject.entity.product.Product;
-import aptech.finalproject.entity.product.SCategory;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.OneToOne;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;

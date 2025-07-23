@@ -1,4 +1,7 @@
 package aptech.finalproject.entity.exercise;
+import java.util.HashSet;
+import java.util.Set;
+
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -14,4 +17,6 @@ public class ExerciseModeModel {
     private int id;
     @Column(name = "mode_name")
     private String modeName;
+    @ManyToMany(mappedBy = "modes")
+    private Set<ExercisesModel> exercises = new HashSet<>();
 }

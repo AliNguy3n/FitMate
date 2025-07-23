@@ -1,7 +1,6 @@
 package aptech.finalproject.dto.response.product;
 
-import aptech.finalproject.entity.auth.User;
-import aptech.finalproject.entity.product.Payment;
+
 import lombok.*;
 
 import java.time.Instant;

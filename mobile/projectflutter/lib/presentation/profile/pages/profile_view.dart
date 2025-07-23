@@ -89,15 +89,10 @@ class ProfilePage extends StatelessWidget {
                       if (userId == null || healthList.isEmpty) {
                         return const Text("No health data available");
                       }
-                      for (var e in healthList) {
-                        print('Health item: id=${e.id}, userId=${e.user?.id}, height=${e.height}, weight=${e.weight}');
-                      }
 
                       final currentUserHealth = healthList
                           .where((e) => e.user?.id == userId)
                           .toList();
-
-                      print('Current User Heal: $currentUserHealth');
 
                       if (currentUserHealth.isEmpty) {
                         return const Text("No health data for this user");

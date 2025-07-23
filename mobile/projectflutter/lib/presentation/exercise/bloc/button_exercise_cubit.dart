@@ -1,6 +1,5 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:projectflutter/domain/exercise/entity/exercise_progress_entity.dart';
-import 'package:projectflutter/domain/exercise/entity/exercises_entity.dart';
 import 'package:projectflutter/domain/exercise/usecase/get_exercise_progress.dart';
 import 'package:projectflutter/presentation/exercise/bloc/button_exercise_state.dart';
 import 'package:projectflutter/service_locator.dart';
@@ -37,11 +36,4 @@ class ButtonExerciseCubit extends Cubit<ButtonExerciseState> {
   }
 
 
-  // Future<void> incrementResetBatch(int subCategoryId) async {
-  //   final resetBatch = await getResetBatchBySubCategory(subCategoryId);
-  //   final newBatch = resetBatch! + 1;
-  //   await setResetBatchBySubCategory(subCategoryId, newBatch);
-  // }
-  //
-  // int getResetBatch() => resetBatch;
 }

@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:dartz/dartz.dart';
 import 'package:projectflutter/common/api/base_api.dart';
 import 'package:projectflutter/common/api/shared_preference_service.dart';
+import 'package:projectflutter/common/api/token_request_helper.dart';
 import 'package:projectflutter/data/auth/model/user_simple_dto.dart';
 import 'package:projectflutter/data/auth/request/register_request.dart';
 import 'package:projectflutter/data/auth/request/signin_request.dart';
@@ -20,6 +21,7 @@ abstract class AuthService {
   Future<Either> getByUsername();
   Future<Either> introspectToken();
   Future<bool> ensureValidToken();
+  Future<Either> getInactiveUsers();
 }
 
 class AuthServiceImpl extends AuthService {
@@ -42,24 +44,31 @@ class AuthServiceImpl extends AuthService {
           .timeout(const Duration(seconds: 5), onTimeout: () {
         throw Exception('Timeout');
       });
-
-      if (response.statusCode == 200) {
-        final prefs = await SharedPreferences.getInstance();
-        final Map<String, dynamic> body = json.decode(response.body);
+      final Map<String, dynamic> body = json.decode(response.body);
+      if (body['success'] == true) {
         final Map<String, dynamic> result = body['data'];
-        final token = result['token'];
-        final refreshToken = result['refreshToken'];
-        SharedPreferenceService.token = token;
-        await prefs.setString('refresh_token', refreshToken);
-        await prefs.setString('username', user.username!);
-        return Right(result);
-      } else if (response.statusCode == 404) {
-        return const Left('User not found');
-      } else if (response.statusCode == 400) {
-        return const Left('Username or password is incorrect');
+        final bool isAuthenticated = result['authenticated'] ?? false;
+
+        if (isAuthenticated) {
+          final prefs = await SharedPreferences.getInstance();
+          final token = result['token'];
+          final refreshToken = result['refreshToken'];
+          await prefs.setString('token', token);
+          await prefs.setString('refresh_token', refreshToken);
+          await prefs.setString('username', user.username!);
+          return Right(result);
+        } else {
+          return const Left('"Account is not verified');
+        }
       } else {
-        return Left('Server error: ${response.statusCode}');
+        try {
+          final errorMessage = body['errors']?['Exception'] ?? 'Unknown error';
+          return Left(errorMessage);
+        } catch (e) {
+          return Left('Error parsing response: $e');
+        }
       }
+
     } catch (err) {
       return Left('Exception: $err');
     }
@@ -111,16 +120,17 @@ class AuthServiceImpl extends AuthService {
     final prefs = await SharedPreferences.getInstance();
 
     final username = prefs.getString('username');
-    final token = SharedPreferenceService.token;
     try {
-      Uri url = Uri.parse('$baseAPI/identity/user/username/$username');
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse('$baseAPI/identity/user/username/$username');
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
       final body = json.decode(response.body);
       final result = body['data'];
       final prefs = await SharedPreferences.getInstance();
@@ -134,24 +144,24 @@ class AuthServiceImpl extends AuthService {
 
   @override
   Future<Either> getUser() async {
-    final token = SharedPreferenceService.token;
+    final userId = SharedPreferenceService.userId;
+
     try {
-      final userId = SharedPreferenceService.userId;
-      Uri url = Uri.parse('$baseAPI/identity/user/id/$userId');
-      final response = await http.get(
-        url,
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer $token',
-        },
-      );
-      if (response.statusCode == 401) {
-        await logout();
-        return const Left('Session expired. Please login again.');
-      }
+      final response = await sendRequestWithAutoRefresh((token) {
+        Uri url = Uri.parse('$baseAPI/identity/user/id/$userId');
+        return http.get(
+          url,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer $token',
+          },
+        );
+      });
+
       if (response.statusCode == 404) {
         return const Left('User not found');
       }
+
       return Right(response.body);
     } catch (err) {
       return Left('Error Message: $err');
@@ -180,13 +190,7 @@ class AuthServiceImpl extends AuthService {
     } catch (e) {
       print("API logout failed: $e");
     }
-    await prefs.remove('token');
-    await prefs.remove('refresh_token');
-    await prefs.remove('userId');
-    await prefs.remove('bmi_exist');
-    await prefs.remove('bmi_latest');
-    await prefs.remove('goal_exist');
-    await prefs.remove('goal_latest');
+    await prefs.clear();
   }
 
   @override
@@ -194,7 +198,6 @@ class AuthServiceImpl extends AuthService {
     try {
       final prefs = await SharedPreferences.getInstance();
       final refreshToken = prefs.getString('refresh_token');
-
       if (refreshToken == null) {
         return const Left("No refresh token found");
       }
@@ -213,6 +216,7 @@ class AuthServiceImpl extends AuthService {
         final newAccessToken = result['token'];
         final newRefreshToken = result['refreshToken'];
 
+        SharedPreferenceService.token = newAccessToken;
         await prefs.setString('token', newAccessToken);
         if (newRefreshToken != null) {
           await prefs.setString('refresh_token', newRefreshToken);
@@ -261,6 +265,7 @@ class AuthServiceImpl extends AuthService {
     final prefs = await SharedPreferences.getInstance();
     final token = prefs.getString('token');
     if (token == null || token.isEmpty) {
+      // await logout();
       return false;
     }
     SharedPreferenceService.token = token;
@@ -271,5 +276,22 @@ class AuthServiceImpl extends AuthService {
     }
 
     return true;
+  }
+
+  @override
+  Future<Either> getInactiveUsers() async {
+    try{
+      Uri url = Uri.parse('$baseAPI/auth/inactive');
+      final response = await http.get(url);
+      final Map<String, dynamic> body = json.decode(response.body);
+      if(response.statusCode == 404){
+        final errors = body['errors'] as Map<String, dynamic>;
+        return Left(errors);
+      }
+      final Map<String, dynamic> result = body['data'];
+      return Right(result);
+    }catch(err){
+      return Left(err);
+    }
   }
 }

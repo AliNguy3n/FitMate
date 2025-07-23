@@ -1,8 +1,6 @@
 package aptech.finalproject.dto.request.product;
 
-import aptech.finalproject.entity.product.ECategory;
-import aptech.finalproject.entity.product.Product;
-import jakarta.persistence.*;
+
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;

@@ -1,6 +1,6 @@
 package aptech.finalproject.dto.response.product;
 
-import aptech.finalproject.entity.product.ECategory;
+
 import aptech.finalproject.entity.product.Product;
 import lombok.*;
 
@@ -20,7 +20,8 @@ public class EquipmentResponse {
 
     private String gender;
 
-    private List<Long> category;
-
     private Product product;
+
+    private List<Long> categoryIds; // change to categoryIds
+
 }

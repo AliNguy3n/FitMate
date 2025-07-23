@@ -1,7 +1,7 @@
 package aptech.finalproject.entity.product;
 
 import aptech.finalproject.entity.auth.FileMetadata;
-import com.fasterxml.jackson.annotation.JsonBackReference;
+
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -28,6 +28,9 @@ public class Product {
     private Integer stock;
 
     private Float rating;
+
+    private String type; // added - equipment | supplement |...
+
 
     @OneToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JoinColumn(name = "image_id")

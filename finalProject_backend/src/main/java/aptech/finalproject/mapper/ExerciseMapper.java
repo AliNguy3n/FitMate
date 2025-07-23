@@ -20,6 +20,7 @@ import aptech.finalproject.dto.meal.UserSimpleDTO;
 import aptech.finalproject.entity.exercise.EquipmentsModel;
 import aptech.finalproject.entity.exercise.ExerciseCategoryModel;
 import aptech.finalproject.entity.exercise.ExerciseFavoriteModel;
+import aptech.finalproject.entity.exercise.ExerciseModeModel;
 import aptech.finalproject.entity.exercise.ExerciseProgramsModel;
 import aptech.finalproject.entity.exercise.ExerciseProgressModel;
 import aptech.finalproject.entity.exercise.ExerciseScheduleModel;
@@ -53,11 +54,11 @@ public class ExerciseMapper {
                                                 entity.getEquipment().getEquipmentImage())
                                 : null);
 
-                dto.setMode(entity.getMode() != null
-                                ? new ExerciseModeDTO(
-                                                entity.getMode().getId(),
-                                                entity.getMode().getModeName())
-                                : null);
+                Set<ExerciseModeDTO> modeDtos = entity.getModes()
+                                .stream()
+                                .map(mode -> new ExerciseModeDTO(mode.getId(), mode.getModeName()))
+                                .collect(Collectors.toSet());
+                dto.setModes(modeDtos);
 
                 return dto;
         }
@@ -85,11 +86,11 @@ public class ExerciseMapper {
                                                 entity.getEquipment().getEquipmentImage())
                                 : null);
 
-                dto.setMode(entity.getMode() != null
-                                ? new ExerciseModeDTO(
-                                                entity.getMode().getId(),
-                                                entity.getMode().getModeName())
-                                : null);
+                Set<ExerciseModeDTO> modeDtos = entity.getModes()
+                                .stream()
+                                .map(mode -> new ExerciseModeDTO(mode.getId(), mode.getModeName()))
+                                .collect(Collectors.toSet());
+                dto.setModes(modeDtos);
 
                 return dto;
         }
@@ -291,12 +292,17 @@ public class ExerciseMapper {
                                 entity.getScheduleTime());
         }
 
-        public static EquipmentsDTO toEquipmentsDto(EquipmentsModel entity){
-                if(entity == null){
+        public static EquipmentsDTO toEquipmentsDto(EquipmentsModel entity) {
+                if (entity == null) {
                         return null;
                 }
                 return new EquipmentsDTO(entity.getId(), entity.getEquipmentName(), entity.getEquipmentImage());
         }
 
-        
+        public static ExerciseModeDTO toModeDto(ExerciseModeModel entity) {
+                if (entity == null) {
+                        return null;
+                }
+                return new ExerciseModeDTO(entity.getId(), entity.getModeName());
+        }
 }

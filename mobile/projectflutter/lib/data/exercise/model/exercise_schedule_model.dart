@@ -27,7 +27,7 @@ class ExerciseScheduleModel {
 
   factory ExerciseScheduleModel.fromMap(Map<String, dynamic> map) {
     DateTime? parsedScheduleTime;
-    if (map['scheduleTime'] is List && (map['scheduleTime'] as List).length >= 6) {
+    if (map['scheduleTime'] is List && (map['scheduleTime'] as List).length >= 5) {
       final list = map['scheduleTime'] as List;
       parsedScheduleTime = DateTime(
         list[0],
@@ -35,7 +35,6 @@ class ExerciseScheduleModel {
         list[2],
         list[3],
         list[4],
-        list[5],
       );
     }
     return ExerciseScheduleModel(

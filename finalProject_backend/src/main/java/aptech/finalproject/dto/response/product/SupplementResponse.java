@@ -1,7 +1,6 @@
 package aptech.finalproject.dto.response.product;
 
 import aptech.finalproject.entity.product.Product;
-import aptech.finalproject.entity.product.SCategory;
 import lombok.*;
 
 import java.util.List;
@@ -19,5 +18,5 @@ public class SupplementResponse {
 
     private Product product;
 
-    private List<Long> scategories;
+    private List<Long> categoryIds; // change to categoryIds
 }

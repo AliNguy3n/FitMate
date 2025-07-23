@@ -33,5 +33,5 @@ public class ExercisesRequest {
     private Integer equipmentId;
 
 //    @NotNull(message = "Mode ID must not be null")
-    private Integer modeId;
+   private Set<Integer> modeIds;
 }
