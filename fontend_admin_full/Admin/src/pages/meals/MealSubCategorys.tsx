@@ -90,16 +90,35 @@ const MealSubCategorys = () => {
                         <td className="px-2 py-2 border">{s.id}</td>
                         <td className="px-2 py-2 border">
                           {s.subCategoryImage ? (
-                            <img
-                              src={BASE_URL + "/resources/" + s.subCategoryImage}
-                              alt={s.subCategoryName}
-                              style={{
-                                width: 60,
-                                height: 60,
-                                objectFit: "cover",
-                                borderRadius: 8,
-                              }}
-                            />
+                            (() => {
+                              const imageUrl = s.subCategoryImage.startsWith("http")
+                                ? s.subCategoryImage
+                                : BASE_URL + "/resources/" + s.subCategoryImage;
+
+                              const isImage = /\.(jpg|jpeg|png|webp|gif)$/i.test(imageUrl);
+
+                              return isImage ? (
+                                <img
+                                  src={imageUrl}
+                                  alt={s.subCategoryName}
+                                  style={{
+                                    width: 60,
+                                    height: 60,
+                                    objectFit: "cover",
+                                    borderRadius: 8,
+                                  }}
+                                />
+                              ) : (
+                                <a
+                                  href={imageUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ color: "blue", textDecoration: "underline" }}
+                                >
+                                  {imageUrl}
+                                </a>
+                              );
+                            })()
                           ) : (
                             ""
                           )}

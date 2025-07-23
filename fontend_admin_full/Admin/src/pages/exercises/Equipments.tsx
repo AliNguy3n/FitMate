@@ -54,10 +54,20 @@ const Equipments = () => {
                 data={equipments.map((e) => [
                   e.id,
                   e.equipmentImage
-                    ? html(
-                        `<img src="${IMAGE_BASE_URL + e.equipmentImage}" alt="${e.equipmentName}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" />`
-                      )
-                    : "",
+                    ? /\.(jpg|jpeg|png|webp|gif)$/i.test(e.equipmentImage)
+                                          ? html(
+                                            `<img src="${e.equipmentImage.startsWith("http")
+                                              ? e.equipmentImage
+                                              : IMAGE_BASE_URL + e.equipmentImage
+                                            }" alt="${e.equipmentImage}" 
+                              style="width:80px;height:80px;object-fit:cover;border-radius:8px;" />`
+                                          )
+                                          : html(
+                                            `<a href="${e.equipmentImage}" target="_blank" style="color:blue;text-decoration:underline;">
+                              ${e.equipmentImage}
+                            </a>`
+                                          )
+                                        : "",
                   e.equipmentName,
                   html(`
       <span class="inline-flex" style="min-width:70px;max-width:140px;">

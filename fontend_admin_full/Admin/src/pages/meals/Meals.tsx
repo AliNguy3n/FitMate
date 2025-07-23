@@ -124,16 +124,35 @@ const Meals = () => {
                         <td className="px-2 py-2 border">{m.id}</td>
                         <td className="px-2 py-2 border">
                           {m.mealImage ? (
-                            <img
-                              src={BASE_URL + "/resources/" + m.mealImage}
-                              alt={m.mealName}
-                              style={{
-                                width: 60,
-                                height: 60,
-                                objectFit: "cover",
-                                borderRadius: 8,
-                              }}
-                            />
+                            (() => {
+                              const imageUrl = m.mealImage.startsWith("http")
+                                ? m.mealImage
+                                : BASE_URL + "/resources/" + m.mealImage;
+
+                              const isImage = /\.(jpg|jpeg|png|webp|gif)$/i.test(imageUrl);
+
+                              return isImage ? (
+                                <img
+                                  src={imageUrl}
+                                  alt={m.mealName}
+                                  style={{
+                                    width: 60,
+                                    height: 60,
+                                    objectFit: "cover",
+                                    borderRadius: 8,
+                                  }}
+                                />
+                              ) : (
+                                <a
+                                  href={imageUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  style={{ color: "blue", textDecoration: "underline" }}
+                                >
+                                  {imageUrl}
+                                </a>
+                              );
+                            })()
                           ) : (
                             ""
                           )}

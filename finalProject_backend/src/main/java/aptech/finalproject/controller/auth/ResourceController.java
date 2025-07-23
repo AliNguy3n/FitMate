@@ -6,6 +6,7 @@ import aptech.finalproject.security.config.AppPathProperties;
 import aptech.finalproject.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -38,13 +39,28 @@ public class ResourceController {
 
     @GetMapping("/{file}")
     public ResponseEntity<Resource> getFile(@PathVariable String file) throws IOException {
-        FileMetadata metadata = fileService.findByFileName(file);
-        Resource resource = fileService.getFile(file);
+        FileMetadata metadata;
+        try {
+            metadata = fileService.findByFileName(file);
+        } catch (Exception e) {
+            // Metadata not found, try to load from /exercises/ directory
+            Path filePath = Paths.get(appPath.getUploadPath().toString(), "exercise", file);
+            if (Files.exists(filePath)) {
+                Resource resource = new UrlResource(filePath.toUri());
+                String mimeType = Files.probeContentType(filePath);
+                MediaType mediaType = mimeType != null ? MediaType.parseMediaType(mimeType) : MediaType.APPLICATION_OCTET_STREAM;
+                return ResponseEntity.ok()
+                        .contentType(mediaType)
+                        .body(resource);
+            } else {
+                throw new IOException("File not found: " + file);
+            }
+        }
 
+        Resource resource = fileService.getFile(file);
         Path path = Paths.get(appPath.getUploadPath().toString(), metadata.getRelativePath(), metadata.getStoredName());
         String mimeType = Files.probeContentType(path);
         MediaType mediaType = mimeType != null ? MediaType.parseMediaType(mimeType) : MediaType.APPLICATION_OCTET_STREAM;
-
         return ResponseEntity.ok()
                 .contentType(mediaType)
                 .body(resource);

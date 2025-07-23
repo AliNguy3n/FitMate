@@ -64,52 +64,71 @@ const ExerciseCategorys = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {categories.map((c) => (
-                    <tr key={c.id}>
-                      <td className="px-2 py-2 border">{c.id}</td>
-                      <td className="px-2 py-2 border">
-                        {c.categoryImage ? (
-                          <img
-                            src={BASE_URL + "/resources/" + c.categoryImage}
-                            alt={c.categoryName}
-                            style={{
-                              width: 60,
-                              height: 60,
-                              objectFit: "cover",
-                              borderRadius: 8,
-                            }}
-                          />
-                        ) : (
-                          ""
-                        )}
-                      </td>
-                      <td className="px-2 py-2 border">{c.categoryName}</td>
-                      <td className="px-2 py-2 border">
-                        {c.subCategoryIds && c.subCategoryIds.length > 0
-                          ? c.subCategoryIds.join(", ")
-                          : ""}
-                      </td>
-                      <td className="px-2 py-2 border">
-                        <Link
-                          to={`/admin/exercise/exercise-categories/edit/${c.id}`}
-                          className="me-2 text-blue-600"
-                          title="Edit"
-                        >
-                          <i className="mgc_edit_line text-lg"></i>
-                        </Link>
-                        <a
-                          href={`/admin/exercise/exercise-categories/delete/${c.id}`}
-                          className="ms-2 text-red-600 disabled"
-                          title="Delete"
-                          tabIndex={-1}
-                          aria-disabled="true"
-                          onClick={(e) => e.preventDefault()}
-                        >
-                          <i className="mgc_delete_line text-lg"></i>
-                        </a>
-                      </td>
-                    </tr>
-                  ))}
+                  {categories.map((c) => {
+                    const imageUrl = c.categoryImage?.startsWith("http")
+                      ? c.categoryImage
+                      : BASE_URL + "/resources/" + c.categoryImage;
+
+                    const isImage = /\.(jpg|jpeg|png|webp|gif|svg)$/i.test(imageUrl);
+
+                    return (
+                      <tr key={c.id}>
+                        <td className="px-2 py-2 border">{c.id}</td>
+                        <td className="px-2 py-2 border">
+                          {c.categoryImage ? (
+                            isImage ? (
+                              <img
+                                src={imageUrl}
+                                alt={c.categoryName}
+                                style={{
+                                  width: 60,
+                                  height: 60,
+                                  objectFit: "cover",
+                                  borderRadius: 8,
+                                }}
+                              />
+                            ) : (
+                              <a
+                                href={imageUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{ color: "blue", textDecoration: "underline" }}
+                              >
+                                {imageUrl}
+                              </a>
+                            )
+                          ) : (
+                            ""
+                          )}
+                        </td>
+                        <td className="px-2 py-2 border">{c.categoryName}</td>
+                        <td className="px-2 py-2 border">
+                          {c.subCategoryIds && c.subCategoryIds.length > 0
+                            ? c.subCategoryIds.join(", ")
+                            : ""}
+                        </td>
+                        <td className="px-2 py-2 border">
+                          <Link
+                            to={`/admin/exercise/exercise-category/edit/${c.id}`}
+                            className="me-2 text-blue-600"
+                            title="Edit"
+                          >
+                            <i className="mgc_edit_line text-lg"></i>
+                          </Link>
+                          <a
+                            href={`/admin/exercise/exercise-categories/delete/${c.id}`}
+                            className="ms-2 text-red-600 disabled"
+                            title="Delete"
+                            tabIndex={-1}
+                            aria-disabled="true"
+                            onClick={(e) => e.preventDefault()}
+                          >
+                            <i className="mgc_delete_line text-lg"></i>
+                          </a>
+                        </td>
+                      </tr>
+                    );
+                  })}
                   {categories.length === 0 && (
                     <tr>
                       <td colSpan={5} className="text-center py-4">

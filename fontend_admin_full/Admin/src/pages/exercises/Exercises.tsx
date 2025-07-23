@@ -94,10 +94,18 @@ const Exercises = () => {
                 data={exercises.map((e) => [
                   e.id,
                   e.exerciseImage
-                    ? html(
-                        `<img src="${IMAGE_BASE_URL + e.exerciseImage}" alt="${
-                          e.exerciseName
-                        }" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" />`
+                    ? /\.(jpg|jpeg|png|webp|gif)$/i.test(e.exerciseImage)
+                      ? html(
+                        `<img src="${e.exerciseImage.startsWith("http")
+                          ? e.exerciseImage
+                          : IMAGE_BASE_URL + e.exerciseImage
+                        }" alt="${e.exerciseName}" 
+          style="width:80px;height:80px;object-fit:cover;border-radius:8px;" />`
+                      )
+                      : html(
+                        `<a href="${e.exerciseImage}" target="_blank" style="color:blue;text-decoration:underline;">
+          ${e.exerciseImage}
+        </a>`
                       )
                     : "",
                   e.exerciseName,
@@ -110,16 +118,17 @@ const Exercises = () => {
                   equipmentMap[e.equipmentId] || "",
                   (e.modeIds || []).map((id: number) => modeMap[id] || id).join(", "),
                   html(`
-      <span class="inline-flex" style="min-width:70px;max-width:140px;">
-        <a href="/admin/exercise/exercise/edit/${e.id}" class="me-2" title="Edit">
-          <i class="mgc_edit_line text-lg"></i>
-        </a>
-        <a href="/admin/exercise/exercise/delete/${e.id}" class="ms-2 disabled" title="Delete" tabindex="-1" aria-disabled="true" onclick="event.preventDefault();">
-          <i class="mgc_delete_line text-lg"></i>
-        </a>
-      </span>
-    `),
+    <span class="inline-flex" style="min-width:70px;max-width:140px;">
+      <a href="/admin/exercise/exercise/edit/${e.id}" class="me-2" title="Edit">
+        <i class="mgc_edit_line text-lg"></i>
+      </a>
+      <a href="/admin/exercise/exercise/delete/${e.id}" class="ms-2 disabled" title="Delete" tabindex="-1" aria-disabled="true" onclick="event.preventDefault();">
+        <i class="mgc_delete_line text-lg"></i>
+      </a>
+    </span>
+  `),
                 ])}
+
                 columns={[
                   { name: "ID", width: "4%" },
                   { name: "Image", width: "8%" },
