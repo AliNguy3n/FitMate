@@ -92,7 +92,7 @@ const AddEditSupplier = () => {
           headers: { "Content-Type": "multipart/form-data" },
         });
       }
-      navigate("/suppliers");
+      navigate("/admin/product/suppliers");
     } catch (err: any) {
       if (err?.response?.data?.errors) {
         setErrors(err.response.data.errors);
@@ -183,7 +183,7 @@ const AddEditSupplier = () => {
             <button
               type="button"
               className="btn bg-gray-200 text-gray-700"
-              onClick={() => navigate("/suppliers")}
+              onClick={() => navigate("/admin/product/suppliers")}
               disabled={loading}
             >
               Cancel

@@ -20,7 +20,7 @@ public class Product {
     private Long id;
 
     private String name;
-
+    @Column(length = 1000) // to allow longer descriptions
     private String description;
 
     private Double price;

@@ -6,6 +6,7 @@ import lombok.*;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Setter
@@ -28,5 +29,5 @@ public class Promotion {
 
     @OneToMany( mappedBy = "promotion")
     @JsonIgnore
-    private List<Product> products;
+    private Set<Product> products;
 }

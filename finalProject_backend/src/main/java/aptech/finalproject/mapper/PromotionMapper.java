@@ -10,11 +10,12 @@ import org.mapstruct.MappingTarget;
 import org.mapstruct.Named;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Mapper( componentModel = "spring")
 public interface PromotionMapper {
-    @Mapping(target = "products", source = "products", qualifiedByName = "mapProductListToIdList")
+    @Mapping(target = "productIds", source = "products", qualifiedByName = "mapProductSetToIdSet")
     PromotionResponse toPromotionResponse(Promotion promotion);
 
 
@@ -28,11 +29,11 @@ public interface PromotionMapper {
     void updatePromotion(@MappingTarget Promotion promotion, PromotionRequest promotionRequest);
 
 
-    @Named("mapProductListToIdList")
-    static List<Long> mapProductListToIdList(List<Product> products) {
+    @Named("mapProductSetToIdSet")
+    default Set<Long> mapProductSetToIdSet(Set<Product> products) {
         if (products == null) return null;
         return products.stream()
                 .map(Product::getId)
-                .collect(Collectors.toList());
+                .collect(Collectors.toSet());
     }
 }

@@ -3,6 +3,7 @@ package aptech.finalproject.entity.product;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 
@@ -22,7 +23,7 @@ public class Order {
 
     private Instant orderDate;
 
-    private Integer totalAmount;
+    private BigDecimal totalAmount;
 
     private Boolean status;
 

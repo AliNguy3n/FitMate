@@ -79,7 +79,7 @@ const AddEditEquipment = () => {
       } else {
         await api.create("/api/equipment/create", payload);
       }
-      navigate("/admin/product/equipment");
+      navigate("/admin/product/equipments");
     } catch (err: any) {
       if (err?.response?.data?.errors) {
         setErrors(err.response.data.errors);
@@ -162,7 +162,7 @@ const AddEditEquipment = () => {
             <button
               type="button"
               className="btn bg-gray-200 text-gray-700"
-              onClick={() => navigate("/admin/product/equipment")}
+              onClick={() => navigate("/admin/product/equipments")}
               disabled={loading}
             >
               Cancel

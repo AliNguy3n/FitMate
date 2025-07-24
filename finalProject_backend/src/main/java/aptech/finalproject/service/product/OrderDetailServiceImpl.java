@@ -80,6 +80,13 @@ public class OrderDetailServiceImpl implements OrderDetailService{
         return orderDetailMapper.toOrderDetailResponse(orderDetail);
     }
 
+    public List<OrderDetailResponse> getOrderDetailsByOrderId(Long orderId) {
+        List<OrderDetail> orderDetails = orderDetailRepository.findByOrderId(orderId);
+        return orderDetails.stream()
+                .map(orderDetailMapper::toOrderDetailResponse)
+                .collect(Collectors.toList());
+    }
+
     private void requireManagerOrAdmin(CustomUserPrincipal user) {
         if (!isManagerOrAdmin(user)) {
             throw new ApiException(ErrorCode.UNAUTHORIZED);

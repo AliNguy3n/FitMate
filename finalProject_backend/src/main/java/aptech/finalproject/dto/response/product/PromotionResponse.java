@@ -5,6 +5,7 @@ import lombok.*;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -22,5 +23,5 @@ public class PromotionResponse {
 
     private Instant endDate;
 
-    private List<Long> products;
+    private Set<Long> productIds;
 }

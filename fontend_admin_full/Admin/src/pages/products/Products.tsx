@@ -29,7 +29,7 @@ const Products = () => {
  
   useEffect(() => {
     fetchProducts()
-      .then(setProducts)
+      .then((data) => setProducts(data || [])) 
       .finally(() => setLoading(false));
   }, []);
 
@@ -72,14 +72,19 @@ const Products = () => {
     return res.data.data || [];
   };
 
-
+  const truncateDescription = (desc: string, maxWords = 15) => {
+    if (!desc) return "";
+    const words = desc.split(/\s+/);
+    if (words.length <= maxWords) return desc;
+    return words.slice(0, maxWords).join(" ") + " ...";
+  };
 
   return (
     <>
       <PageBreadcrumb
-        name="Data Table"
-        title="Data Table"
-        breadCrumbItems={["Fitmate", "Table", "Data Table"]}
+        name="Product Management"
+        title="Product Management"
+        breadCrumbItems={["Fitmate", "Products", "Products"]}
       />
       <div className="flex flex-col gap-6">
         <div className="card">
@@ -116,14 +121,14 @@ const Products = () => {
                         )
                       : "",
                     p.name,
-                    p.description,
+                    truncateDescription(p.description), 
                     p.price,
                     p.stock,
-                    p.rating,
+                    // p.rating,
                     supplier,
                     promotion,
-                    equipment,
-                    supplement,
+                    // equipment,
+                    // supplement,
                     html(`
                       <span class="inline-flex" style="min-width:70px;max-width:140px;">
                         <a href="/admin/product/edit/${p.id}" class="me-2" title="Edit">
@@ -143,17 +148,17 @@ const Products = () => {
                   ];
                 })}
                 columns={[
-                  { name: "ID", width: "4%" },
+                  { name: "ID", width: "5%" },
                   { name: "Image", width: "8%" },
                   "Name",
                   "Description",
                   { name: "Price", width: "6%" },
                   { name: "Stock", width: "6%" },
-                  { name: "Rating", width: "6%" },
+                  // { name: "Rating", width: "6%" },
                   { name: "Supplier", width: "10%" },
                   { name: "Promotion", width: "10%" },
-                  { name: "Equipment", width: "10%" },
-                  { name: "Supplement", width: "10%" },
+                  // { name: "Equipment", width: "10%" },
+                  // { name: "Supplement", width: "10%" },
                   { name: "Action", width: "6%" },
                 ]}
                 pagination={{ enabled: true, limit: 5 }}

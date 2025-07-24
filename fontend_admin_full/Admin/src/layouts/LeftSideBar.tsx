@@ -22,22 +22,27 @@ const userData = JSON.parse(localStorage.getItem("authUser") || "null");
 
 /* Sidebar content */
 const SideBarContent = () => {
-  // Lấy menu gốc
   const menu = getMenuItems();
 
-  // Lọc menu: chỉ hiển thị item 'auth' nếu user có ROLE_ADMIN
   const filteredMenu = menu.filter(item => {
-    if (item.key === "auth" || item.key === "finance") {
-      // userData.role hoặc userData.roles (tùy backend trả về)
-      if (!userData?.role || userData.role !== "ROLE_ADMIN") return false;
+    if (!userData) return false;
+
+    // Kiểm tra role (nếu có)
+    if (item.requiredRole && userData.role !== item.requiredRole) {
+      return false;
     }
+
+    // Kiểm tra permission (nếu có)
+    if (item.requiredPermission && !userData.permissions?.includes(item.requiredPermission)) {
+      return false;
+    }
+
     return true;
   });
 
-  return (
-    <AppMenu menuItems={filteredMenu} />
-  )
-}
+  return <AppMenu menuItems={filteredMenu} />;
+};
+
 
 interface LeftSideBarProps {
   isCondensed: boolean;

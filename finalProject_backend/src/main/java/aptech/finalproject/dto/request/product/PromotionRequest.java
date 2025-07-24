@@ -8,6 +8,7 @@ import lombok.*;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @Setter
 @Getter
@@ -28,5 +29,5 @@ public class PromotionRequest {
     @NotNull(message = "End date is required")
     private Instant endDate;
 
-    private List<Long> productIds;
+    private Set<Long> productIds;
 }

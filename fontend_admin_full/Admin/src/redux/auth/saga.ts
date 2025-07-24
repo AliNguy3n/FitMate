@@ -15,27 +15,32 @@ import { authApiResponseSuccess, authApiResponseError } from "./actions";
 import { AuthActionTypes } from "./constants";
 
 function mapUserData(apiData: any) {
-
   const decoded = apiData.token ? parseJwt(apiData.token) : {};
   let roles: string[] = [];
+  let permissions: string[] = [];
+
   if (Array.isArray(decoded?.authorities)) {
     roles = decoded.authorities.filter((r: string) => r.startsWith("ROLE_"));
+    permissions = decoded.authorities.filter((r: string) => !r.startsWith("ROLE_"));
   } else if (typeof decoded?.authorities === "string") {
-    roles = decoded.authorities
-      .split(" ")
-      .filter((r: string) => r.startsWith("ROLE_"));
+    const arr = decoded.authorities.split(" ");
+    roles = arr.filter((r: string) => r.startsWith("ROLE_"));
+    permissions = arr.filter((r: string) => !r.startsWith("ROLE_"));
   } else if (Array.isArray(decoded?.roles)) {
     roles = decoded.roles.filter((r: string) => r.startsWith("ROLE_"));
+    permissions = decoded.roles.filter((r: string) => !r.startsWith("ROLE_"));
   } else if (typeof decoded?.roles === "string") {
-    roles = decoded.roles
-      .split(" ")
-      .filter((r: string) => r.startsWith("ROLE_"));
+    const arr = decoded.roles.split(" ");
+    roles = arr.filter((r: string) => r.startsWith("ROLE_"));
+    permissions = arr.filter((r: string) => !r.startsWith("ROLE_"));
   }
+
   return {
     token: apiData.token,
     refreshToken: apiData.refreshToken,
     authenticated: apiData.authenticated,
-    role: roles.length === 1 ? roles[0] : roles, 
+    role: roles.length === 1 ? roles[0] : roles,
+    permissions,
   };
 }
 

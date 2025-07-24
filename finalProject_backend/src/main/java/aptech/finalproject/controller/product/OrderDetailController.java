@@ -51,6 +51,16 @@ public class OrderDetailController {
         return ApiResponse.ok(list, "Get all order details");
     }
 
+
+    @GetMapping("/order/{orderId}")
+    public ApiResponse<List<OrderDetailResponse>> getByOrderId(@PathVariable Long orderId) {
+        List<OrderDetailResponse> list = orderDetailService.getOrderDetailsByOrderId(orderId);
+        if (list.isEmpty()) {
+            return ApiResponse.notFound(ErrorCode.ORDER_DETAIL_NOT_FOUND.getException());
+        }
+        return ApiResponse.ok(list, "Get order details by order id");
+    }
+
     @GetMapping("/{id}")
     public ApiResponse<OrderDetailResponse> getById(@PathVariable Long id) {
         OrderDetailResponse response = orderDetailService.getOrderDetailById(id);
