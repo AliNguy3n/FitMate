@@ -80,8 +80,7 @@ const Suppliers = () => {
                       <th className="px-2 py-2 border">Name</th>
                       <th className="px-2 py-2 border">Type</th>
                       <th className="px-2 py-2 border">Contact</th>
-                      <th className="px-2 py-2 border">Address</th>
-                      <th className="px-2 py-2 border">Products</th>
+                      <th className="px-2 py-2 border">Address</th>                     
                       <th className="px-2 py-2 border">Action</th>
                     </tr>
                   </thead>
@@ -108,12 +107,7 @@ const Suppliers = () => {
                         <td className="px-2 py-2 border">{s.name}</td>
                         <td className="px-2 py-2 border">{s.type}</td>
                         <td className="px-2 py-2 border">{s.contact}</td>
-                        <td className="px-2 py-2 border">{s.address}</td>
-                        <td className="px-2 py-2 border">
-                          {s.products && s.products.length > 0
-                            ? s.products.join(", ")
-                            : "No products"}
-                        </td>
+                        <td className="px-2 py-2 border">{s.address}</td>                        
                         <td className="px-2 py-2 border">
                           <Link
                             to={`/admin/product/supplier/edit/${s.id}`}

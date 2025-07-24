@@ -77,7 +77,7 @@ const AddEditSupplement = () => {
       } else {
         await api.create("/api/supplement/create", payload);
       }
-      navigate("/product/supplement");
+      navigate("/admin/product/supplements");
     } catch (err: any) {
       if (err?.response?.data?.errors) {
         setErrors(err.response.data.errors);
@@ -145,7 +145,7 @@ const AddEditSupplement = () => {
             <button
               type="button"
               className="btn bg-gray-200 text-gray-700"
-              onClick={() => navigate("/admin/product/supplement")}
+              onClick={() => navigate("/admin/product/supplements")}
               disabled={loading}
             >
               Cancel

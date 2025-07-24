@@ -12,7 +12,7 @@ type Promotion = {
   discount: number;
   startDate: number;
   endDate: number;
-  products: number[];
+  productIds: number[];
 };
 
 const PAGE_SIZE = 5;
@@ -91,8 +91,8 @@ const Promotions = () => {
                         <td className="px-2 py-2 border">{formatDate(p.startDate)}</td>
                         <td className="px-2 py-2 border">{formatDate(p.endDate)}</td>
                         <td className="px-2 py-2 border">
-                          {p.products && p.products.length > 0
-                            ? p.products.join(", ")
+                          {p.productIds && p.productIds.length > 0
+                            ? `${p.productIds.length} Product${p.productIds.length > 1 ? "s" : ""}`
                             : "No products"}
                         </td>
                         <td className="px-2 py-2 border">

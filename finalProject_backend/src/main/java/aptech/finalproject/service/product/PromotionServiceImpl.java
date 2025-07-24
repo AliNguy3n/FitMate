@@ -13,7 +13,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -32,7 +34,7 @@ public class PromotionServiceImpl implements PromotionService {
         Promotion promotion = promotionMapper.toPromotion(promotionRequest);
 
         if (promotionRequest.getProductIds() != null && !promotionRequest.getProductIds().isEmpty()) {
-            List<Product> products = productRepository.findAllById(promotionRequest.getProductIds());
+            Set<Product> products = new HashSet<>(productRepository.findAllById(promotionRequest.getProductIds()));
             promotion.setProducts(products);
         }
 
@@ -46,8 +48,14 @@ public class PromotionServiceImpl implements PromotionService {
 
         promotionMapper.updatePromotion(promotion, promotionRequest);
 
-        if (promotionRequest.getProductIds() != null) {
-            List<Product> products = productRepository.findAllById(promotionRequest.getProductIds());
+        Set<Long> productIds = promotionRequest.getProductIds();
+        if (productIds != null) {
+            Set<Product> products = productIds.isEmpty()
+                    ? Set.of()
+                    : new HashSet<>(productRepository.findAllById(productIds));
+
+            products.forEach(p -> p.setPromotion(promotion));
+
             promotion.setProducts(products);
         }
 

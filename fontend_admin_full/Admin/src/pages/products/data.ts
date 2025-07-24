@@ -17,5 +17,6 @@ export interface Product {
 
 export async function fetchProducts(): Promise<Product[]> {
   const res = await api.get("/api/product");
+  console.log("Fetched products:", res.data.data);
   return res.data.data;
 }

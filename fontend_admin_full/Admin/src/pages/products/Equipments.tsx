@@ -58,7 +58,7 @@ const Equipments = () => {
           <div className="card-header flex justify-between items-center">
             <h4 className="card-title">Equipment List</h4>
             <Link
-              to="/product/equipment/add"
+              to="/admin/product/equipment/add"
               className="btn bg-primary/20 text-sm font-medium text-primary hover:text-white hover:bg-primary"
             >
               <i className="mgc_add_circle_line me-2"></i> Add New Equipment
@@ -117,14 +117,14 @@ const Equipments = () => {
                         </td>
                         <td className="px-2 py-2 border">
                           <Link
-                            to={`/product/equipment/edit/${e.id}`}
+                            to={`/admin/product/equipment/edit/${e.id}`}
                             className="me-2 text-blue-600"
                             title="Edit"
                           >
                             <i className="mgc_edit_line text-lg"></i>
                           </Link>
                           <a
-                            href={`/product/equipment/delete/${e.id}`}
+                            href={`/admin/product/equipment/delete/${e.id}`}
                             className="ms-2 text-red-600 disabled"
                             title="Delete"
                             tabIndex={-1}

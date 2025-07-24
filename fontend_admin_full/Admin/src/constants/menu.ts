@@ -7,6 +7,8 @@ export interface MenuItemTypes {
   parentKey?: string;
   target?: string;
   children?: MenuItemTypes[];
+  requiredRole?: string;
+  requiredPermission?: string;
 }
 
 const MENU_ITEMS: MenuItemTypes[] = [
@@ -18,49 +20,49 @@ const MENU_ITEMS: MenuItemTypes[] = [
   {
     key: 'dashboard',
     label: 'Dashboard',
-    isTitle: false,
     icon: 'mgc_home_3_line',
-    url: '/admin/dashboard'
+    url: '/admin/dashboard',
   },
 
   {
-    key: 'finance',
-    label: 'Order',
+    key: 'finance-title',
+    label: 'Finance',
     isTitle: true,
+    requiredRole: 'ROLE_ADMIN',
   },
-
   {
-    key: 'finance',
+    key: 'finance-overview',
     label: 'Financial Overview',
-    isTitle: false,
     icon: 'mgc_currency_dollar_line',
     url: '/admin/finance',
+    requiredRole: 'ROLE_ADMIN',
   },
 
   {
     key: 'menu',
     label: 'Order',
     isTitle: true,
+    requiredPermission: 'MANAGE_PRODUCTS',
   },
-
   {
     key: 'orders',
     label: 'Manage Order',
-    isTitle: false,
     icon: 'mgc_shopping_cart_2_line',
     url: '/admin/order/orders',
+    requiredPermission: 'MANAGE_PRODUCTS',
   },
 
   {
     key: 'auth',
     label: 'User',
     isTitle: true,
+    requiredRole: 'ROLE_ADMIN',
   },
   {
     key: 'auth',
     label: 'Manage User',
-    isTitle: false,
     icon: 'mgc_user_3_line',
+    requiredRole: 'ROLE_ADMIN',
     children: [
       {
         key: 'auth-users',
@@ -69,7 +71,7 @@ const MENU_ITEMS: MenuItemTypes[] = [
         parentKey: 'auth',
       },
       {
-        key: 'auth-inactiveinactive',
+        key: 'auth-inactive',
         label: 'Inactive Users',
         url: '/admin/manage-users/inactive',
         parentKey: 'auth',
@@ -80,21 +82,20 @@ const MENU_ITEMS: MenuItemTypes[] = [
         url: '/admin/manage-users/role-permission',
         parentKey: 'auth',
       },
-      
-    ]
-  },
-
-    {
-    key: 'elements',
-    label: 'Product',
-    isTitle: true,
+    ],
   },
 
   {
     key: 'product',
+    label: 'Product',
+    isTitle: true,
+    requiredPermission: 'MANAGE_PRODUCTS',
+  },
+  {
+    key: 'product',
     label: 'Manage Product',
-    isTitle: false,
     icon: 'mgc_classify_2_line',
+    requiredPermission: 'MANAGE_PRODUCTS',
     children: [
       {
         key: 'product-products',
@@ -138,27 +139,17 @@ const MENU_ITEMS: MenuItemTypes[] = [
         url: '/admin/product/ecategory',
         parentKey: 'product',
       },
-      
-      
-    ]
+    ],
   },
+
   {
     key: 'apps',
     label: 'Apps',
     isTitle: true,
   },
-  // {
-  //   key: 'apps-calendar',
-  //   label: 'Calendar',
-  //   isTitle: false,
-  //   icon: 'mgc_calendar_line',
-  //   url: '/apps/calendar',
-  // },
-
   {
     key: 'exercises',
     label: 'Exercises',
-    isTitle: false,
     icon: 'mgc_fitness_line',
     children: [
       {
@@ -197,13 +188,12 @@ const MENU_ITEMS: MenuItemTypes[] = [
         url: '/admin/exercise/exercise-programs',
         parentKey: 'exercises',
       },
-    ]
+    ],
   },
 
   {
     key: 'meal',
     label: 'Meals',
-    isTitle: false,
     icon: 'mgc_bowl_line',
     children: [
       {
@@ -230,33 +220,14 @@ const MENU_ITEMS: MenuItemTypes[] = [
         url: '/admin/meal/meal-subcategories',
         parentKey: 'meal',
       },
-      
-    ]
+    ],
   },
 
-  
-  {
-    key: 'elements',
-    label: 'Until',
-    isTitle: true,
-  },
-  
   // {
-  //   key: 'apps-tickets',
-  //   label: 'Tickets',
-  //   isTitle: false,
-  //   icon: 'mgc_coupon_line',
-  //   url: '/admin/apps/tickets',
+  //   key: 'elements',
+  //   label: 'Until',
+  //   isTitle: true,
   // },
-  // {
-  //   key: 'apps-file-manager',
-  //   label: 'File Manager',
-  //   isTitle: false,
-  //   icon: 'mgc_folder_2_line',
-  //   url: '/admin/apps/file-manager',
-  // },
-
-  
 ];
 
 export { MENU_ITEMS };
