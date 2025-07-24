@@ -23,4 +23,8 @@ public class OrderDetailRequest{
     @NotNull(message = "Subtotal is required")
     @PositiveOrZero(message = "Subtotal must be zero or more")
     private Double subTotal;
+
+    private Long productId;
+    private Long orderId;
+
 }

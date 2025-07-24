@@ -1,6 +1,7 @@
 package aptech.finalproject.dto.response.product;
 
 
+import aptech.finalproject.entity.product.Order;
 import aptech.finalproject.entity.product.Product;
 
 import lombok.*;
@@ -21,5 +22,7 @@ public class OrderDetailResponse {
 
     private Double subTotal;
 
-    private Product product;
+    private Long productId;
+
+    private Long orderId;
 }

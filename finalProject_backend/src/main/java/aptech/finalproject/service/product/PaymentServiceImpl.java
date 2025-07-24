@@ -53,7 +53,6 @@ public class PaymentServiceImpl implements PaymentService{
         PaymentMethod paymentMethod = paymentMethodRepository.findById(paymentRequest.getPaymentMethodId())
                 .orElseThrow(() -> new ApiException(ErrorCode.PAYMENT_METHOD_NOT_FOUND));
         payment.setPaymentMethod(paymentMethod);
-
         return paymentMapper.toPaymentResponse(paymentRepository.save(payment));
     }
 
@@ -153,5 +152,12 @@ public class PaymentServiceImpl implements PaymentService{
     private boolean isManagerOrAdmin(CustomUserPrincipal user) {
         String role = user.getRole();
         return "ROLE_ADMIN".equals(role) || "ROLE_MANAGER".equals(role);
+    }
+
+    public void updatePaymentToOrder(Long orderId, Long paymentId){
+        Order order = orderRepository.findById(orderId).orElseThrow(() -> new ApiException(ErrorCode.ORDER_NOT_FOUND));
+        Payment payment = paymentRepository.findById(paymentId) .orElseThrow(() -> new ApiException(ErrorCode.PAYMENT_NOT_FOUND));
+        order.setPayment(payment);
+        orderRepository.save(order);
     }
 }

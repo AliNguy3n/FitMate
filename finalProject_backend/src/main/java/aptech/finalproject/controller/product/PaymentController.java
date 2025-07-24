@@ -60,6 +60,8 @@ public class PaymentController {
             return ApiResponse.badRequest(result);
         }
         PaymentResponse created = paymentService.createPayment(request);
+        // why not update paymentId to order ?
+        paymentService.updatePaymentToOrder(request.getOrderId(), created.getId());
         return ApiResponse.created(created, "Created Payment");
     }
 

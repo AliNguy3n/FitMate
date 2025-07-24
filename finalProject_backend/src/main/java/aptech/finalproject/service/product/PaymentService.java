@@ -20,4 +20,6 @@ public interface PaymentService {
     List<PaymentResponse> getPaymentsByDate(Instant formDate, Instant toDate);
 
     PaymentResponse getPaymentByTransactionCode(String transactionCode);
+
+    void updatePaymentToOrder(Long orderId, Long paymentId);
 }

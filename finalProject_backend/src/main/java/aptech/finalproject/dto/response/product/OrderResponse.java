@@ -24,4 +24,5 @@ public class OrderResponse {
     private String user;
 
     private Long payment;
+
 }

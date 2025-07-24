@@ -4,12 +4,14 @@ import aptech.finalproject.dto.request.product.OrderDetailRequest;
 import aptech.finalproject.dto.response.product.OrderDetailResponse;
 import aptech.finalproject.entity.product.Order;
 import aptech.finalproject.entity.product.OrderDetail;
+import aptech.finalproject.entity.product.Product;
 import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.mapper.OrderDetailMapper;
 import aptech.finalproject.model.CustomUserPrincipal;
 import aptech.finalproject.repository.product.OrderDetailRepository;
 import aptech.finalproject.repository.product.OrderRepository;
+import aptech.finalproject.repository.product.ProductRepository;
 import aptech.finalproject.security.jwt.AuthenticationFacade;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
@@ -26,6 +28,9 @@ public class OrderDetailServiceImpl implements OrderDetailService{
     private OrderDetailRepository orderDetailRepository;
 
     @Autowired
+    private ProductRepository productRepository;
+
+    @Autowired
     private OrderDetailMapper orderDetailMapper;
 
     @Autowired
@@ -35,7 +40,20 @@ public class OrderDetailServiceImpl implements OrderDetailService{
     private AuthenticationFacade authenticationFacade;
 
     public OrderDetailResponse createOrderDetail(OrderDetailRequest orderDetailRequest) {
+
         OrderDetail orderDetail = orderDetailMapper.toOrderDetail(orderDetailRequest);
+        Product product = productRepository.getOne(orderDetailRequest.getProductId());
+        Order order = orderRepository.getOne(orderDetailRequest.getOrderId());
+
+        // update stock of product
+        int quantity = orderDetailRequest.getQuantity();
+        product.setStock(product.getStock() - quantity);
+        productRepository.save(product);
+
+
+        // mapping product and order
+        orderDetail.setProduct(product);
+        orderDetail.setOrder(order);
 
         return orderDetailMapper
                 .toOrderDetailResponse(orderDetailRepository.save(orderDetail));

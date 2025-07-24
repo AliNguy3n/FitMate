@@ -47,7 +47,7 @@ public class OrderServiceImpl implements OrderService{
     public OrderResponse createOrder(OrderRequest orderRequest) {
         Order order = orderMapper.toOrder(orderRequest);
 
-        User user =userRepository.findById(authFacade.getCurrentUser().getId())
+        User user = userRepository.findById(authFacade.getCurrentUser().getId())
                 .orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
         order.setUser(user);
 

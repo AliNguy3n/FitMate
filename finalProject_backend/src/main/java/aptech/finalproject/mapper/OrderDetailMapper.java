@@ -13,12 +13,16 @@ public interface OrderDetailMapper {
     @Mapping(target = "quantity", source = "quantity")
     @Mapping(target = "unitPrice", source = "unitPrice")
     @Mapping(target = "subTotal", source = "subTotal")
+    @Mapping(target = "productId", source = "product.id")
+    @Mapping(target = "orderId", source = "order.id")
     OrderDetailResponse toOrderDetailResponse(OrderDetail orderDetail);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "quantity", source = "quantity")
     @Mapping(target = "unitPrice", source = "unitPrice")
     @Mapping(target = "subTotal", source = "subTotal")
+    @Mapping(target = "product",ignore = true)
+    @Mapping(target = "order", ignore = true)
     OrderDetail toOrderDetail(OrderDetailRequest orderDetailRequest);
 
     @Mapping(target = "id", ignore = true)
