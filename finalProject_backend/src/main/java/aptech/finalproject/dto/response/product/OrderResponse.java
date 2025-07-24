@@ -17,8 +17,6 @@ public class OrderResponse {
 
     private Integer totalAmount;
 
-    private String currency;
-
     private Boolean status;
 
     private Boolean delivered;

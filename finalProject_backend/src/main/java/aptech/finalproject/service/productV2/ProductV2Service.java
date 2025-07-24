@@ -19,4 +19,6 @@
      EquipmentResponse getEquipmentById(Long id);
 
      SupplementResponse getSupplementById(Long id);
+
+     List<ProductCardDTO> getProductTopCards(Long limit);
  }

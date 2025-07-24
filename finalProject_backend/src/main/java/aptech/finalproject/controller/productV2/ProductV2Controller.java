@@ -33,6 +33,15 @@
          return ApiResponse.ok(list, "Get all equipment categories");
      }
 
+     @GetMapping("/top/{limit}")
+     public ApiResponse<List<ProductCardDTO>> getProductTopCards(@PathVariable Long limit) {
+         List<ProductCardDTO> list = productV2Service.getProductTopCards(limit);
+         if (list.isEmpty()) {
+             return ApiResponse.notFound(ErrorCode.PRODUCT_NOT_FOUND.getException());
+         }
+         return ApiResponse.ok(list, "Get all equipment categories");
+     }
+
      @GetMapping("/ecategory")
      public ApiResponse<List<ECategoryResponse>> getECategories() {
          List<ECategoryResponse> list = productV2Service.getECategories();

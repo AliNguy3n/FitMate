@@ -2,10 +2,7 @@
 
  import aptech.finalproject.dto.productV2.ProductCardDTO;
  import aptech.finalproject.dto.response.product.*;
- import aptech.finalproject.entity.product.ECategory;
- import aptech.finalproject.entity.product.Equipment;
- import aptech.finalproject.entity.product.SCategory;
- import aptech.finalproject.entity.product.Supplement;
+ import aptech.finalproject.entity.product.*;
  import aptech.finalproject.exception.ApiException;
  import aptech.finalproject.exception.ErrorCode;
  import aptech.finalproject.mapper.ECategoryMapper;
@@ -16,7 +13,9 @@
  import org.springframework.beans.factory.annotation.Autowired;
  import org.springframework.stereotype.Service;
 
+ import java.time.Instant;
  import java.util.ArrayList;
+ import java.util.Comparator;
  import java.util.List;
  import java.util.stream.Collectors;
 
@@ -71,7 +70,14 @@
 
              // discount & check Date
              if (product.getPromotion() != null) {
-                 productCardDTO.setDiscount(product.getPromotion().getDiscount());
+                 Promotion promotion = product.getPromotion();
+                 Instant now = Instant.now();
+
+                 if (promotion.getStartDate().isBefore(now) && promotion.getEndDate().isAfter(now)) {
+                     productCardDTO.setDiscount(promotion.getDiscount());
+                 } else {
+                     productCardDTO.setDiscount(0f);
+                 }
              } else {
                  productCardDTO.setDiscount(0f);
              }
@@ -131,4 +137,82 @@
      }
 
      // get best product and supplement
+     @Override
+     public List<ProductCardDTO> getProductTopCards(Long limit) {
+         List<Product> products = productRepository.findAll();
+
+         // Tách product theo loại và sort theo rating
+         List<Product> topEquipments = products.stream()
+                 .filter(p -> "equipment".equals(p.getType()))
+                 .sorted(Comparator.comparing(Product::getRating).reversed())
+                 .limit(limit)
+                 .collect(Collectors.toList());
+
+         List<Product> topSupplements = products.stream()
+                 .filter(p -> "supplement".equals(p.getType()))
+                 .sorted(Comparator.comparing(Product::getRating).reversed())
+                 .limit(limit)
+                 .collect(Collectors.toList());
+
+         List<ProductCardDTO> result = new ArrayList<>();
+
+         topEquipments.forEach(product -> result.add(toCardDTO(product)));
+         topSupplements.forEach(product -> result.add(toCardDTO(product)));
+
+         return result;
+     }
+
+     private ProductCardDTO toCardDTO(Product product) {
+         ProductCardDTO dto = new ProductCardDTO();
+         dto.setId(product.getId());
+         dto.setName(product.getName());
+         dto.setPrice(product.getPrice());
+         dto.setRating(product.getRating());
+         dto.setStock(product.getStock());
+         dto.setType(product.getType());
+
+         if (product.getImage() != null) {
+             dto.setImage(product.getImage().getStoredName());
+         }
+
+         // Discount
+         if (product.getPromotion() != null) {
+             var promotion = product.getPromotion();
+             Instant now = Instant.now();
+             if (!promotion.getStartDate().isAfter(now) && !promotion.getEndDate().isBefore(now)) {
+                 dto.setDiscount(promotion.getDiscount());
+             } else {
+                 dto.setDiscount(0f);
+             }
+         } else {
+             dto.setDiscount(0f);
+         }
+
+         // Category & DetailId
+         if ("equipment".equals(product.getType()) && product.getEquipment() != null) {
+             var eId = product.getEquipment().getId();
+             dto.setDetailId(eId);
+             equipmentRepository.findById(eId).ifPresent(equipment -> {
+                 List<Long> categoryIds = equipment.getEcategories().stream()
+                         .map(ECategory::getId)
+                         .collect(Collectors.toList());
+                 dto.setCategoryIds(categoryIds);
+             });
+         }
+
+         if ("supplement".equals(product.getType()) && product.getSupplement() != null) {
+             var sId = product.getSupplement().getId();
+             dto.setDetailId(sId);
+             supplementRepository.findById(sId).ifPresent(supplement -> {
+                 List<Long> categoryIds = supplement.getScategories().stream()
+                         .map(SCategory::getId)
+                         .collect(Collectors.toList());
+                 dto.setCategoryIds(categoryIds);
+             });
+         }
+
+         return dto;
+     }
+
+
  }
