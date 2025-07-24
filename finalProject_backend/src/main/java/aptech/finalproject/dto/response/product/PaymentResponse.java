@@ -18,6 +18,8 @@ public class PaymentResponse {
 
     private Integer amount;
 
+    private String currency;
+
     private Boolean status;
 
     private Long order;

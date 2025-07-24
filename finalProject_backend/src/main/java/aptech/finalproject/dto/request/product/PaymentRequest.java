@@ -28,6 +28,10 @@ public class PaymentRequest {
     @NotNull(message = "Status is required")
     private Boolean status;
 
+
+    @NotNull(message = "Currency is required")
+    private String currency;
+
     @NotNull(message = "Order ID is required")
     private Long orderId;
 

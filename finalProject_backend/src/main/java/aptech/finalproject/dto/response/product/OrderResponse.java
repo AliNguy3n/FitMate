@@ -17,6 +17,8 @@ public class OrderResponse {
 
     private Integer totalAmount;
 
+    private String currency;
+
     private Boolean status;
 
     private Boolean delivered;
@@ -24,4 +26,5 @@ public class OrderResponse {
     private String user;
 
     private Long payment;
+
 }
