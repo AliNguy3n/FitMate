@@ -9,11 +9,13 @@ import ProgressPage from "./pages/ProgressPage";
 import WorkoutPage from "./pages/WorkoutPage";
 import WorkoutDetailPage from "./pages/WorkoutDetailPage";
 import PromotionPage from "./pages/PromotionPage";
+
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import ProtectedRoute from "./components/auth/ProtectRoute";
 import CheckoutPage from "./pages/CheckoutPage";
 import ProfilePage from "./pages/ProfilePage";
 import ZZZPage from "./pages/ZZZPage";
+
 
 function App() {
   return (
@@ -61,8 +63,10 @@ function App() {
         <Route path="/workout" element={<WorkoutPage />} />
         <Route path="/workout/1" element={<WorkoutDetailPage />} />
         <Route path="/promotions" element={<PromotionPage />} /> */}
+
       </Routes>
     </Router>
+    
   );
 }
 

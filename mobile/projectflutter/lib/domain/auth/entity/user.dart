@@ -11,6 +11,7 @@ class UserEntity {
   final DateTime? dob;
   final int gender;
   final String phone;
+  final bool active;
   final String address;
 
   UserEntity(
@@ -22,6 +23,7 @@ class UserEntity {
         required this.password,
         required this.dob,
         required this.gender,
+        required this.active,
         required this.phone,
         required this.address});
 }

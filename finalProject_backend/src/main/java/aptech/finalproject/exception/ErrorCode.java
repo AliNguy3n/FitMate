@@ -3,7 +3,6 @@ package aptech.finalproject.exception;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 
 @Getter
 @AllArgsConstructor
@@ -12,11 +11,13 @@ public enum ErrorCode {
     //Authentication and Authorization
         //USER
     USER_UNAUTHORIZED(403, "Unauthorized"),
+    USERNAME_OR_PASSWORD_INCORRECT(401, "Username or password incorrect"),
     USER_FORBIDDEN(403, "Forbidden"),
     USER_EXISTED(400, "User existed."),
     USER_NOT_FOUND(404, "User not found."),
     USER_UNAUTHENTICATED(401, "Unauthenticated"),
     USER_CREATION_FAILED(400, "User creation failed"),
+    USER_NOT_ACTIVE(403, "User not active"),
         //ROLE
     ROLE_NOT_FOUND(404, "Role not found."),
     ROLE_ALREADY_EXISTED(409, "Role already existed."),
@@ -66,8 +67,65 @@ public enum ErrorCode {
     //Validation
     USERNAME_INVALID(400, "Username must be between 3 and 30 characters"),
     PASSWORD_INVALID(400, "Password must be between 3 and 30 characters"),
-    KEYWORD_INVALID(400, "Keyword not valid");
+    KEYWORD_INVALID(400, "Keyword not valid"),
+
+    //Product
+    PRODUCT_NOT_FOUND(404, "Product not found."),
+    PRODUCT_CREATION_FAILED(409, "Product creation failed."),
+
+    //Supplier
+    SUPPLIER_NOT_FOUND(404, "Supplier not found."),
+
+    //Supplement
+    SUPPLEMENT_NOT_FOUND(404, "Supplement not found."),
+
+    //SCategory
+    SCATEGORY_NOT_FOUND(404, "Scategory not found."),
+
+    //Promotion
+    PROMOTION_NOT_FOUND(404, "Promotion not found."),
+
+    //Payment
+    PAYMENT_NOT_FOUND(404, "Payment not found."),
+
+    //PaymentMethod
+    PAYMENT_METHOD_NOT_FOUND(404, "Payment method not found."),
+
+    //Order
+    ORDER_NOT_FOUND(404, "Order not found."),
+
+    //OrderDetail
+    ORDER_DETAIL_NOT_FOUND(404, "Order detail not found."),
+
+    //Equipment
+    EQUIPMENT_NOT_FOUND(404, "Equipment not found."),
+
+    //ECategory
+    ECATEGORY_NOT_FOUND(404, "Category not found."),
+    ECATEGORY_CREATION_FAILED(409, "Category creation failed."),
+
+    //Meal
+    MEAL_SUBCATEGORY_NOT_FOUND(404, "Meal subcategory not found."),
+    MEAL_TIME_NOT_FOUND(404, "Meal time not found."),
+    MEAL_NOT_FOUND(404, "Meal not found."),
+    MEAL_CATEGORY_NOT_FOUND(404, "Meal category not found."),
+    USER_MEAL_NOT_FOUND(404, "User meal not found."),
+
+    //Exercise
+    EXERCISE_CATEGORY_NOT_FOUND(404, "Exercise category not found."),
+    EXERCISE_NOT_FOUND(404, "Exercise not found."),
+    EXERCISE_MODE_NOT_FOUND(404, "Exercise mode not found."),
+    EXERCISE_SUBCATEGORY_NOT_FOUND(404, "Exercise subcategory not found."),
+
+    EXERCISE_FAVORITE_NOT_FOUND(404, "Exercise favorite not found."),
+    EXERCISE_PROGRAM_NOT_FOUND(404, "Exercise program not found."),
+    EXERCISE_PROGRESS_NOT_FOUND(404, "Exercise progress not found."),
+    EXERCISE_SCHEDULE_NOT_FOUND(404, "Exercise schedule not found."),
+    EXERCISE_SESSION_NOT_FOUND(404, "Exercise session not found."),
+    EXERCISE_USER_NOT_FOUND(404, "Exercise user not found."),
+    EQUIPMENT_CREATION_FAILED(409, "Equipment creation failed.")
     ;
+
 
     private int code;
     private String exception;

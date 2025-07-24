@@ -1,7 +1,7 @@
 package aptech.finalproject.service;
 
 import aptech.finalproject.emums.FileType;
-import aptech.finalproject.entity.FileMetadata;
+import aptech.finalproject.entity.auth.FileMetadata;
 import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.repository.FileMetadataRepository;
@@ -15,7 +15,6 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
@@ -41,7 +40,8 @@ public class FileServiceImpl implements FileService {
         validateFile(file);
 
         FileType fileType = FileTypeUtil.detectFileType(file);
-        String extension = fileType.getExtension().getFirst();
+        // String extension = fileType.getExtension().getFirst();
+         String extension = fileType.getExtension().get(0);
         String storedName = UUID.randomUUID() + "." + extension;
 
         String relativePath = groupPath.orElse(fileType.getTypeName()); // fallback theo FileType

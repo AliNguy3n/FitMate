@@ -3,7 +3,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:projectflutter/common/helper/navigation/app_navigator.dart';
 import 'package:projectflutter/common/widget/appbar/app_bar.dart';
 import 'package:projectflutter/core/config/themes/app_font_size.dart';
-import 'package:projectflutter/core/data/exercise_sub_category_image.dart';
 import 'package:projectflutter/domain/exercise/entity/exercises_entity.dart';
 import 'package:projectflutter/domain/exercise/usecase/remove_favorite.dart';
 import 'package:projectflutter/presentation/exercise/bloc/exercise_favorite_cubit.dart';
@@ -128,25 +127,44 @@ class _ExerciseFavoritePageState extends State<ExerciseFavoritePage> {
                       final filteredExerciseList = exerciseList.where((exercise){
                         return exercise.subCategory.any((sub) => favoriteSubCategoryIds.contains(sub.id));
                       }).toList();
-                      Map<String, List<ExercisesEntity>> groupedSubCategoryMode = {};
+                      Map<int, List<ExercisesEntity>> groupedBySubCategoryId = {};
+                      Map<int, Set<String>> modeBySubCategoryId = {};
+
                       for (var exercise in filteredExerciseList) {
-                        final modeName = exercise.mode?.modeName ?? "Unknown";
-                        for (var sub in exercise.subCategory) {
+                        if (exercise.subCategory.length == 1) {
+                          final sub = exercise.subCategory.first;
                           if (favoriteSubCategoryIds.contains(sub.id)) {
-                            final subCategoryName = sub.subCategoryName;
-                            final key = "$subCategoryName-$modeName";
-                            groupedSubCategoryMode
-                                .putIfAbsent(key, () => [])
-                                .add(exercise);
+                            groupedBySubCategoryId.putIfAbsent(sub.id, () => []).add(exercise);
+                            modeBySubCategoryId.putIfAbsent(sub.id, () => {});
+                            modeBySubCategoryId[sub.id]!.addAll(
+                              exercise.modes.map((m) => m.modeName.toLowerCase()),
+                            );
                           }
                         }
                       }
 
-                      Map<String, int> durationBySubCategory = {};
-                      groupedSubCategoryMode.forEach((subCatName, exercises) {
-                        durationBySubCategory[subCatName] =
-                            exercises.fold(0, (sum, item) => sum += item.duration);
-                      });
+                      final Map<int, String> levelBySubCategoryId = {};
+                      const ordered = ['Beginner', 'Intermediate', 'Advanced', 'Stretch'];
+
+                      for (var entry in modeBySubCategoryId.entries) {
+                        final subId = entry.key;
+                        final modes = entry.value;
+                        if (modes.isNotEmpty) {
+                          levelBySubCategoryId[subId] = ordered.firstWhere(
+                                (m) => modes.contains(m.toLowerCase()),
+                            orElse: () => modes.first,
+                          );
+                        }
+                      }
+
+                      final Map<int, int> durationBySubCategoryId = {};
+
+                      for (var exercise in exerciseList) {
+                        for (var sub in exercise.subCategory) {
+                          durationBySubCategoryId[sub.id] =
+                              (durationBySubCategoryId[sub.id] ?? 0) + exercise.duration;
+                        }
+                      }
 
 
                       return Container(
@@ -154,29 +172,26 @@ class _ExerciseFavoritePageState extends State<ExerciseFavoritePage> {
                             horizontal: 20, vertical: 15),
 
                         child: ListView(
-                          children: groupedSubCategoryMode.entries.map((entry) {
-                            final key = entry.key;
+                          children: groupedBySubCategoryId.entries.map((entry) {
+                            final subCategoryId = entry.key;
                             final exercises = entry.value;
-
-                            final parts = key.split('-');
-                            final subCategoryName = parts[0];
-                            final modeName = parts.length > 1 ? parts[1] : "";
-
-                            final subCategory = exercises.first.subCategory.first;
-                            final subCategoryId = subCategory.id;
-                            final subCategoryImage = subCategory.subCategoryImage;
+                            final sub = exercises.first.subCategory.firstWhere((s) => s.id == subCategoryId);
+                            final subCategoryName = sub.subCategoryName;
+                            final subCategoryImage = sub.subCategoryImage;
+                            final level = levelBySubCategoryId[subCategoryId] ?? 'Unknown';
+                            final duration = _formatDuration(durationBySubCategoryId[subCategoryId] ?? 0);
 
                             return ExerciseSubCategoryFavoriteRow(
                               image: subCategoryImage,
                               name: subCategoryName,
-                              duration: _formatDuration(durationBySubCategory[key] ?? 0),
-                              level: modeName,
+                              duration: duration,
+                              level: level,
                               onPressed: () {
                                 AppNavigator.push(
                                     context,
                                     ExerciseBySubCategoryView(
                                       subCategoryId: subCategoryId,
-                                      level: modeName,
+                                      level: level,
                                       image: subCategoryImage,
                                     ));
                               },

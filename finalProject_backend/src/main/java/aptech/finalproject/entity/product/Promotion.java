@@ -1,10 +1,12 @@
 package aptech.finalproject.entity.product;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Setter
@@ -26,5 +28,6 @@ public class Promotion {
     private Instant endDate;
 
     @OneToMany( mappedBy = "promotion")
-    private List<Product> products;
+    @JsonIgnore
+    private Set<Product> products;
 }

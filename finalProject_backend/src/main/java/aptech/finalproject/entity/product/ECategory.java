@@ -1,10 +1,12 @@
 package aptech.finalproject.entity.product;
 
-import aptech.finalproject.entity.FileMetadata;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+
+import aptech.finalproject.entity.auth.FileMetadata;
 
 @Entity
 @Setter
@@ -26,5 +28,6 @@ public class ECategory {
     private String description;
 
     @ManyToMany
+    @JsonIgnore
     private List<Equipment> equipment;
 }

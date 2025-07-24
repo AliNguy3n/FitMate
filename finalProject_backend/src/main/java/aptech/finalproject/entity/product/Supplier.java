@@ -1,10 +1,12 @@
 package aptech.finalproject.entity.product;
 
-import aptech.finalproject.entity.FileMetadata;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.util.List;
+
+import aptech.finalproject.entity.auth.FileMetadata;
 
 @Entity
 @Getter
@@ -17,7 +19,7 @@ public class Supplier {
     @GeneratedValue( strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String type;
+//    private String type; // remove
 
     private String name;
 
@@ -30,5 +32,6 @@ public class Supplier {
     private FileMetadata image;
 
     @OneToMany( mappedBy = "supplier")
+    @JsonIgnore
     private List<Product> products;
 }

@@ -2,6 +2,7 @@ import React from "react";
 import useCartStore from "../stores/useCartStore";
 import MainLayout from "../layouts/MainLayout";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { createPaypalPayment, createOrder } from "../services/paypalService";
 
 function CartPage() {
   const {
@@ -16,6 +17,32 @@ function CartPage() {
 
   const total = getTotal();
   const totalItems = getTotalItems();
+
+  const handleCheckout = async () => {
+    
+    try {
+      const userId = localStorage.getItem("userId");
+      const orderResponse = await createOrder({
+        totalAmount: Math.round(total * 100),
+        orderDate: new Date().toISOString()
+      });
+      const orderId = orderResponse.data.orderId;
+      console.log("📦 Order response:", orderResponse);
+      console.log("📦 Order data:", orderResponse.data);
+      const paypalResponse = await createPaypalPayment(total, orderId);
+
+      if (paypalResponse.data?.redirectUrl) {
+        window.location.href = paypalResponse.data.redirectUrl;
+      } else {
+        console.error("🧾 Status:", error.response.status);
+        console.error("📩 Data:", error.response.data);
+        alert(`Error ${error.response.status}: ${JSON.stringify(error.response.data)}`);
+      }
+    } catch (error) {
+      alert("Unexpected error: " + error.message);
+    }
+  };
+
 
   return (
     <MainLayout>
@@ -114,7 +141,7 @@ function CartPage() {
                         </div>
 
                         {/* Product Details */}
-                        <div className="w-full min-w-0 flex-1 space-y-4 md:order-2 md:max-w-md">
+                        <div className="w-full min-w-0 flex-1 flex flex-col space-y-2 md:order-2 md:max-w-md">
                           <a
                             href="#"
                             className="text-base font-medium text-gray-900 hover:underline dark:text-white"
@@ -124,16 +151,13 @@ function CartPage() {
 
                           {/* Product Type Badge */}
                           <div className="flex items-center gap-2">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                              item.type === 'equipment'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-purple-100 text-purple-800'
-                            }`}>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${item.type === 'equipment'
+                              ? 'bg-blue-100 text-blue-800'
+                              : 'bg-purple-100 text-purple-800'
+                              }`}>
                               {item.type === 'equipment' ? 'Equipment' : 'Supplement'}
                             </span>
-                            <span className="text-sm text-gray-500 dark:text-gray-400">
-                              Stock: {item.stock}
-                            </span>
+
                           </div>
 
                           {/* Unit Price */}
@@ -261,6 +285,7 @@ function CartPage() {
                   </div>
 
                   <button
+                    onClick={handleCheckout}
                     className="flex w-full items-center justify-center rounded-lg bg-blue-700 px-5 py-2.5 text-sm font-medium text-white hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
                   >
                     Proceed to Checkout

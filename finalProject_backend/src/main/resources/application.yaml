@@ -5,7 +5,7 @@ spring:
     import: optional:env.properties
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/finalProject
+    url: jdbc:mysql://localhost:3306/fitmatedb
     username: root
     password:
   jpa:
@@ -31,12 +31,20 @@ spring:
 
 server:
   port: 8080
+  address: 0.0.0.0
 
 jwt: #JWT Config
   signerKey: ${JWT_SIGNER_KEY}
-  expiration: 180
+  expiration: 600
   expirationRefreshToken: 604800
   revoke: true
+
+paypal:
+  clientId: ${PAYPAL_CLIENT_ID}
+  clientSecret: ${PAYPAL_SECRET}
+  mode: sandbox # or live
+  successUrl: http://localhost:8080/api/payment/paypal/success
+  cancelUrl: http://localhost:8080/api/payment/paypal/cancel
 
 frontend: #Frontend Domain
   domain: https://abcd.com

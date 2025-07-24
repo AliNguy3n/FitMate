@@ -14,10 +14,10 @@ public enum PredefinedRole {
 //    MANAGER("MANAGER", "Business level operations and approvals"),
 //    STAFF("STAFF", "Limited backend access for daily tasks"),
 //    EDITOR("EDITOR", "Content creator and publisher"),
-    VIEWER("VIEWER", "Read-only access"),
-    USER("USER", "Frontend user with basic privileges"),
+//    VIEWER("VIEWER", "Read-only access"),
+    USER("USER", "Frontend user with basic privileges");
 //    GUEST("GUEST", "Anonymous or trial access");
-    ;
+
     private String role;
     private String description;
 }

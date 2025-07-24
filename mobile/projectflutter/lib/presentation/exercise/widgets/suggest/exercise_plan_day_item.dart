@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 import 'package:projectflutter/core/config/themes/app_color.dart';
 import 'package:projectflutter/core/config/themes/app_font_size.dart';
 import 'package:projectflutter/presentation/exercise/widgets/suggest/dash_line_painter.dart';
 import 'package:projectflutter/presentation/exercise/widgets/suggest/exercise_plan_card.dart';
 
 class ExercisePlanDayItem extends StatelessWidget {
-  final String itemDateFormatted;
+  final DateTime itemDate;
+  final DateTime todayDate;
   final int actualDay;
-  final bool isToday;
-  final bool isUpcoming;
   final bool isFirstDay;
   final bool isLast;
   final bool showWeekHeader;
@@ -18,13 +18,13 @@ class ExercisePlanDayItem extends StatelessWidget {
   final double kcal;
   final String imagePath;
   final int subCategoryId;
+  final Map<int, bool> isCompleted;
 
   const ExercisePlanDayItem({
     super.key,
-    required this.itemDateFormatted,
+    required this.itemDate,
+    required this.todayDate,
     required this.actualDay,
-    required this.isToday,
-    required this.isUpcoming,
     required this.isFirstDay,
     required this.isLast,
     required this.showWeekHeader,
@@ -33,13 +33,32 @@ class ExercisePlanDayItem extends StatelessWidget {
     required this.duration,
     required this.kcal,
     required this.imagePath,
+    required this.isCompleted,
     required this.subCategoryId,
   });
 
   @override
   Widget build(BuildContext context) {
-    final media = MediaQuery.of(context).size;
 
+    int getLastCompletedDay(Map<int, bool> isCompleted) {
+      final completedDays = isCompleted.entries
+          .where((entry) => entry.value == true)
+          .map((entry) => entry.key);
+
+      if (completedDays.isEmpty) return 0;
+      return completedDays.reduce((a, b) => a > b ? a : b);
+    }
+
+    final media = MediaQuery.of(context).size;
+    final lastCompletedDay = getLastCompletedDay(isCompleted);
+    final itemDay = DateTime(itemDate.year, itemDate.month, itemDate.day);
+    final today = DateTime(todayDate.year, todayDate.month, todayDate.day);
+    final tomorrow = today.add(const Duration(days: 1));
+
+    final isToday = itemDay == today;
+    final isUpcoming = itemDay == tomorrow;
+
+    final itemDateFormatted = DateFormat("MMM dd, EEE").format(itemDate);
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -119,11 +138,14 @@ class ExercisePlanDayItem extends StatelessWidget {
                     ExercisePlanCard(
                       itemDateFormatted: itemDateFormatted,
                       day: actualDay,
-                      isToday: isToday,
                       imagePath: imagePath,
                       isUpcoming: isUpcoming,
                       isFirstDay: isFirstDay,
+                      itemDate: itemDate,
+                      todayDate: todayDate,
                       subCategoryId: subCategoryId,
+                      isCompleted: isCompleted[actualDay] ?? false,
+                      isUnlocked: actualDay == lastCompletedDay + 1 || isToday,
                       level: level,
                       duration: duration,
                       kcal: kcal,

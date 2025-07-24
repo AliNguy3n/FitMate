@@ -4,7 +4,6 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.Instant;
-import java.util.List;
 
 @Entity
 @Setter
@@ -24,6 +23,8 @@ public class Payment {
     private Integer amount;
 
     private Boolean status;
+
+    private String currency;
 
     @OneToOne
     private Order order;

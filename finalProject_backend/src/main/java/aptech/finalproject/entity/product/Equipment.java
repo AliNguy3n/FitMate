@@ -1,5 +1,6 @@
 package aptech.finalproject.entity.product;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -28,9 +29,9 @@ public class Equipment {
             joinColumns = @JoinColumn( name = "equipment_id"),
             inverseJoinColumns = @JoinColumn( name = "ecategory_id")
     )
-    private List<ECategory> category;
+    private List<ECategory> ecategories; // change rom category to ecategories
 
     @OneToOne
+    @JsonIgnore
     private Product product;
-
 }

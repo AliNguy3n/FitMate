@@ -21,13 +21,14 @@ public enum PredefinedPermission {
     MANAGE_PERMISSIONS("MANAGE_PERMISSIONS", "Assign permissions to roles"),
 
     // Product Management (e-commerce)
+    MANAGE_PRODUCTS("MANAGE_PRODUCTS", "Manage products"),
     CREATE_PRODUCT("CREATE_PRODUCT", "Create new product"),
     UPDATE_PRODUCT("UPDATE_PRODUCT", "Edit existing product"),
     DELETE_PRODUCT("DELETE_PRODUCT", "Delete product"),
     VIEW_PRODUCTS("VIEW_PRODUCTS", "View product catalog"),
 
     // Order & Transaction
-    MANAGE_ORDERS("MANAGE_ORDERS", "View and update orders"),
+    MANAGE_ORDERS("MANAGE_ORDERS", "Manage orders"),
     PROCESS_REFUNDS("PROCESS_REFUNDS", "Process customer refunds"),
     VIEW_INVOICES("VIEW_INVOICES", "View generated invoices"),
 

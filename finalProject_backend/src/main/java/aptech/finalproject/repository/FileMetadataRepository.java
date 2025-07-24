@@ -1,8 +1,9 @@
 package aptech.finalproject.repository;
 
-import aptech.finalproject.entity.FileMetadata;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
+
+import aptech.finalproject.entity.auth.FileMetadata;
 
 import java.util.Optional;
 

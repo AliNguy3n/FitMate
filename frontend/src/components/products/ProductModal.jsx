@@ -9,6 +9,7 @@ import ApiImage from "../ui/ApiImage";
 import { useNotification } from "../ui/Notification";
 import { useNavigate } from "react-router-dom";
 
+
 // id is id of equipment or supplement
 function ProductModal({ type, id }) {
   const [detail, setDetail] = useState({});
@@ -16,7 +17,6 @@ function ProductModal({ type, id }) {
   const { addToCart } = useCartStore();
   const { showNotification, NotificationContainer } = useNotification();
   const navigate = useNavigate();
-
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -32,6 +32,7 @@ function ProductModal({ type, id }) {
         console.error("Error fetching product details:", error);
       }
     };
+
 
     if (id) {
       fetchData();
@@ -149,6 +150,7 @@ function ProductModal({ type, id }) {
               Product ID: {product.id}
             </div>
 
+
             {/* Description */}
             <div className="text-gray-600 text-sm max-w-lg">
               {product.description}
@@ -194,6 +196,7 @@ function ProductModal({ type, id }) {
                 </p>
               </div>
 
+
               {/* ID */}
               <div>
                 <span className="text-sm font-medium text-gray-700">
@@ -219,7 +222,6 @@ function ProductModal({ type, id }) {
                   </span>
                 ))}
             </div>
-
             {/* Rating */}
             <div className="flex items-center space-x-2">
               <Rating rating={product.rating || 0} />
@@ -252,6 +254,8 @@ function ProductModal({ type, id }) {
               )}
             </div>
 
+
+
             {/* Quantity Selector */}
             <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
               <span className="text-sm font-medium text-gray-700">
@@ -282,13 +286,12 @@ function ProductModal({ type, id }) {
             </div>
 
             {/* Total Price */}
-            <div className="flex justify-between items-center p-4 bg-gray-100 rounded-lg">
+            <div className="flex justify-between items-center py-4 bg-gray-100 rounded-lg">
               <span className="text-lg font-medium text-gray-700">Total:</span>
               <span className="text-2xl font-bold text-gray-800">
                 ${(currentPrice * quantity).toFixed(2)}
               </span>
             </div>
-
             {/* Supplier Info */}
             {product.supplier && (
               <div className="flex items-center p-3 bg-gray-50 rounded-lg space-x-3">
@@ -338,7 +341,6 @@ function ProductModal({ type, id }) {
                 </div>
               </button>
             </div>
-
             {/* Stock */}
             <div className="flex items-center space-x-3 group">
               <div
@@ -352,6 +354,7 @@ function ProductModal({ type, id }) {
                   : "Out of stock"}
               </div>
             </div>
+
           </div>
         </div>
       </div>

@@ -1,6 +1,6 @@
 package aptech.finalproject.service;
 
-import aptech.finalproject.entity.FileMetadata;
+import aptech.finalproject.entity.auth.FileMetadata;
 import aptech.finalproject.exception.ApiException;
 import org.springframework.core.io.Resource;
 import org.springframework.web.multipart.MultipartFile;

@@ -1,11 +1,10 @@
 package aptech.finalproject.dto.response;
 
-import aptech.finalproject.entity.Role;
-
 import lombok.*;
 
 import java.time.LocalDate;
-import java.util.Set;
+
+import aptech.finalproject.entity.auth.Role;
 
 @Setter
 @Getter
@@ -28,7 +27,12 @@ public class UserResponse {
 
     private String address;
 
+    private int gender;
+
     private LocalDate dob;
 
+    private boolean active;
+
     private Role role;
+
 }

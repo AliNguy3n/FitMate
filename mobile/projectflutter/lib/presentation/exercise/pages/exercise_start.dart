@@ -21,11 +21,14 @@ class ExerciseStart extends StatefulWidget {
   final List<ExercisesEntity> exercises;
   final double kcal;
   final int subCategoryId;
-
+  final bool markAsDayCompleted;
+  final int? day;
   const ExerciseStart({
     super.key,
     required this.exercises,
     required this.kcal,
+    this.day,
+    this.markAsDayCompleted = false,
     required this.subCategoryId,
   });
 
@@ -37,6 +40,7 @@ class _ExerciseStartState extends State<ExerciseStart> {
   int _currentIndex = 0;
   late ExercisesEntity _currentExercise;
   int _counter = 10;
+  // late int _counter;
   Timer? _timer;
   Timer? _totalDurationTimer;
   int _totalDuration = 0;
@@ -45,12 +49,14 @@ class _ExerciseStartState extends State<ExerciseStart> {
   int _countdown = 3;
   int? _resetBatch;
   int _exerciseDuration = 0;
+  bool _isPaused = false;
   final List<ExerciseSessionRequest> _sessionRequests = [];
 
   @override
   void initState() {
     super.initState();
     _currentExercise = widget.exercises[_currentIndex];
+    // _counter = widget.exercises[_currentIndex].duration;
     _initResetBatchAndStart();
   }
 
@@ -79,7 +85,6 @@ class _ExerciseStartState extends State<ExerciseStart> {
 
   void _stopTotalDurationTimer() {
     _totalDurationTimer?.cancel();
-
   }
 
   void _startGenericTimer({
@@ -89,7 +94,7 @@ class _ExerciseStartState extends State<ExerciseStart> {
   }) {
     int value = initialValue;
     _timer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) return;
+      if (!mounted || _isPaused) return;
       setState(() {
         if (value > 0) {
           value--;
@@ -150,6 +155,12 @@ class _ExerciseStartState extends State<ExerciseStart> {
     }
   }
 
+  void _togglePause() {
+    setState(() {
+      _isPaused = !_isPaused;
+    });
+  }
+
   void _nextExercise() {
     setState(() {
       _currentIndex++;
@@ -170,6 +181,10 @@ class _ExerciseStartState extends State<ExerciseStart> {
       resetBatch: _resetBatch!,
       sessions: _sessionRequests,
     );
+    if (widget.markAsDayCompleted && widget.day != null) {
+      final prefs = await SharedPreferences.getInstance();
+      prefs.setBool('day_${widget.day}_completed', true);
+    }
     await StartExerciseUseCase().call(params: batchRequest);
     if (mounted) {
       AppNavigator.pushReplacement(
@@ -178,6 +193,8 @@ class _ExerciseStartState extends State<ExerciseStart> {
           resetBatch: _resetBatch!,
           totalExercise: widget.exercises.length,
           kcal: widget.kcal,
+          markAsDayCompleted: widget.markAsDayCompleted,
+          day: widget.day,
           duration: _totalDuration,
         ),
       );
@@ -250,12 +267,13 @@ class _ExerciseStartState extends State<ExerciseStart> {
             ),
             const SizedBox(height: 16),
             Center(
-              child: Row(
-                mainAxisSize: MainAxisSize.min,
+              child: Wrap(
+                alignment: WrapAlignment.center,
+                spacing: 4,
+                runSpacing: 8,
                 children: List.generate(widget.exercises.length, (index) {
                   bool isActive = index <= _currentIndex;
                   return Container(
-                    margin: const EdgeInsets.symmetric(horizontal: 2),
                     width: 40,
                     height: 8,
                     decoration: BoxDecoration(
@@ -297,6 +315,16 @@ class _ExerciseStartState extends State<ExerciseStart> {
               const SizedBox(height: 8),
               Text(_formatDuration(_counter),
                   style: const TextStyle(fontSize: 24)),
+              const SizedBox(height: 16),
+              ElevatedButton.icon(
+                onPressed: _togglePause,
+                icon: Icon(_isPaused ? Icons.play_arrow : Icons.pause),
+                label: Text(_isPaused ? 'Resume' : 'Pause'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: AppColors.primaryColor1,
+                  foregroundColor: Colors.white,
+                ),
+              )
             ],
           ),
         ),

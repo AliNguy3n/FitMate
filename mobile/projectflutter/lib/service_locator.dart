@@ -26,6 +26,8 @@ Future<void> initializeDependencies() async {
   sl.registerSingleton<LogoutUsecase>(LogoutUsecase());
   sl.registerSingleton<GetUserByUsernameUseCase>(GetUserByUsernameUseCase());
   sl.registerSingleton<EnsureValidTokenUsecase>(EnsureValidTokenUsecase());
+  sl.registerSingleton<GetInactiveUserUseCase>(GetInactiveUserUseCase());
+
   // BMI
   sl.registerSingleton<GetAllDataByUserUseCase>(GetAllDataByUserUseCase());
   sl.registerSingleton<GetAllGoalByUserUseCase>(GetAllGoalByUserUseCase());

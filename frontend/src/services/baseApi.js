@@ -9,7 +9,7 @@ const api = axios.create({
   headers: {
     "Content-Type": "application/json",
   },
-  withCredentials: true,
+  // withCredentials: true,
 });
 
 const apiAuth = axios.create({
@@ -21,6 +21,7 @@ const apiAuth = axios.create({
 });
 
 apiAuth.interceptors.request.use(
+
   (config) => {
     const token = localStorage.getItem("authToken");
     if (token) {
@@ -41,22 +42,22 @@ const apiResource = (image_id) => axios.get(base_url + "/resources/" + image_id 
     "Accept": "image/*",
   },
   withCredentials: true,
-});
 
-// api.interceptors.response.use(
-//   (response) => {
-//     return response;
-//   },
-//   (error) => {
-//     // Handle common errors
-//     if (error.response?.status === 401) {
-//       // Handle unauthorized access
-//       localStorage.removeItem('authToken');
-//       // Redirect to login page or handle as needed
-//     }
-//     return Promise.reject(error);
-//   }
-// );
+
+api.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    // Handle common errors
+    if (error.response?.status === 401) {
+      // Handle unauthorized access
+      localStorage.removeItem('authToken');
+      // Redirect to login page or handle as needed
+    }
+    return Promise.reject(error);
+  }
+);
 
 
 export { api, apiAuth, apiResource };

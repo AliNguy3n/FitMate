@@ -5,10 +5,10 @@ import aptech.finalproject.dto.request.IntrospectRequest;
 import aptech.finalproject.dto.response.AuthenticationResponse;
 import aptech.finalproject.dto.response.IntrospectResponse;
 import aptech.finalproject.emums.DeviceType;
-import aptech.finalproject.entity.Permission;
-import aptech.finalproject.entity.Role;
-import aptech.finalproject.entity.Token;
-import aptech.finalproject.entity.User;
+import aptech.finalproject.entity.auth.Permission;
+import aptech.finalproject.entity.auth.Role;
+import aptech.finalproject.entity.auth.Token;
+import aptech.finalproject.entity.auth.User;
 import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.repository.TokenRepository;
@@ -52,17 +52,21 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     @Value("${jwt.revoke}")
     private Boolean REVOKE;
     private static final Map<DeviceType, Integer> DEVICE_LIMIT = Map.of(
-            DeviceType.DESKTOP, 1,
+            DeviceType.DESKTOP, 100,
             DeviceType.MOBILE, 2
     );
 
     public AuthenticationResponse authenticated(AuthenticationRequest request, String deviceType, HttpServletRequest httpRequest) {
-        var user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new ApiException(ErrorCode.USER_NOT_FOUND));
+        var user = userRepository.findByUsername(request.getUsername()).orElseThrow(() -> new ApiException(ErrorCode.USERNAME_OR_PASSWORD_INCORRECT));
         DeviceType device = resolveDeviceType(deviceType);
         boolean authenticated = passwordEncoder.matches(request.getPassword(), user.getPassword());
         if (!authenticated)
-            throw new ApiException(ErrorCode.USER_UNAUTHENTICATED);
+            throw new ApiException(ErrorCode.USERNAME_OR_PASSWORD_INCORRECT);
         String username = user.getUsername();
+
+        if (!user.isActive()) {
+            throw new ApiException(ErrorCode.USER_NOT_ACTIVE);
+        }
 
         try {
             return AuthenticationResponse.builder()
