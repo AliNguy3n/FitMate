@@ -5,6 +5,9 @@ import useEquipmentStore from "../../stores/useEquipmentStore";
 import useSupplementStore from "../../stores/useSupplementStore";
 import Rating from "../ui/Rating";
 import useCartStore from "../../stores/useCartStore";
+import { useNotification } from "../ui/Notification";
+import SupplierImage from "../../assets/images/supplier.png";
+// import { toast } from "react-toastify";
 
 // id = productId
 function ProductModal({ type, id }) {
@@ -13,13 +16,13 @@ function ProductModal({ type, id }) {
   const { getDetail: getEquipmentDetail } = useEquipmentStore();
   const { getDetail: getSupplementDetail } = useSupplementStore();
   const { addToCart } = useCartStore();
-
+  const { showNotification, NotificationContainer } = useNotification();
   useEffect(() => {
     if (type === "equipment") {
       setDetail(getEquipmentDetail(id));
     }
 
-    if(type === "supplement"){
+    if (type === "supplement") {
       setDetail(getSupplementDetail(id));
     }
   }, [type, id, getEquipmentDetail, getSupplementDetail]);
@@ -62,11 +65,16 @@ function ProductModal({ type, id }) {
       };
 
       addToCart(cartItem, quantity);
+      showNotification(`${detail.name} added to cart!`);
     }
   };
-
+  if (!detail || Object.keys(detail).length === 0) {
+    return <div className="p-10 text-center text-gray-500">Loading product details...</div>;
+  }
   return (
     <>
+
+      <NotificationContainer />
       {/* Card Container */}
       <div className="flex flex-col p-6 m-3 space-y-10 bg-white rounded-2xl shadow-2xl md:flex-row md:space-y-0 md:space-x-10 md:m-0 md:p-16 max-w-4xl">
         {/* Image Div */}
@@ -87,10 +95,26 @@ function ProductModal({ type, id }) {
               {detail.name}
             </div>
 
-            {/* Product ID */}
-            <div className="text-sm text-gray-500">
-              Product ID: {detail.productId}
-            </div>
+            {/* Supplier Info */}
+            {detail.supplier && (
+              <div className="flex items-center bg-gray-50 rounded-lg space-x-3 w-full">
+                <img
+                  src={SupplierImage}
+                  alt={detail.supplier.name}
+                  className="w-10 h-12 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <p className="text-sm text-gray-700">
+                    <span className="font-medium">Supplier:</span> {detail.supplier.name}
+                  </p>
+                  <p className="text-sm text-gray-700"><span className="font-medium">
+                    Contact:</span> {detail.supplier.contact}</p>
+                  <p className="text-sm text-gray-700">
+                    <span className="font-medium">Type:</span> {detail.supplier.type}</p>
+                </div>
+              </div>
+            )}
+
 
             {/* Description */}
             <div className="text-gray-600 text-sm max-w-lg">
@@ -99,7 +123,7 @@ function ProductModal({ type, id }) {
 
             {/* Equipment Details */}
             {detail.equipment && (
-              <div className="grid grid-cols-2 gap-4 p-4 bg-gray-50 rounded-lg">
+              <div className="grid grid-cols-2 gap-4 bg-gray-50 rounded-lg">
                 <div>
                   <span className="text-sm font-medium text-gray-700">Size:</span>
                   <p className="text-sm text-gray-600">{detail.equipment.size}</p>
@@ -142,7 +166,7 @@ function ProductModal({ type, id }) {
             )}
 
             {/* Categories */}
-            {detail.equipment?.categories && (
+            <div className="flex justify-between items-center flex-wrap gap-2 w-full bg-gray-50 rounded-lg p-3 group">
               <div className="flex flex-wrap gap-2">
                 {detail.equipment.categories.map((category) => (
                   <span
@@ -154,7 +178,17 @@ function ProductModal({ type, id }) {
                   </span>
                 ))}
               </div>
-            )}
+
+              {/* Stock */}
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full group-hover:animate-ping ${detail.stock > 0 ? 'bg-green-400' : 'bg-red-400'}`} />
+                <div className="text-sm text-gray-700">
+                  {detail.stock > 0 ? `${detail.stock}+ pcs. in stock` : 'Out of stock'}
+                </div>
+              </div>
+            </div>
+
+
 
             {/* Supplement Categories */}
             {detail.supplement?.categories && (
@@ -171,33 +205,39 @@ function ProductModal({ type, id }) {
               </div>
             )}
 
-            {/* Rating */}
-            <div className="flex items-center space-x-2">
-              <Rating rating={detail.rating}/>
+            <div className="flex justify-between items-center mb-4">
+              {/* Rating */}
+              <div className="flex items-center space-x-2">
+                <Rating rating={detail.rating} />
+              </div>
+
+              {/* Price */}
+              <div className="text-right">
+                <p className="text-sm text-gray-500 font-medium">Price:</p>
+
+                {isPromotionActive && discountedPrice ? (
+                  <>
+                    <div className="flex items-center space-x-2 justify-end">
+                      <p className="line-through text-gray-500 text-lg">${detail.price}</p>
+                      <span className="bg-red-500 text-white px-2 py-1 rounded text-sm">
+                        -{detail.promotion.discount}%
+                      </span>
+                    </div>
+                    <p className="text-2xl font-bold text-green-600">${discountedPrice.toFixed(2)}</p>
+                    <p className="text-xs font-light text-gray-400">
+                      {detail.promotion.name} - until {new Date(detail.promotion.endDate).toLocaleDateString()}
+                    </p>
+                  </>
+                ) : (
+                  <p className="text-2xl font-bold text-gray-800">${detail.price}</p>
+                )}
+              </div>
             </div>
 
-            {/* Price Container */}
-            <div className="flex flex-col mb-4 space-y-3 text-center md:text-left">
-              {isPromotionActive && discountedPrice ? (
-                <>
-                  <div className="flex items-center space-x-2">
-                    <p className="line-through text-gray-500 text-lg">${detail.price}</p>
-                    <span className="bg-red-500 text-white px-2 py-1 rounded text-sm">
-                      -{detail.promotion.discount}%
-                    </span>
-                  </div>
-                  <p className="text-4xl font-bold text-green-600">${discountedPrice.toFixed(2)}</p>
-                  <p className="text-sm font-light text-gray-400">
-                    {detail.promotion.name} - Valid until {new Date(detail.promotion.endDate).toLocaleDateString()}
-                  </p>
-                </>
-              ) : (
-                <p className="text-4xl font-bold text-gray-800">${detail.price}</p>
-              )}
-            </div>
+
 
             {/* Quantity Selector */}
-            <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
+            <div className="flex items-center justify-between bg-gray-50 rounded-lg">
               <span className="text-sm font-medium text-gray-700">Quantity:</span>
               <div className="flex items-center space-x-3">
                 <button
@@ -222,67 +262,33 @@ function ProductModal({ type, id }) {
             </div>
 
             {/* Total Price */}
-            <div className="flex justify-between items-center p-4 bg-gray-100 rounded-lg">
+            <div className="flex justify-between items-center py-4 bg-gray-100 rounded-lg">
               <span className="text-lg font-medium text-gray-700">Total:</span>
               <span className="text-2xl font-bold text-gray-800">
                 ${(currentPrice * quantity).toFixed(2)}
               </span>
             </div>
 
-            {/* Supplier Info */}
-            {detail.supplier && (
-              <div className="flex items-center p-3 bg-gray-50 rounded-lg space-x-3">
-                {detail.supplier.image && (
-                  <img
-                    src={detail.supplier.image}
-                    alt={detail.supplier.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                )}
-                <div className="flex-1">
-                  <p className="text-sm text-gray-700">
-                    <span className="font-medium">Supplier:</span> {detail.supplier.name}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Contact: {detail.supplier.contact}
-                  </p>
-                  <p className="text-xs text-gray-500 capitalize">
-                    Type: {detail.supplier.type}
-                  </p>
-                </div>
-              </div>
-            )}
 
             {/* Button Group */}
             <div className="group">
               <button
                 onClick={handleAddToCart}
-                className={`w-full transition-all duration-150 text-white border-b-8 rounded-lg group-hover:border-t-8 group-hover:border-b-0 group-hover:shadow-lg ${
-                  type === "supplement"
-                    ? "bg-purple-700 border-b-purple-700 group-hover:bg-purple-700 group-hover:border-t-purple-700"
-                    : "bg-blue-700 border-b-blue-700 group-hover:bg-blue-700 group-hover:border-t-blue-700"
-                }`}
+                className={`w-full transition-all duration-150 text-white border-b-8 rounded-lg group-hover:border-t-8 group-hover:border-b-0 group-hover:shadow-lg ${type === "supplement"
+                  ? "bg-purple-700 border-b-purple-700 group-hover:bg-purple-700 group-hover:border-t-purple-700"
+                  : "bg-blue-700 border-b-blue-700 group-hover:bg-blue-700 group-hover:border-t-blue-700"
+                  }`}
                 disabled={!detail.stock || detail.stock === 0}
               >
-                <div className={`px-8 py-4 duration-150 rounded-lg ${
-                  type === "supplement"
-                    ? "bg-purple-500 group-hover:bg-purple-700"
-                    : "bg-blue-500 group-hover:bg-blue-700"
-                }`}>
+                <div className={`px-8 py-4 duration-150 rounded-lg ${type === "supplement"
+                  ? "bg-purple-500 group-hover:bg-purple-700"
+                  : "bg-blue-500 group-hover:bg-blue-700"
+                  }`}>
                   {detail.stock > 0 ? `Add ${quantity} to cart` : "Out of Stock"}
                 </div>
               </button>
             </div>
 
-            {/* Stock */}
-            <div className="flex items-center space-x-3 group">
-              <div className={`w-3 h-3 rounded-full group-hover:animate-ping ${
-                detail.stock > 0 ? 'bg-green-400' : 'bg-red-400'
-              }`}></div>
-              <div className="text-sm">
-                {detail.stock > 0 ? `${detail.stock}+ pcs. in stock` : 'Out of stock'}
-              </div>
-            </div>
           </div>
         </div>
       </div>

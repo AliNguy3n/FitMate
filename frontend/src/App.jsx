@@ -11,6 +11,8 @@ import WorkoutPage from "./pages/WorkoutPage";
 import WorkoutDetailPage from "./pages/WorkoutDetailPage";
 import PromotionPage from "./pages/PromotionPage";
 import AAAPage from "./pages/AAAPage";
+import PaypalSuccessPage from "./pages/PaymentSucess";
+
 
 function App() {
   return (
@@ -27,8 +29,10 @@ function App() {
         <Route path="/workout" element={<WorkoutPage />}/>
         <Route path="/workout/1" element={<WorkoutDetailPage />}/>
         <Route path="/promotions" element={<PromotionPage />}/>
+        <Route path="/payment/success" element={<PaypalSuccessPage />} />
       </Routes>
     </Router>
+    
   );
 }
 

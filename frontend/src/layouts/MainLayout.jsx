@@ -9,7 +9,7 @@ function MainLayout({ children }) {
   };
   return (
     <div className="overflow-x-hidden h-screen">
-      <Announcement autoPlay={settings.autoPlay} interval={settings.interval} />
+      {/* <Announcement autoPlay={settings.autoPlay} interval={settings.interval} /> */}
       <Header />
       <main className="container relative mx-auto">{children}</main>
       <Footer />

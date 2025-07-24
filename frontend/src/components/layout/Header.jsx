@@ -1,16 +1,36 @@
 import { Link } from "react-router-dom";
 // import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import LogoImg from "../../assets/images/logo.svg";
-import { useState } from "react";
+import LogoImg from "../../assets/images/logo-dark.png";
+import { useEffect, useState } from "react";
 import Modal from "../ui/Modal";
 import CartModal from "../cart/cartModal";
+import { logoutUser } from "../../services/authService";
+import useCartStore from "../../stores/useCartStore";
 
 function Header() {
+  const totalItems = useCartStore((state) => state.getTotalItems());
   const [isLogin, setIsLogin] = useState(false);
+  useEffect(() => {
+    const token = localStorage.getItem("authToken");
+    setIsLogin(!!token);
+  }, []);
   const [isOpenProfile, setIsOpenProfile] = useState(false); // Profile dropdown state
   const [isOpenCart, setIsOpenCart] = useState(false); // Profile dropdown state
+  const handleLogout = async () => {
+    const refreshToken = localStorage.getItem("refreshToken");
+    if (!refreshToken) return;
+    const result = await logoutUser(refreshToken);
 
+    if (result.success) {
+      localStorage.removeItem("authToken");
+      localStorage.removeItem("refreshToken");
+
+      window.location.href = "/login";
+    } else {
+      alert("Logout failed: " + result.errors?.Exception || "Unknown error");
+    }
+  }
   const openCartModal = () => {
     setIsOpenCart(true);
   };
@@ -24,19 +44,14 @@ function Header() {
   }
   return (
     <header className="sticky top-0 z-50">
-      <nav className="flex justify-between items-center px-10 bg-gradient-to-b from-sky-400 to-sky-200">
+      <nav className="flex justify-between items-center px-10 h-20" style={{
+        background: "linear-gradient(to top, #0D5EA6, #61A3D3)"
+      }}>
         {/* My Logo */}
         <div className="flex items-center justify-between gap-2">
           <Link to="/">
-            <img src={LogoImg} alt="" className="object-fill h-10" />
+            <img src={LogoImg} alt="" className="object-fill h-8" />
           </Link>
-
-          <div>
-            <p className="text-2xl text-white font-medium">Fitmate</p>
-            <p className="text-sm text-white font-light">
-              <i>all for one</i>
-            </p>
-          </div>
         </div>
         {/* Search */}
 
@@ -44,37 +59,37 @@ function Header() {
         <div className="flex items-center justify-between gap-4 text-white">
           <Link
             to="/progress"
-            className="px-4 py-2 hover:text-yellow-800 font-bold"
+            className="px-4 py-2 hover:text-[#1F2937] font-bold"
           >
             Your Progress
           </Link>
           <Link
             to="/products"
-            className="px-4 py-2 hover:text-yellow-800 font-bold"
+            className="px-4 py-2 hover:text-[#1F2937] font-bold"
           >
             Products
           </Link>
           <Link
             to="/exercises"
-            className="px-4 py-2 hover:text-yellow-800 font-bold"
+            className="px-4 py-2 hover:text-[#1F2937] font-bold"
           >
             Exercises
           </Link>
           <Link
             to="/meals"
-            className="px-4 py-2 hover:text-yellow-800 font-bold"
+            className="px-4 py-2 hover:text-[#1F2937] font-bold"
           >
             Meals
           </Link>
           <Link
             to="/about"
-            className="px-4 py-2 hover:text-yellow-800 font-bold"
+            className="px-4 py-2 hover:text-[#1F2937] font-bold"
           >
             About us
           </Link>
           <Link
             to="/promotions"
-            className="px-4 py-2 hover:text-yellow-800 font-bold"
+            className="px-4 py-2 hover:text-[#1F2937] font-bold"
           >
             Promotions
           </Link>
@@ -86,9 +101,14 @@ function Header() {
           <div className="relative inline-block">
             <button
               onClick={openCartModal}
-              className="flex flex-row items-center justify-between space-x-2 px-2 me-4 text-white transition duration-200 hover:text-orange-500 hover:ease-in-out focus:text-sky-700"
+              className="flex flex-row items-center justify-between space-x-2 px-2 me-4 text-white transition duration-200 hover:text-[#1F2937] hover:ease-in-out focus:text-sky-700"
             >
-              <FontAwesomeIcon icon={["fas", "shopping-cart"]} size="2x" />
+              <div className="relative">
+                <FontAwesomeIcon icon={["fas", "shopping-cart"]} style={{ fontSize: '20px' }} />
+                <div className="bg-red-500 absolute -right-2 -top-2 text-[12px] w-[18px] h-[18px] text-white rounded-full flex justify-center items-center">
+                  {totalItems}
+                </div>
+              </div>
             </button>
 
             {/* Cart Modal */}
@@ -99,29 +119,30 @@ function Header() {
 
           {/* Notification */}
           <a
-            className="relative me-4 text-white transition duration-200 hover:text-orange-500 hover:ease-in-out focus:text-neutral-700 disabled:text-black/30 motion-reduce:transition-none"
+            className="relative inline-block me-4 text-white transition duration-200 hover:text-[#1F2937] focus:text-neutral-700"
             href="#"
           >
-            <FontAwesomeIcon icon={["far", "bell"]} size="2x" />
-            <div className="bg-sky-400 absolute -right-0.5 -top-1 text-[12px] w-[18px] h-[18px] text-white rounded-full flex justify-center items-center">
+            <FontAwesomeIcon icon={["far", "bell"]} style={{ fontSize: "22px" }} />
+            <div className="bg-red-500 absolute -right-2 -top-2 text-[12px] w-[18px] h-[18px] text-white rounded-full flex justify-center items-center">
               10
             </div>
           </a>
           {/* Profile */}
           {/* Sign Up and Sign In */}
           {!isLogin ? (
-            <div className="flex items-center space-x-0 border-1 border-sky-200 rounded-2xl">
+            <div className="flex items-center text-white space-x-4">
               <Link
                 to="/login"
-                className="p-2 text-sky-950 bg-white font-bold hover:bg-sky-300 hover:text-white rounded-l-2xl"
+                className="hover:text-[#1F2937] transition font-semibold"
               >
                 Sign In
               </Link>
+              <span className="text-white">|</span>
               <Link
                 to="/register"
-                className="p-2 border-l-1 bg-sky-800 text-white hover:text-sky-800 font-bold rounded-r-2xl"
+                className="hover:text-[#1F2937] transition font-semibold"
               >
-                Sign up
+                Sign Up
               </Link>
             </div>
           ) : (
@@ -138,22 +159,26 @@ function Header() {
                 />
               </button>
               {isOpenProfile && (
-                <div className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-lg shadow-xl">
+                <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl">
                   <a
                     href="#"
-                    className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white"
+                    className="block px-4 py-2 text-gray-800 hover:bg-[#1F2937] hover:text-white rounded-t-lg"
                   >
                     Account settings
                   </a>
                   <a
                     href="#"
-                    className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white"
+                    className="block px-4 py-2 text-gray-800 hover:bg-[#1F2937] hover:text-white"
                   >
                     Support
                   </a>
                   <a
                     href="#"
-                    className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      handleLogout();
+                    }}
+                    className="block px-4 py-2 text-gray-800 hover:bg-[#1F2937] hover:text-white rounded-b-lg"
                   >
                     Sign out
                   </a>

@@ -11,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -36,91 +37,99 @@ import java.util.Map;
 @Slf4j
 public class SecurityConfig {
 
-    @Value("${jwt.signerKey}")
-    private String SIGNER_KEY;
+        @Value("${jwt.signerKey}")
+        private String SIGNER_KEY;
 
-    @Autowired
-    private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
+        @Autowired
+        private CustomAuthenticationEntryPoint customAuthenticationEntryPoint;
 
-    // Danh sách route có thể truy cập không cần xác thực hoặc quyền
-    private final String[] WHITELIST = {
-            "/auth/**",
-            "/resources/**",
-            "/api/productV2/**"
-    };
+        // Danh sách route có thể truy cập không cần xác thực hoặc quyền
+        private final String[] WHITELIST = {
+                        "/auth/**",
+                        "/resources/**",
+                        "/api/productV2/**"
+        };
 
-    // Danh sách route tạm thời ngưng truy cập
-    private final String[] BLACKLIST = {};
-    // Danh sách route IDENTITY được truy cập không cần xác thực hoặc quyền
-    private final String[] IDENTITY_WHITELIST = {
-            "/identity/user/**",
-    };
+        // Danh sách route tạm thời ngưng truy cập
+        private final String[] BLACKLIST = {};
+        // Danh sách route IDENTITY được truy cập không cần xác thực hoặc quyền
+        private final String[] IDENTITY_WHITELIST = {
+                        "/identity/user/**",
+        };
 
-    //Danh sách route public
-    private final String[] PUBLIC_ENDPOINT = {"/public/**"};
+        // Danh sách route public
+        private final String[] PUBLIC_ENDPOINT = { "/public/**" };
 
+        @Bean
+        @Order(2) // Lower priority = used for everything except PayPal
+        public SecurityFilterChain jwtSecurityFilterChain(HttpSecurity http, ObjectMapper objectMapper)
+                        throws Exception {
+                http
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .cors(Customizer.withDefaults())
+                                .authorizeHttpRequests(request -> request
+                                                .requestMatchers(WHITELIST).permitAll()
+                                                .anyRequest().authenticated())
+                                .oauth2ResourceServer(oauth2 -> oauth2
+                                                .jwt(jwt -> jwt.jwtAuthenticationConverter(
+                                                                new JwtToUserAuthenticationConverter()))
+                                                .authenticationEntryPoint(customAuthenticationEntryPoint))
+                                .exceptionHandling(exception -> exception
+                                                .accessDeniedHandler((request, response, accessDeniedException) -> {
+                                                        response.setStatus(HttpServletResponse.SC_FORBIDDEN);
+                                                        response.setContentType("application/json");
+                                                        ApiResponse<?> apiResponse = ApiResponse.builder()
+                                                                        .success(false)
+                                                                        .code(ErrorCode.UNAUTHORIZED.getCode())
+                                                                        .errors(Map.of("Exception",
+                                                                                        "Access Denied by Security Filter"))
+                                                                        .build();
+                                                        response.getWriter().write(
+                                                                        objectMapper.writeValueAsString(apiResponse));
+                                                        response.flushBuffer();
+                                                })
+                                                .authenticationEntryPoint(customAuthenticationEntryPoint));
 
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http, ObjectMapper objectMapper) throws Exception {
-        http
-                .csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
-                .authorizeHttpRequests(
-                        request -> request
-                                .requestMatchers(WHITELIST).permitAll()
-                                .requestMatchers(IDENTITY_WHITELIST).permitAll()
-                                .requestMatchers(PUBLIC_ENDPOINT).permitAll()
-                                .anyRequest().authenticated())
-                .oauth2ResourceServer(oauth2 -> oauth2
-                        .jwt(jwt -> jwt.jwtAuthenticationConverter(new JwtToUserAuthenticationConverter()))
-                        .authenticationEntryPoint(customAuthenticationEntryPoint)
-                )
-                .exceptionHandling(exception -> exception
-                        .accessDeniedHandler((request, response, accessDeniedException) -> {
-                            response.setStatus(HttpServletResponse.SC_FORBIDDEN);
-                            response.setContentType("application/json");
-                            ApiResponse<?> apiResponse = ApiResponse.builder()
-                                    .success(false)
-                                    .code(ErrorCode.UNAUTHORIZED.getCode())
-                                    .errors(Map.of("Exception", "Access Denied by Security Filter"))
-                                    .build();
-                            response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
-                            response.flushBuffer();
+                return http.build();
+        }
 
+        @Bean
+        @Order(1) // Higher priority = used for PayPal routes
+        public SecurityFilterChain paypalFilterChain(HttpSecurity http) throws Exception {
+                http
+                                .securityMatcher("/api/payment/paypal/**") // chỉ áp dụng cho route PayPal
+                                .csrf(AbstractHttpConfigurer::disable)
+                                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll()); // ✅ Bỏ qua xác thực JWT
+                return http.build();
+        }
 
-                        })
-                        .authenticationEntryPoint(customAuthenticationEntryPoint)
-                )
-        ;
+        // ================== 🔐 JWT DECODER ==================
+        @Bean
+        public JwtDecoder jwtDecoder() {
+                SecretKeySpec secretKeySpec = new SecretKeySpec(SIGNER_KEY.getBytes(), "HS512");
+                return NimbusJwtDecoder
+                                .withSecretKey(secretKeySpec)
+                                .macAlgorithm(MacAlgorithm.HS512)
+                                .build();
+        }
 
-        return http.build();
-    }
+        // ================== 🔐 PASSWORD ENCODER ==================
+        @Bean
+        public PasswordEncoder passwordEncoder() {
+                return new BCryptPasswordEncoder(10);
+        }
 
+        // ================== 🔐 CORS ==================
+        @Bean
+        public CorsConfigurationSource corsConfigurationSource() {
+                CorsConfiguration configuration = new CorsConfiguration();
+                configuration.setAllowedOrigins(List.of("http://localhost:5173", "http://localhost:3000"));
+                configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+                configuration.setAllowedHeaders(List.of("*"));
+                configuration.setAllowCredentials(true);
 
-    @Bean
-    public JwtDecoder jwtDecoder() {
-        SecretKeySpec secretKeySpec = new SecretKeySpec(SIGNER_KEY.getBytes(), "HS512");
-        return NimbusJwtDecoder
-                .withSecretKey(secretKeySpec)
-                .macAlgorithm(MacAlgorithm.HS512)
-                .build();
-    }
-
-    @Bean
-    public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder(10);
-    }
-
-    @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
-        CorsConfiguration configuration = new CorsConfiguration();
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        configuration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
-        configuration.setAllowedHeaders(List.of("*"));
-        configuration.setAllowCredentials(true);
-
-        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        source.registerCorsConfiguration("/**", configuration);
-        return source;
-    }
+                UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+                source.registerCorsConfiguration("/**", configuration);
+                return source;
+        }
 }

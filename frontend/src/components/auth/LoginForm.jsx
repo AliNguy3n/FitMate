@@ -1,146 +1,126 @@
 import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import AuthLayout from "../../layouts/AuthLayout";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import LoginImage from "../../assets/images/login_image.jpg";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { loginUser } from "../../services/authService";
+import { getUserByUsername } from "../../services/userService";
+import { useNotification } from "../ui/Notification";
 
 const LoginForm = () => {
-  // handle Login action
+  const navigate = useNavigate();
+  const { showNotification, NotificationContainer } = useNotification();
   return (
-    // Card Container
-    <div className="flex flex-col m-6 space-y-10 bg-white shadow-2xl rounded-2xl md:flex-row md:space-y-0 md:m-0">
-      {/* Left Side */}
-      <div className="p-6 md:p-20">
-        <div className="mb-5 text-4xl font-bold">Sign In</div>
-        <div className="max-w-sm mb-5 py-4 font-light text-gray-600">
-          Log in to your account to get products or track your progress about
-          exercises and meals. If you don't had an account, please{" "}
-          <Link className="text-sky-800" to={"/register"}>
-            <b>register</b>
-          </Link>{" "}
-          first.
-        </div>
-        <div className="flex flex-col space-x-0 space-y-0 md:flex-row md:space-x-4 md:space-y-0">
-          <button className="flex items-center justify-center py-2 space-x-3 border border-gray-300 rounded shadow-sm hover:bg-opacity-30 hover:shadow-lg hover:-transition-y-0 5 transition duration-150 md:w-1/2">
-            <a href="#">
-              <FontAwesomeIcon
-                icon={["fab", "facebook-f"]}
-                size="3x"
-                color="blue"
-              />
-            </a>
-            <p>with Facebook</p>
-          </button>
-          <button className="flex items-center justify-center py-2 space-x-3 border border-gray-300 rounded shadow-sm hover:bg-opacity-30 hover:shadow-lg hover:-transition-y-0 5 transition duration-150 md:w-1/2">
-            <a href="#">
-              <FontAwesomeIcon
-                icon={["fab", "google-plus-g"]}
-                size="3x"
-                color="#C70039"
-              />
-            </a>
-            <p>with Google</p>
-          </button>
-        </div>
+    <>
+    <NotificationContainer />
+    <Formik
+      initialValues={{ username: "", password: "", remember: false }}
+      validationSchema={Yup.object({
+        username: Yup.string().required("Username is required"),
+        password: Yup.string()
+          .min(6, "Password must be at least 6 characters")
+          .required("Password is required"),
+      })}
+      onSubmit={async (values, { setSubmitting }) => {
+        const credentials = {
+          username: values.username,
+          password: values.password,
+        };
 
-        <div className="mt-12 border-b border-b-gray-300"></div>
+        const result = await loginUser(credentials);
+        if (result.success && result.data?.data?.token) {
+          const { token, refreshToken } = result.data.data;
+         
+          localStorage.setItem("authToken", token);
+          localStorage.setItem("refreshToken", refreshToken);
+          const userInfo = await getUserByUsername(credentials.username);
+          if (userInfo.success) {
+            const userData = userInfo.data?.data;
+            localStorage.setItem("userId", userData.id);
+            const roleName = userInfo.data?.data?.role?.role || "";
+            if (roleName === "USER") {
+              showNotification("Login Successfully!", "success");
+              navigate("/");
+            }
+          } else {
+            showNotification("Login succeeded but failed to get user info", "error");
+          }
+        } else {
+          showNotification(
+            `Login failed: ${result.errors?.errors?.Exception || "Unknown error"}`,
+            "error"
+          );
+        }
 
-        <div className="mb-2 text-center text-2xl">
-          <i>or with your email and password</i>
-        </div>
-
-        {/* Form */}
-        <Formik
-          initialValues={{ email: "", password: "" }}
-          validationSchema={Yup.object({
-            email: Yup.string()
-              .email("Invalid Email")
-              .required("Email is required"),
-            password: Yup.string().required("Password is required"),
-          })}
-          onSubmit={(values, { setSubmitting }) => {
-            // handle
-            alert(JSON.stringify(values));
-            setSubmitting(false);
-          }}
-        >
-          <Form>
+        setSubmitting(false);
+        //  toast.success(`Login Successfully!`);
+      }}
+    >
+      {() => (
+        
+        <Form className="space-y-6 mt-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Username
+            </label>
             <Field
-              name="email"
-              type="email"
-              placeholder="Enter your Email"
-              className="w-full p-6 border mb-2 border-gray-300 rounded-md placeholder:font-light"
+              name="username"
+              type="text"
+              placeholder="Enter your username"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md bg-blue-50 focus:outline-none"
             />
-            <div className="mb-6 text-red-600">
-              <ErrorMessage name="email"/>
-            </div>
+            <ErrorMessage
+              name="username"
+              component="div"
+              className="text-red-600 text-sm mt-1"
+            />
+          </div>
 
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
             <Field
               name="password"
               type="password"
-              placeholder="Enter your Password"
-              className="w-full p-6 border mb-2 border-gray-300 rounded-md placeholder:font-light"
+              placeholder="Enter your password"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md bg-blue-50 focus:outline-none"
             />
-            <div className="mb-6 text-red-600">
-              <ErrorMessage name="password"/>
-            </div>
-
-            <div className="flex flex-col items-center justify-between mt-6 space-y-6 md:flex-row md:space-y-0">
-              <a href="#" className="font-thin text-cyan-700">
-                Forgot password
-              </a>
-              <button
-                type="submit"
-                className="w-full md:width-auto p-6 font-bold text-white border rounded-md shadow-lg px-9 bg-cyan-700 shadow-cyan-100 hover:bg-sky-500 hover:shadow-2xl"
-              >
-                Login
-              </button>
-            </div>
-          </Form>
-        </Formik>
-        {/* <form onSubmit={formik.handleSubmit}>
-          <input
-            id="email"
-            name="email"
-            type="text"
-            value={formik.values.email}
-            onChange={formik.handleChange}
-            placeholder="Enter your Email"
-            className="w-full p-6 border mb-6 border-gray-300 rounded-md placeholder:font-light"
-          />
-
-          <input
-            id="password"
-            name="password"
-            type="password"
-            value={formik.values.password}
-            onChange={formik.handleChange}
-            placeholder="Enter your Password"
-            className="w-full p-6 border mb-6 border-gray-300 rounded-md placeholder:font-light"
-          />
-          <div className="flex flex-col items-center justify-between mt-6 space-y-6 md:flex-row md:space-y-0">
-            <a href="#" className="font-thin text-cyan-700">
-              Forgot password
-            </a>
-            <button
-              type="submit"
-              className="w-full md:width-auto p-6 font-bold text-white border rounded-md shadow-lg px-9 bg-cyan-700 shadow-cyan-100 hover:bg-sky-500 hover:shadow-2xl"
-            >
-              Login
-            </button>
+            <ErrorMessage
+              name="password"
+              component="div"
+              className="text-red-600 text-sm mt-1"
+            />
           </div>
-        </form> */}
-      </div>
 
-      {/* Right Side */}
-      <img
-        src={LoginImage}
-        alt="Login Right Side Image"
-        className="w-[430px] hidden md:block"
-      />
-    </div>
+          <div className="flex items-center justify-between">
+            <label className="flex items-center text-sm text-gray-600">
+              <Field
+                type="checkbox"
+                name="remember"
+                className="form-checkbox rounded text-blue-500"
+              />
+              <span className="ml-2">Remember me</span>
+            </label>
+            <Link
+              to="/recover-password"
+              className="text-sm text-blue-600 underline"
+            >
+              Forget Password?
+            </Link>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full p-3 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"
+          >
+            Log In
+          </button>
+
+        </Form>
+      )}
+    </Formik>
+    </>
+    
   );
 };
 

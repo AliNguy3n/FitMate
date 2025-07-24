@@ -26,7 +26,7 @@ public class OrderRequest {
 
     private Boolean delivered;
 
-    private String userId;
+    // private String userId;
 
 
     private Long paymentId;

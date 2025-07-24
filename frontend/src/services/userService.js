@@ -5,8 +5,28 @@ import api from "./baseApi.js";
 export const createUser = async (userData) => {
   try {
     const result = await api.post("/identity/user/create", userData);
-    return result.data;
+    return {
+      success: true,
+      data: result.data,
+    };
   } catch (error) {
-    return error.response.data;
+    return {
+      success: false,
+      errors: error.response?.data || { Exception: error.message || "Unknown error" },
+    };
+  }
+};
+export const getUserByUsername = async (username) => {
+  try {
+    const result = await api.get(`/identity/user/username/${username}`);
+    return {
+      success: true,
+      data: result.data, // chứa user info + role
+    };
+  } catch (error) {
+    return {
+      success: false,
+      errors: error.response?.data || { Exception: error.message },
+    };
   }
 };

@@ -63,7 +63,7 @@ function CartModal({onClose }) {
                   {/* Product Info */}
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-800 mb-1">{item.name}</h3>
-                    <p className="text-sm text-gray-500 mb-2">
+                    <p className="text-sm text-gray-500 mb-3">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         item.type === 'equipment'
                           ? 'bg-blue-100 text-blue-800'
@@ -73,7 +73,6 @@ function CartModal({onClose }) {
                       </span>
                     </p>
                     <p className="text-lg font-bold text-gray-800">${item.price}</p>
-                    <p className="text-xs text-gray-500">Stock: {item.stock}</p>
                   </div>
 
                   {/* Quantity Controls */}
