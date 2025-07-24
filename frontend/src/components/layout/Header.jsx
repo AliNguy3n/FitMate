@@ -4,17 +4,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import LogoImg from "../../assets/images/logo-dark.png";
 import { useEffect, useState } from "react";
 import Modal from "../ui/Modal";
-import CartModal from "../cart/cartModal";
-import { logoutUser } from "../../services/authService";
-import useCartStore from "../../stores/useCartStore";
+import CartModal from "../cart/CartModal";
+import useUserStore from "../../stores/useUserStore";
 
 function Header() {
-  const totalItems = useCartStore((state) => state.getTotalItems());
-  const [isLogin, setIsLogin] = useState(false);
-  useEffect(() => {
-    const token = localStorage.getItem("authToken");
-    setIsLogin(!!token);
-  }, []);
+  const { user, isAuthenticated, logout } = useUserStore();
+
   const [isOpenProfile, setIsOpenProfile] = useState(false); // Profile dropdown state
   const [isOpenCart, setIsOpenCart] = useState(false); // Profile dropdown state
   const handleLogout = async () => {
@@ -129,40 +124,68 @@ function Header() {
           </a>
           {/* Profile */}
           {/* Sign Up and Sign In */}
-          {!isLogin ? (
-            <div className="flex items-center text-white space-x-4">
+
+          {!isAuthenticated ? (
+            <div className="flex items-center my-2 overflow-hidden border border-white/30 rounded-2xl backdrop-blur-sm bg-white/10 shadow-lg hover:shadow-xl transition-all duration-300">
               <Link
                 to="/login"
-                className="hover:text-[#1F2937] transition font-semibold"
+                className="px-6 py-3 text-white font-semibold bg-gradient-to-r from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 hover:text-white transition-all duration-300 rounded-l-2xl border-r border-white/20"
+
               >
+                <FontAwesomeIcon
+                  icon={["fas", "sign-in-alt"]}
+                  className="mr-2"
+                />
                 Sign In
               </Link>
               <span className="text-white">|</span>
               <Link
                 to="/register"
-                className="hover:text-[#1F2937] transition font-semibold"
+                className="px-6 py-3 text-white font-semibold bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-700 hover:to-sky-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300 rounded-r-2xl"
               >
+                <FontAwesomeIcon icon={["fas", "user-plus"]} className="mr-2" />
+
                 Sign Up
               </Link>
             </div>
           ) : (
-            <div className="relative">
-              {/* was Login */}
+            <div className="relative p-2">
+              {/* Profile Button */}
               <button
                 onClick={toggleDropdownProfile}
-                className="relative z-10 block h-8 w-8 rounded-full overflow-hidden border-2 border-gray-600 focus:outline-none focus:border-white"
+                className="flex items-center space-x-3 px-3 py-2 rounded-full bg-white/40 hover:bg-white/20 transition duration-200 border border-white/20 hover:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/50"
               >
-                <img
-                  className="h-8 object-cover"
-                  src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=256&q=80"
-                  alt="Your avatar"
+                <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white/50 hover:border-white transition duration-200">
+                  <img
+                    className="w-full h-full object-cover"
+                    src={
+                      user?.profileImage ||
+                      "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=256&q=80"
+                    }
+                    alt="Profile"
+                  />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-white font-medium text-sm">
+                    {user?.firstName || user?.username}
+                  </span>
+                  <span className="text-white/70 text-xs">
+                    {user?.role || "Member"}
+                  </span>
+                </div>
+                <FontAwesomeIcon
+                  icon={["fas", "chevron-down"]}
+                  className={`text-white text-xs transition-transform duration-200 ${
+                    isOpenProfile ? "rotate-180" : ""
+                  }`}
                 />
               </button>
               {isOpenProfile && (
                 <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-xl">
                   <a
-                    href="#"
-                    className="block px-4 py-2 text-gray-800 hover:bg-[#1F2937] hover:text-white rounded-t-lg"
+                    href="/user/profile"
+                    className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white"
+
                   >
                     Account settings
                   </a>
@@ -173,6 +196,7 @@ function Header() {
                     Support
                   </a>
                   <a
+                    onClick={logout}
                     href="#"
                     onClick={(e) => {
                       e.preventDefault();

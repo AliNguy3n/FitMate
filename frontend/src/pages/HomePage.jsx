@@ -6,16 +6,40 @@ import AnyWhereImage from "../assets/images/icon-access-anywhere.svg";
 import SecurityImage from "../assets/images/icon-security.svg";
 import CollaborationImage from "../assets/images/icon-collaboration.svg";
 import AnyFileImage from "../assets/images/icon-any-file.svg";
-import useEquipmentStore from "../stores/useEquipmentStore";
-import useSupplementStore from "../stores/useSupplementStore";
 import useExerciseStore from "../stores/useExerciseStore";
 import ExerciseLinkCard from "../components/exercises/ExerciseLinkCard";
+import { getProductTopCards } from "../services/productService";
+import { useEffect, useState } from "react";
 
 function HomePage() {
   // get best products, workouts from API
-  const { bestEquipments } = useEquipmentStore();
-  const { bestSupplements } = useSupplementStore();
+  // const { bestEquipments } = useEquipmentStore();
+  // const { bestSupplements } = useSupplementStore();
   const { bestExercises } = useExerciseStore();
+
+  const [bestEquipments, setBestEquipments] = useState([]);
+  const [bestSupplements, setBestSupplements] = useState([]);
+
+  // Api
+  const fetchTopCards = async () => {
+    const result = await getProductTopCards(4);
+    return result.data;
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const products = await fetchTopCards();
+        const equipments = products.filter((p) => p.type === "equipment");
+        const supplements = products.filter((p) => p.type === "supplement");
+        setBestEquipments(equipments);
+        setBestSupplements(supplements);
+      } catch (error) {
+        console.error("Can't not load data: ", error);
+      }
+    };
+    loadData();
+  }, []);
 
   return (
     <MainLayout>
@@ -77,16 +101,17 @@ function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {bestEquipments.length > 0 ? (
             bestEquipments.map((p, index) => (
-              <LinkCard
+             <LinkCard
                 key={p.id || index}
-                type="equipment"
+                type={p.type}
                 id={p.id}
                 name={p.name}
+                image={p.image}
                 price={p.price}
                 discount={p.discount}
                 stock={p.stock}
-                image={p.image}
                 rating={p.rating}
+                detailId={p.detailId}
               />
             ))
           ) : (
@@ -107,14 +132,15 @@ function HomePage() {
             bestSupplements.map((p, index) => (
               <LinkCard
                 key={p.id || index}
-                type="supplement"
+                type={p.type}
                 id={p.id}
                 name={p.name}
+                image={p.image}
                 price={p.price}
                 discount={p.discount}
                 stock={p.stock}
-                image={p.image}
                 rating={p.rating}
+                detailId={p.detailId}
               />
             ))
           ) : (

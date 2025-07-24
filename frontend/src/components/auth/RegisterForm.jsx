@@ -9,32 +9,33 @@ const RegisterForm = () => {
   const navigate = useNavigate();
   const { showNotification, NotificationContainer } = useNotification();
 
+  // handle Resister Action
   const handleRegister = async (values, { setSubmitting }) => {
-    try {
-      const userData = {
-        username: values.username,
-        password: values.password,
-        email: values.email,
-        firstName: values.firstName,
-        lastName: values.lastName,
-        gender: values.gender === "male" ? 1 : 0,
-        phone: values.phone,
-        dob: values.dob,
-        address: values.address,
-      };
+    const userData = {
+      username: values.username,
+      password: values.password,
+      email: values.email,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      gender: values.gender == "male" ? 1 : 0,
+      phone: values.phone,
+      dob: values.dob,
+      address: values.address,
+    };
 
-      const result = await createUser(userData);
-
-      if (result?.success) {
-        showNotification("Please check your email to activate your account!", "success");
-        navigate("/login");
-      } else {
-        showNotification(`Error: ${result?.errors?.Exception || "Unknown error"}`, "error");
-        setSubmitting(false);
-      }
-    } catch (error) {
-      console.error("API Error:", error);
-      showNotification("Something went wrong. Please try again later.", "error");
+    const resultCreate = await createUser(userData);
+    if (resultCreate.success) {
+      showNotification(
+        `Hello ${resultCreate?.firstName} ${resultCreate?.lastName},\n
+        Please, go to your email(${resultCreate?.email}) to complete created account!`,
+        "warning",
+        5000
+      );
+      navigate("/login");
+    } else {
+      const exception = resultCreate.errors?.Exception;
+      console.log(exception);
+      showNotification(`Please check your input data!\n${exception}`, "error");
       setSubmitting(false);
     }
   };
@@ -42,79 +43,24 @@ const RegisterForm = () => {
   return (
     <>
       <NotificationContainer />
-      <Formik
-        initialValues={{
-          username: "",
-          password: "",
-          confirmPassword: "",
-          email: "",
-          firstName: "",
-          lastName: "",
-          phone: "",
-          address: "",
-          dob: "",
-          gender: "",
-          agreeTerms: false,
-        }}
-        validationSchema={Yup.object({
-          username: Yup.string().min(3).max(30).required("Username is required"),
-          password: Yup.string().min(6).required("Password is required"),
-          confirmPassword: Yup.string()
-            .oneOf([Yup.ref("password")], "Passwords must match")
-            .required("Confirm password is required"),
-          email: Yup.string().email().required("Email is required"),
-          firstName: Yup.string().required("First name is required"),
-          lastName: Yup.string().required("Last name is required"),
-          phone: Yup.string().matches(/^[0-9]{10,11}$/).required("Phone is required"),
-          address: Yup.string().min(5).required("Address is required"),
-          gender: Yup.string().oneOf(["male", "female"]).required("Gender is required"),
-          dob: Yup.date().max(new Date()).required("Date of birth is required"),
-          agreeTerms: Yup.boolean().oneOf([true], "You must agree to the terms"),
-        })}
-        onSubmit={handleRegister}
-      >
-        <Form className="space-y-4 mt-4">
-          <Field name="username" placeholder="Username" className="input" />
-          <ErrorMessage name="username" component="div" className="text-red-600 text-sm" />
+      <div className="relative flex flex-col justify-between m-6 space-x-10 bg-white shadow-2xl rounded-2xl md:flex-row md:space-y-0 md:mx-80">
+        {/* Left Side */}
+        <img
+          src={LoginImage}
+          alt="Login Right Side Image"
+          className="w-1/2 hidden md:block rounded-l-2xl"
+        />
 
-          <Field name="email" type="email" placeholder="Email" className="input" />
-          <ErrorMessage name="email" component="div" className="text-red-600 text-sm" />
+        {/* Right Side */}
+        <div className="p-6 md:p-20">
+          <div className="mb-5 text-4xl font-bold">Create your account</div>
+          <div className="max-w-sm mb-5 py-4 font-light text-gray-600">
+            Create a new account to get started with our fitness platform. Are
+            you already have an account?{" "}
+            <Link className="text-sky-800" to={"/login"}>
+              <b>Sign in</b>
+            </Link>
 
-          <Field name="password" type="password" placeholder="Password" className="input" />
-          <ErrorMessage name="password" component="div" className="text-red-600 text-sm" />
-
-          <Field name="confirmPassword" type="password" placeholder="Confirm Password" className="input" />
-          <ErrorMessage name="confirmPassword" component="div" className="text-red-600 text-sm" />
-
-          <Field name="firstName" placeholder="First Name" className="input" />
-          <ErrorMessage name="firstName" component="div" className="text-red-600 text-sm" />
-
-          <Field name="lastName" placeholder="Last Name" className="input" />
-          <ErrorMessage name="lastName" component="div" className="text-red-600 text-sm" />
-
-          <Field name="phone" placeholder="Phone" className="input" />
-          <ErrorMessage name="phone" component="div" className="text-red-600 text-sm" />
-
-          <Field name="address" placeholder="Address" className="input" />
-          <ErrorMessage name="address" component="div" className="text-red-600 text-sm" />
-
-          <div className="flex flex-col gap-2 md:flex-row md:items-center md:gap-4">
-            {/* Gender section */}
-            <div className="flex gap-4 w-full md:w-1/2">
-              <label className="flex items-center">
-                <Field type="radio" name="gender" value="male" className="mr-2" />
-                Male
-              </label>
-              <label className="flex items-center">
-                <Field type="radio" name="gender" value="female" className="mr-2" />
-                Female
-              </label>
-            </div>
-
-            {/* DOB section */}
-            <div className="w-full md:w-1/2">
-              <Field name="dob" type="date" className="input w-full" />
-            </div>
           </div>
 
           {/* Error messages */}

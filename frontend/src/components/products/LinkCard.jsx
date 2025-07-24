@@ -2,8 +2,20 @@ import Rating from "../ui/Rating";
 import { useState } from "react";
 import Modal from "../ui/Modal";
 import ProductModal from "./ProductModal";
+import ApiImage from "../ui/ApiImage";
 
-function LinkCard({ type, id, name, image, price, discount, stock, rating, categories }) {
+function LinkCard({
+  type,
+  id,
+  name,
+  image,
+  price,
+  discount,
+  stock,
+  rating,
+  categories,
+  detailId
+}) {
   const sale = discount > 0 ? price - (price * discount) / 100 : null;
   // const link =
   //   type === "equipment" ? "/equipments/" + id : "/supplements/" + id;
@@ -18,16 +30,16 @@ function LinkCard({ type, id, name, image, price, discount, stock, rating, categ
     <>
       {/* Product Modal */}
       <Modal isOpen={modalIsOpen} onClose={closeModal}>
-        <ProductModal id={id} type={type}/>
+        <ProductModal id={detailId} type={type} />
       </Modal>
       <div className="relative group flex flex-col bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden h-96">
         {/* Image Container */}
         <div className="relative h-56 overflow-hidden">
           <button onClick={openModal}>
-            <img
-              className="object-cover h-full w-full transition-transform duration-500 group-hover:scale-110"
-              src={image}
+            <ApiImage
+              imageId={image}
               alt={name}
+              className="object-cover h-full w-full transition-transform"
             />
           </button>
 
@@ -75,7 +87,8 @@ function LinkCard({ type, id, name, image, price, discount, stock, rating, categ
                       : "bg-purple-100 text-purple-700 hover:bg-purple-200"
                   }`}
                 >
-                  {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
+                  {category.charAt(0).toUpperCase() +
+                    category.slice(1).replace("-", " ")}
                 </span>
               ))}
               {categories.length > 3 && (
