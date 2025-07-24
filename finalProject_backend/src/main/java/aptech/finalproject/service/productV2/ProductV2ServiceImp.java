@@ -141,15 +141,14 @@
      public List<ProductCardDTO> getProductTopCards(Long limit) {
          List<Product> products = productRepository.findAll();
 
-         // Tách product theo loại và sort theo rating
          List<Product> topEquipments = products.stream()
-                 .filter(p -> "equipment".equals(p.getType()))
+                 .filter(p -> "equipment".equals(p.getType()) && p.getStock() != null && p.getStock() > 0)
                  .sorted(Comparator.comparing(Product::getRating).reversed())
                  .limit(limit)
                  .collect(Collectors.toList());
 
          List<Product> topSupplements = products.stream()
-                 .filter(p -> "supplement".equals(p.getType()))
+                 .filter(p -> "supplement".equals(p.getType()) && p.getStock() != null && p.getStock() > 0)
                  .sorted(Comparator.comparing(Product::getRating).reversed())
                  .limit(limit)
                  .collect(Collectors.toList());
