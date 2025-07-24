@@ -4,10 +4,11 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import LogoImg from "../../assets/images/logo.svg";
 import { useState } from "react";
 import Modal from "../ui/Modal";
-import CartModal from "../cart/cartModal";
+import CartModal from "../cart/CartModal";
+import useUserStore from "../../stores/useUserStore";
 
 function Header() {
-  const [isLogin, setIsLogin] = useState(false);
+  const { user, isAuthenticated, logout } = useUserStore();
   const [isOpenProfile, setIsOpenProfile] = useState(false); // Profile dropdown state
   const [isOpenCart, setIsOpenCart] = useState(false); // Profile dropdown state
 
@@ -109,38 +110,62 @@ function Header() {
           </a>
           {/* Profile */}
           {/* Sign Up and Sign In */}
-          {!isLogin ? (
-            <div className="flex items-center space-x-0 border-1 border-sky-200 rounded-2xl">
+          {!isAuthenticated ? (
+            <div className="flex items-center my-2 overflow-hidden border border-white/30 rounded-2xl backdrop-blur-sm bg-white/10 shadow-lg hover:shadow-xl transition-all duration-300">
               <Link
                 to="/login"
-                className="p-2 text-sky-950 bg-white font-bold hover:bg-sky-300 hover:text-white rounded-l-2xl"
+                className="px-6 py-3 text-white font-semibold bg-gradient-to-r from-white/20 to-white/10 hover:from-white/30 hover:to-white/20 hover:text-white transition-all duration-300 rounded-l-2xl border-r border-white/20"
               >
+                <FontAwesomeIcon
+                  icon={["fas", "sign-in-alt"]}
+                  className="mr-2"
+                />
                 Sign In
               </Link>
               <Link
                 to="/register"
-                className="p-2 border-l-1 bg-sky-800 text-white hover:text-sky-800 font-bold rounded-r-2xl"
+                className="px-6 py-3 text-white font-semibold bg-gradient-to-r from-sky-600 to-sky-700 hover:from-sky-700 hover:to-sky-800 hover:shadow-lg transform hover:scale-105 transition-all duration-300 rounded-r-2xl"
               >
-                Sign up
+                <FontAwesomeIcon icon={["fas", "user-plus"]} className="mr-2" />
+                Sign Up
               </Link>
             </div>
           ) : (
-            <div className="relative">
-              {/* was Login */}
+            <div className="relative p-2">
+              {/* Profile Button */}
               <button
                 onClick={toggleDropdownProfile}
-                className="relative z-10 block h-8 w-8 rounded-full overflow-hidden border-2 border-gray-600 focus:outline-none focus:border-white"
+                className="flex items-center space-x-3 px-3 py-2 rounded-full bg-white/40 hover:bg-white/20 transition duration-200 border border-white/20 hover:border-white/40 focus:outline-none focus:ring-2 focus:ring-white/50"
               >
-                <img
-                  className="h-8 object-cover"
-                  src="https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=256&q=80"
-                  alt="Your avatar"
+                <div className="w-8 h-8 rounded-full overflow-hidden border-2 border-white/50 hover:border-white transition duration-200">
+                  <img
+                    className="w-full h-full object-cover"
+                    src={
+                      user?.profileImage ||
+                      "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=256&q=80"
+                    }
+                    alt="Profile"
+                  />
+                </div>
+                <div className="flex flex-col items-start">
+                  <span className="text-white font-medium text-sm">
+                    {user?.firstName || user?.username}
+                  </span>
+                  <span className="text-white/70 text-xs">
+                    {user?.role || "Member"}
+                  </span>
+                </div>
+                <FontAwesomeIcon
+                  icon={["fas", "chevron-down"]}
+                  className={`text-white text-xs transition-transform duration-200 ${
+                    isOpenProfile ? "rotate-180" : ""
+                  }`}
                 />
               </button>
               {isOpenProfile && (
                 <div className="absolute right-0 mt-2 py-2 w-48 bg-white rounded-lg shadow-xl">
                   <a
-                    href="#"
+                    href="/user/profile"
                     className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white"
                   >
                     Account settings
@@ -152,6 +177,7 @@ function Header() {
                     Support
                   </a>
                   <a
+                    onClick={logout}
                     href="#"
                     className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white"
                   >

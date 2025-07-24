@@ -8,39 +8,40 @@ const api = axios.create({
   baseURL: base_url,
   headers: {
     "Content-Type": "application/json",
-    // "Access-Control-Allow-Origin": "*",
   },
   withCredentials: true,
 });
 
-// api.interceptors.request.use(
-//   (config) => {
-//     const token = localStorage.getItem("authToken");
-//     if(token){
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
+const apiAuth = axios.create({
+  baseURL: base_url,
+  headers: {
+    "Content-Type": "application/json",
+  },
+  withCredentials: true,
+});
 
-//     return config;
-//   },
-//   (error) => {
-//     return Promise.reject(error);
-//   }
-// )
+apiAuth.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem("authToken");
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
+  }
+);
 
-// api.interceptors.request.use(
-//   (config) => {
-//     // Add auth token if available
-//     const token = localStorage.getItem('authToken');
-//     if (token) {
-//       config.headers.Authorization = `Bearer ${token}`;
-//     }
-//     return config;
-//   },
-//   (error) => {
-//     return Promise.reject(error);
-//   }
-// );
+// get image
+const apiResource = (image_id) => axios.get(base_url + "/resources/" + image_id , {
+  responseType: 'blob',
+  headers: {
+    "Accept": "image/*",
+  },
+  withCredentials: true,
+});
 
 // api.interceptors.response.use(
 //   (response) => {
@@ -57,7 +58,18 @@ const api = axios.create({
 //   }
 // );
 
-export default api;
+
+export { api, apiAuth, apiResource };
+
+export const successResponse = (result) =>  ({
+  success: true,
+  data: result.data.data
+});
+
+export const failResponse = (error) => ({
+  success: false,
+  errors: error.response.data.errors
+});
 
 
 // Api Response template
@@ -65,16 +77,15 @@ export default api;
 // code: 400, 401, ..
 // message: "User Created",..
 // errors: ["Exception": "...",..]
-export const createApiResponse = (success, code, message, data = null) => ({
-  success,
-  code,
-  message,
-  data
-});
+// export const createApiResponse = (success, code, message, data = null) => ({
+//   success,
+//   code,
+//   message,
+//   data
+// });
 
-export const createApiError = (success, code, errors = []) => ({
-  success,
-  code,
-  errors
-});
-
+// export const createApiError = (success, code, errors = []) => ({
+//   success,
+//   code,
+//   errors
+// });

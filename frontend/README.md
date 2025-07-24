@@ -36,3 +36,7 @@
 - `@fortawesome/free-brands-svg-icons` : `fab` prefix
 
 ## DOCUMENT
+
+zustand quản lí storage's store khác so với localStorage ()
+- zustand: middleware + key
+- localStorage: key directly

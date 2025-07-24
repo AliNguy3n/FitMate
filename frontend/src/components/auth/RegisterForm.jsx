@@ -9,11 +9,10 @@ import { useNotification } from "../ui/Notification";
 
 function RegisterForm() {
   const navigate = useNavigate();
-  // const { showNotification } = useNotification();
   const { showNotification, NotificationContainer } = useNotification();
 
   // handle Resister Action
-  const handleRegister = async (values, { setSubmitting, setFieldError }) => {
+  const handleRegister = async (values, { setSubmitting }) => {
     const userData = {
       username: values.username,
       password: values.password,
@@ -26,20 +25,19 @@ function RegisterForm() {
       address: values.address,
     };
 
-    const result = await createUser(userData);
-    if (result.success) {
-      // active in email
+    const resultCreate = await createUser(userData);
+    if (resultCreate.success) {
       showNotification(
-        "Please, go to your email to complete created account!",
-        "success"
+        `Hello ${resultCreate?.firstName} ${resultCreate?.lastName},\n
+        Please, go to your email(${resultCreate?.email}) to complete created account!`,
+        "warning",
+        5000
       );
-
       navigate("/login");
     } else {
-      showNotification(
-        `Please check your input data!\n(${result.errors.Exception})`,
-        "error"
-      );
+      const exception = resultCreate.errors?.Exception;
+      console.log(exception);
+      showNotification(`Please check your input data!\n${exception}`, "error");
       setSubmitting(false);
     }
   };
@@ -47,12 +45,12 @@ function RegisterForm() {
   return (
     <>
       <NotificationContainer />
-      <div className="relative flex flex-col m-6 space-y-10 bg-white shadow-2xl rounded-2xl md:flex-row md:space-y-0 md:mx-80">
+      <div className="relative flex flex-col justify-between m-6 space-x-10 bg-white shadow-2xl rounded-2xl md:flex-row md:space-y-0 md:mx-80">
         {/* Left Side */}
         <img
           src={LoginImage}
           alt="Login Right Side Image"
-          className="w-[430px] hidden md:block rounded-l-2xl"
+          className="w-1/2 hidden md:block rounded-l-2xl"
         />
 
         {/* Right Side */}
