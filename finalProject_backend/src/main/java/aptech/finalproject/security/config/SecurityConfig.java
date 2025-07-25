@@ -47,7 +47,8 @@ public class SecurityConfig {
         private final String[] WHITELIST = {
                         "/auth/**",
                         "/resources/**",
-                        "/api/productV2/**"
+                        "/api/productV2/**",
+                        "/api/promotion"
         };
 
         // Danh sách route tạm thời ngưng truy cập
