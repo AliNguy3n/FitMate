@@ -1,7 +1,8 @@
  package aptech.finalproject.service.productV2;
 
- import aptech.finalproject.dto.productV2.ProductCardDTO;
+ import aptech.finalproject.dto.productV2.*;
  import aptech.finalproject.dto.response.product.*;
+ import aptech.finalproject.entity.auth.FileMetadata;
  import aptech.finalproject.entity.product.*;
  import aptech.finalproject.exception.ApiException;
  import aptech.finalproject.exception.ErrorCode;
@@ -17,6 +18,7 @@
  import java.util.ArrayList;
  import java.util.Comparator;
  import java.util.List;
+ import java.util.Optional;
  import java.util.stream.Collectors;
 
  @Service
@@ -118,25 +120,6 @@
                  .collect(Collectors.toList());
      }
 
-     public List<SCategoryResponse> getSCategories() {
-         return sCategoryRepository.findAll()
-                 .stream()
-                 .map(sCategoryMapper::toSCategoryResponse)
-                 .collect(Collectors.toList());
-     }
-
-     public EquipmentResponse getEquipmentById(Long id) {
-         Equipment equipment = equipmentRepository.findById(id)
-                 .orElseThrow(() -> new ApiException(ErrorCode.EQUIPMENT_NOT_FOUND));
-         return equipmentMapper.toEquipmentResponse(equipment);
-     }
-
-     public SupplementResponse getSupplementById(Long id) {
-         Supplement supplement = supplementRepository.findById(id)
-                 .orElseThrow(() -> new ApiException(ErrorCode.SUPPLEMENT_NOT_FOUND));
-         return supplementMapper.toSupplementResponse(supplement);
-     }
-
      // get best product and supplement
      @Override
      public List<ProductCardDTO> getProductTopCards(Long limit) {
@@ -215,6 +198,170 @@
          }
 
          return dto;
+     }
+
+
+     public List<SCategoryResponse> getSCategories() {
+         return sCategoryRepository.findAll()
+                 .stream()
+                 .map(sCategoryMapper::toSCategoryResponse)
+                 .collect(Collectors.toList());
+     }
+
+
+     public EquipmentDTO getEquipmentById(Long id) {
+         Equipment equipment = equipmentRepository.findById(id)
+                 .orElseThrow(() -> new ApiException(ErrorCode.EQUIPMENT_NOT_FOUND));
+
+         Product product = productRepository.findById(equipment.getProduct().getId()).orElseThrow(() -> new ApiException(ErrorCode.PRODUCT_NOT_FOUND));
+
+         Supplier supplier = supplierRepository.findById(product.getSupplier().getId()).orElse(null);
+
+         // get exactly 1 promotion
+         ProductPromotion productPromotion = null;
+         if (product.getProductPromotions() != null) {
+             for (var promotion : product.getProductPromotions()) {
+                 Instant now = Instant.now();
+                 if (promotion.getStartDate() != null && promotion.getEndDate() != null) {
+                     if (promotion.getStartDate().isBefore(now) && promotion.getEndDate().isAfter(now)) {
+                         productPromotion = promotion;
+                     }
+                 }
+             }
+         }
+
+         String productImage = Optional.ofNullable(product.getImage())
+                 .map(FileMetadata::getStoredName)
+                 .orElse(null);
+         String supplierImage = Optional.ofNullable(supplier.getImage())
+                 .map(FileMetadata::getStoredName)
+                 .orElse(null);
+
+         // mapping
+         ProductDTO productDTO = ProductDTO.builder()
+                 .id(product.getId())
+                 .name(product.getName())
+                 .description(product.getDescription())
+                 .price(product.getPrice())
+                 .image(productImage)
+                 .stock(product.getStock())
+                 .rating(product.getRating())
+                 .type(product.getType())
+                 .build();
+
+         SupplierDTO supplierDTO = SupplierDTO.builder()
+                 .id(supplier.getId())
+                 .name(supplier.getName())
+                 .image(supplierImage)
+                 .contact(supplier.getContact())
+                 .address(supplier.getAddress())
+                 .build();
+
+         PromotionDTO promotionDTO = null;
+         if(productPromotion != null){
+             promotionDTO = PromotionDTO.builder()
+                    .promotionId(productPromotion.getId())
+                    .promotionName(productPromotion.getPromotion().getName())
+                    .startDate(productPromotion.getStartDate())
+                    .endDate(productPromotion.getEndDate())
+                    .build();
+        }
+
+         List<String> categoryNames = equipment.getEcategories().stream()
+                             .map(ECategory::getName)
+                             .collect(Collectors.toList());
+
+
+        // final
+         EquipmentDTO equipmentDTO = EquipmentDTO.builder()
+                 .id(equipment.getId())
+                 .color(equipment.getColor())
+                 .size(equipment.getSize())
+                 .gender(equipment.getGender())
+                 .product(productDTO)
+                 .promotion(promotionDTO)
+                 .supplier(supplierDTO)
+                 .categoryNames(categoryNames)
+                 .build();
+
+         return equipmentDTO;
+     }
+
+
+     public SupplementDTO getSupplementById(Long id) {
+         Supplement supplement = supplementRepository.findById(id)
+                 .orElseThrow(() -> new ApiException(ErrorCode.SUPPLEMENT_NOT_FOUND));
+         Product product = productRepository.findById(supplement.getProduct().getId()).orElseThrow(() -> new ApiException(ErrorCode.PRODUCT_NOT_FOUND));
+
+         Supplier supplier = supplierRepository.findById(product.getSupplier().getId()).orElse(null);
+
+         // get exactly 1 promotion
+         ProductPromotion productPromotion = null;
+         if (product.getProductPromotions() != null) {
+             for (var promotion : product.getProductPromotions()) {
+                 Instant now = Instant.now();
+                 if (promotion.getStartDate() != null && promotion.getEndDate() != null) {
+                     if (promotion.getStartDate().isBefore(now) && promotion.getEndDate().isAfter(now)) {
+                         productPromotion = promotion;
+                     }
+                 }
+             }
+         }
+
+         String productImage = Optional.ofNullable(product.getImage())
+                 .map(FileMetadata::getStoredName)
+                 .orElse(null);
+         String supplierImage = Optional.ofNullable(supplier.getImage())
+                 .map(FileMetadata::getStoredName)
+                 .orElse(null);
+
+         // mapping
+         ProductDTO productDTO = ProductDTO.builder()
+                 .id(product.getId())
+                 .name(product.getName())
+                 .description(product.getDescription())
+                 .price(product.getPrice())
+                 .image(productImage)
+                 .stock(product.getStock())
+                 .rating(product.getRating())
+                 .type(product.getType())
+                 .build();
+
+         SupplierDTO supplierDTO = SupplierDTO.builder()
+                 .id(supplier.getId())
+                 .name(supplier.getName())
+                 .image(supplierImage)
+                 .contact(supplier.getContact())
+                 .address(supplier.getAddress())
+                 .build();
+
+         PromotionDTO promotionDTO = null;
+         if(productPromotion != null){
+             promotionDTO = PromotionDTO.builder()
+                     .promotionId(productPromotion.getId())
+                     .promotionName(productPromotion.getPromotion().getName())
+                     .startDate(productPromotion.getStartDate())
+                     .endDate(productPromotion.getEndDate())
+                     .build();
+         }
+
+         List<String> categoryNames = supplement.getScategories().stream()
+                 .map(SCategory::getName)
+                 .collect(Collectors.toList());
+
+
+         // final
+         SupplementDTO supplementDTO = SupplementDTO.builder()
+                 .id(supplement.getId())
+                 .ingredient(supplement.getIngredient())
+                 .size(supplement.getSize())
+                 .product(productDTO)
+                 .promotion(promotionDTO)
+                 .supplier(supplierDTO)
+                 .categoryNames(categoryNames)
+                 .build();
+
+         return supplementDTO;
      }
 
 
