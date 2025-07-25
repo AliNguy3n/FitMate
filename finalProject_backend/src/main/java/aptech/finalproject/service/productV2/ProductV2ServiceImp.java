@@ -261,6 +261,7 @@
          if(productPromotion != null){
              promotionDTO = PromotionDTO.builder()
                     .promotionId(productPromotion.getId())
+                     .discountOverride(productPromotion.getDiscountOverride())
                     .promotionName(productPromotion.getPromotion().getName())
                     .startDate(productPromotion.getStartDate())
                     .endDate(productPromotion.getEndDate())
@@ -339,6 +340,7 @@
          if(productPromotion != null){
              promotionDTO = PromotionDTO.builder()
                      .promotionId(productPromotion.getId())
+                     .discountOverride(productPromotion.getDiscountOverride())
                      .promotionName(productPromotion.getPromotion().getName())
                      .startDate(productPromotion.getStartDate())
                      .endDate(productPromotion.getEndDate())

@@ -44,6 +44,9 @@ public class PaymentServiceImpl implements PaymentService{
 
         Order order = orderRepository.findById(paymentRequest.getOrderId())
                 .orElseThrow(() -> new ApiException(ErrorCode.ORDER_NOT_FOUND));
+        // update status of order
+        order.setStatus(true);
+        orderRepository.save(order);
 
         authorizeOwnerOrManager(order, currentUser);
 

@@ -40,10 +40,9 @@ public class OrderDetailServiceImpl implements OrderDetailService{
     private AuthenticationFacade authenticationFacade;
 
     public OrderDetailResponse createOrderDetail(OrderDetailRequest orderDetailRequest) {
-
         OrderDetail orderDetail = orderDetailMapper.toOrderDetail(orderDetailRequest);
-        Product product = productRepository.getOne(orderDetailRequest.getProductId());
-        Order order = orderRepository.getOne(orderDetailRequest.getOrderId());
+        Product product = productRepository.findById(orderDetailRequest.getProductId()).orElseThrow(() -> new ApiException(ErrorCode.PRODUCT_NOT_FOUND));
+        Order order = orderRepository.findById(orderDetailRequest.getOrderId()).orElseThrow(() -> new ApiException(ErrorCode.ORDER_NOT_FOUND));
 
         // update stock of product
         int quantity = orderDetailRequest.getQuantity();
