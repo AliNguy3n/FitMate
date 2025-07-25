@@ -34,7 +34,7 @@ public class ExerciseCategoryServiceImpl implements ExerciseCategoryService{
         ExerciseCategoryModel category = categoryMapper.toEntity(request);
 
         if (request.getCategoryImage() != null && !request.getCategoryImage().isEmpty()) {
-            FileMetadata fileMetadata = fileService.saveFile(request.getCategoryImage(), Optional.of("exercise"));
+            FileMetadata fileMetadata = fileService.saveFileByOriginal(request.getCategoryImage(), Optional.of("exercise"));
             category.setCategoryImage(fileMetadata.getStoredName());
         }
 
@@ -49,7 +49,7 @@ public class ExerciseCategoryServiceImpl implements ExerciseCategoryService{
         categoryMapper.updateEntity(category, request);
 
         if (request.getCategoryImage() != null && !request.getCategoryImage().isEmpty()) {
-            FileMetadata fileMetadata = fileService.saveFile(request.getCategoryImage(), Optional.of("exercise"));
+            FileMetadata fileMetadata = fileService.saveFileByOriginal(request.getCategoryImage(), Optional.of("exercise"));
             category.setCategoryImage(fileMetadata.getStoredName());
         }
 

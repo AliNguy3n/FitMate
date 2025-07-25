@@ -1,8 +1,9 @@
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageBreadcrumb } from "../../components";
 import { APICore } from "../../helpers/api/apiCore";
 import config from "../../config";
+import { useDropzone } from "react-dropzone";
 
 const BASE_URL = config.API_URL;
 const api = new APICore();
@@ -23,7 +24,6 @@ const AddEditMealSubCategory = () => {
   const { id } = useParams<{ id: string }>();
   const isEdit = !!id;
   const navigate = useNavigate();
-  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [form, setForm] = useState<MealSubCategoryForm>({
     subCategoryName: "",
@@ -37,7 +37,9 @@ const AddEditMealSubCategory = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
-    api.get("/api/admin/meal-category").then((res: any) => setCategories(res.data.data || []));
+    api
+      .get("/api/admin/meal-category")
+      .then((res: any) => setCategories(res.data.data || []));
     if (isEdit) {
       fetchSubCategory();
     }
@@ -56,7 +58,11 @@ const AddEditMealSubCategory = () => {
         categoryId: data.categoryId || "",
       });
       if (data.subCategoryImage) {
-        setPreview(`${BASE_URL}/resources/${data.subCategoryImage}`);
+        if (/^https?:\/\//i.test(data.subCategoryImage)) {
+          setPreview(data.subCategoryImage);
+        } else {
+          setPreview(`${BASE_URL}/resources/${data.subCategoryImage}`);
+        }
       }
     } catch (err) {
       setErrors({ submit: "Failed to load subcategory" });
@@ -65,17 +71,13 @@ const AddEditMealSubCategory = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value, type, files } = e.target as any;
-    if (type === "file") {
-      setForm((prev) => ({
-        ...prev,
-        subCategoryImage: files && files[0] ? files[0] : null,
-      }));
-      if (files && files[0]) {
-        setPreview(URL.createObjectURL(files[0]));
-      }
-    } else if (name === "categoryId") {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
+    const { name, value } = e.target;
+    if (name === "categoryId") {
       setForm((prev) => ({
         ...prev,
         categoryId: Number(value),
@@ -93,7 +95,6 @@ const AddEditMealSubCategory = () => {
     setLoading(true);
     setErrors({});
 
-    // Kiểm tra dữ liệu trước khi gửi
     if (
       !form.subCategoryName ||
       !form.subCategoryImage ||
@@ -101,7 +102,12 @@ const AddEditMealSubCategory = () => {
       !form.categoryId
     ) {
       setErrors({
-        subCategoryName: !form.subCategoryName ? "Subcategory name is required" : "",
+        subCategoryName: !form.subCategoryName
+          ? "Subcategory name is required"
+          : "",
+        subCategoryImage: !form.subCategoryImage
+          ? "Subcategory image is required"
+          : "",
         description: !form.description ? "Description is required" : "",
         categoryId: !form.categoryId ? "Category is required" : "",
       });
@@ -115,11 +121,6 @@ const AddEditMealSubCategory = () => {
     formData.append("description", form.description);
     formData.append("categoryId", form.categoryId.toString());
 
-    // Kiểm tra dữ liệu gửi đi
-    for (let pair of formData.entries()) {
-      console.log(pair[0], pair[1]);
-    }
-
     try {
       let res;
       if (isEdit && id) {
@@ -130,7 +131,7 @@ const AddEditMealSubCategory = () => {
       if (res?.data?.success === false && res?.data?.errors) {
         setErrors(res.data.errors);
       } else if (res?.data?.success === true) {
-        navigate("/admin//meal/meal-subcategory");
+        navigate("/admin/meal/meal-subcategory");
       } else {
         setErrors({ submit: res?.data?.message || "Save failed" });
       }
@@ -145,6 +146,23 @@ const AddEditMealSubCategory = () => {
     }
   };
 
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
+    accept: {
+      "image/*": [],
+    },
+    multiple: false,
+    onDrop: (acceptedFiles: File[]) => {
+      if (acceptedFiles && acceptedFiles.length > 0) {
+        const file = acceptedFiles[0];
+        setForm((prev) => ({
+          ...prev,
+          subCategoryImage: file,
+        }));
+        setPreview(URL.createObjectURL(file));
+      }
+    },
+  });
+
   return (
     <>
       <PageBreadcrumb
@@ -155,10 +173,16 @@ const AddEditMealSubCategory = () => {
       <div className="flex flex-col gap-6">
         <div className="card w-full mx-auto">
           <div className="card-header">
-            <h4 className="card-title">{isEdit ? "Edit" : "Add"} Meal Subcategory</h4>
+            <h4 className="card-title">
+              {isEdit ? "Edit" : "Add"} Meal Subcategory
+            </h4>
           </div>
           <div className="p-6">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4" encType="multipart/form-data">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col gap-4"
+              encType="multipart/form-data"
+            >
               <div>
                 <label className="block mb-1 font-medium">Subcategory Name</label>
                 <input
@@ -170,24 +194,48 @@ const AddEditMealSubCategory = () => {
                   required
                   disabled={loading}
                 />
-                {errors.subCategoryName && <div className="text-red-500">{errors.subCategoryName}</div>}
+                {errors.subCategoryName && (
+                  <div className="text-red-500">{errors.subCategoryName}</div>
+                )}
               </div>
+
               <div>
                 <label className="block mb-1 font-medium">Subcategory Image</label>
-                <input
-                  type="file"
-                  name="subCategoryImage"
-                  accept="image/*"
-                  className="form-input w-full"
-                  ref={fileInputRef}
-                  onChange={handleChange}
-                  disabled={loading}
-                />
+                <div
+                  {...getRootProps()}
+                  className="border border-dashed border-gray-400 p-4 rounded cursor-pointer hover:bg-gray-100 text-center"
+                >
+                  <input {...getInputProps()} />
+                  {isDragActive ? (
+                    <p>Drop the image here...</p>
+                  ) : (
+                    <p>Drag & drop an image here, or click to select one</p>
+                  )}
+                  {preview && (
+                    <img
+                      src={preview}
+                      alt="Preview"
+                      className="mt-2 rounded w-32 h-32 object-cover mx-auto"
+                    />
+                  )}
+                </div>
                 {preview && (
-                  <img src={preview} alt="Preview" className="mt-2 rounded w-32 h-32 object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setForm((prev) => ({ ...prev, subCategoryImage: null }));
+                      setPreview(null);
+                    }}
+                    className="text-sm text-red-500 mt-1"
+                  >
+                    Remove Image
+                  </button>
                 )}
-                {errors.subCategoryImage && <div className="text-red-500">{errors.subCategoryImage}</div>}
+                {errors.subCategoryImage && (
+                  <div className="text-red-500">{errors.subCategoryImage}</div>
+                )}
               </div>
+
               <div>
                 <label className="block mb-1 font-medium">Description</label>
                 <textarea
@@ -199,8 +247,11 @@ const AddEditMealSubCategory = () => {
                   required
                   disabled={loading}
                 />
-                {errors.description && <div className="text-red-500">{errors.description}</div>}
+                {errors.description && (
+                  <div className="text-red-500">{errors.description}</div>
+                )}
               </div>
+
               <div>
                 <label className="block mb-1 font-medium">Category</label>
                 <select
@@ -218,9 +269,15 @@ const AddEditMealSubCategory = () => {
                     </option>
                   ))}
                 </select>
-                {errors.categoryId && <div className="text-red-500">{errors.categoryId}</div>}
+                {errors.categoryId && (
+                  <div className="text-red-500">{errors.categoryId}</div>
+                )}
               </div>
-              {errors.submit && <div className="text-red-500">{errors.submit}</div>}
+
+              {errors.submit && (
+                <div className="text-red-500">{errors.submit}</div>
+              )}
+
               <div className="flex gap-2 justify-end">
                 <button
                   type="button"

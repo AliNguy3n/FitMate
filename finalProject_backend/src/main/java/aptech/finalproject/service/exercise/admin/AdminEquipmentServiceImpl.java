@@ -35,7 +35,7 @@ public class AdminEquipmentServiceImpl implements AdminEquipmentService {
         EquipmentsModel equipment = equipmentsMapper.toEntity(request);
 
         if (request.getEquipmentImage() != null && !request.getEquipmentImage().isEmpty()) {
-            FileMetadata fileMetadata = fileService.saveFile(request.getEquipmentImage(), Optional.of("exercise"));
+            FileMetadata fileMetadata = fileService.saveFileByOriginal(request.getEquipmentImage(), Optional.of("exercise"));
             equipment.setEquipmentImage(fileMetadata.getStoredName());
         }
 
@@ -51,7 +51,7 @@ public class AdminEquipmentServiceImpl implements AdminEquipmentService {
         equipmentsMapper.updateEntity(equipment, request);
 
         if (request.getEquipmentImage() != null && !request.getEquipmentImage().isEmpty()) {
-            FileMetadata fileMetadata = fileService.saveFile(request.getEquipmentImage(), Optional.of("exercise"));
+            FileMetadata fileMetadata = fileService.saveFileByOriginal(request.getEquipmentImage(), Optional.of("exercise"));
             equipment.setEquipmentImage(fileMetadata.getStoredName());
         }
 

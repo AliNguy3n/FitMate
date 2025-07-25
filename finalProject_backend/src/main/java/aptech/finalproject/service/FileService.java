@@ -16,4 +16,6 @@ public interface FileService {
     FileMetadata findById(String id);
     List<FileMetadata> findAll();
     FileMetadata findByFileName(String fileName);
+
+    FileMetadata saveFileByOriginal(MultipartFile file, Optional<String> groupPath) throws ApiException;
 }

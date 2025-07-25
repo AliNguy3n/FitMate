@@ -103,6 +103,8 @@ const ExercisePrograms = React.lazy(
 const Orders = React.lazy(() => import("../pages/orders/Orders"));
 const OrderDetail = React.lazy(() => import("../pages/orders/OrderDetail"));
 
+// finance
+const Finance = React.lazy(() => import("../pages/finance/Finance"));
 // auth
 const Login = React.lazy(() => import("../pages/auth/Login"));
 const Register = React.lazy(() => import("../pages/auth/Register"));
@@ -164,6 +166,34 @@ const dashboardRoutes: RoutesProps = {
       element: <Dashboard />,
       route: PrivateRoute,
     },
+  ],
+};
+// finance
+const financeRoutes: RoutesProps = {
+  path: "/admin/finance",
+  name: "Finance",
+  icon: "cart",
+  header: "Navigation",
+  element: <Finance />,
+  children: [
+    // {
+    //   path: "/admin/finance/overview",
+    //   name: "Finance",
+    //   element: <Finance />,
+    //   route: PrivateRoute,
+    // },
+    // {
+    //   path: "/admin/order/detail/:id",
+    //   name: "OrderDetail",
+    //   element: <OrderDetail />,
+    //   route: PrivateRoute,
+    // },
+    // {
+    //   path: "/admin/manage-users/edit/:id",
+    //   name: "ProjectCreate",
+    //   element: <EditUSer />,
+    //   route: PrivateRoute,
+    // },
   ],
 };
 
@@ -604,6 +634,7 @@ const appRoutes = [
   mealsRoutes,
   exercisesRoutes,
   orderRoutes,
+  financeRoutes
 ];
 
 // pages

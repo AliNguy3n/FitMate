@@ -1,5 +1,6 @@
 package aptech.finalproject.entity.product;
 
+import aptech.finalproject.validation.ValidPromotionDates;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
@@ -27,7 +28,8 @@ public class Promotion {
 
     private Instant endDate;
 
-    @OneToMany( mappedBy = "promotion")
-    @JsonIgnore
-    private Set<Product> products;
+    @OneToMany(mappedBy = "promotion", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductPromotion> productPromotions;
+
+    private Integer usageLimit;
 }

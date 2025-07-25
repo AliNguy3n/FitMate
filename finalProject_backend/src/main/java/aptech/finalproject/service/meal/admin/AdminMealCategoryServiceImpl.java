@@ -31,9 +31,9 @@ public class AdminMealCategoryServiceImpl implements AdminMealCategoryService {
 
         if (request.getCategoryImage() != null && !request.getCategoryImage().isEmpty()) {
             // Nếu dùng chuỗi
-            String savedFileName = fileService.saveFile(request.getCategoryImage(), Optional.of("meal-category")).getStoredName();
+            String savedFileName = fileService.saveFileByOriginal(request.getCategoryImage(), Optional.of("meal-category")).getStoredName();
             category.setCategoryImage(savedFileName);
-//             FileMetadata image = fileService.saveFile(request.getCategoryImage(), Optional.of("meal-category"));
+//             FileMetadata image = fileService.saveFileByOriginal(request.getCategoryImage(), Optional.of("meal-category"));
 //             category.setCategoryImage(image.getStoredName());
         }
 
@@ -48,7 +48,7 @@ public class AdminMealCategoryServiceImpl implements AdminMealCategoryService {
         mealCategoryMapper.update(existing, request);
 
         if (request.getCategoryImage() != null && !request.getCategoryImage().isEmpty()) {
-            String savedFileName = fileService.saveFile(request.getCategoryImage(), Optional.of("meal-category")).getStoredName();
+            String savedFileName = fileService.saveFileByOriginal(request.getCategoryImage(), Optional.of("meal-category")).getStoredName();
             existing.setCategoryImage(savedFileName);
         }
 

@@ -12,20 +12,17 @@ import java.util.List;
 public interface ProductService {
     ProductResponse createProduct(ProductRequest productRequest);
 
-    ProductResponse updateProduct(Long productId,ProductRequest productRequest);
+    ProductResponse updateProduct(Long productId, ProductRequest productRequest);
 
     void deleteProduct(Long productId);
 
     ProductResponse getProductById(Long productId);
 
+    List<ProductResponse> getProductsByName(String productName);
 
     List<ProductResponse> getAllProducts();
 
-    List<ProductResponse> getProductsByName(String productName);
-
     List<ProductResponse> getProductsBySupplier(Supplier supplier);
-
-    List<ProductResponse> getProductsByPromotion(Promotion promotion);
 
     List<ProductResponse> getProductsByEquipment(Equipment equipment);
 

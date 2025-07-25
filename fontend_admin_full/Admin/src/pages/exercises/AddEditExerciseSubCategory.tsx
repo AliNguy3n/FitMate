@@ -46,7 +46,11 @@ const AddEditExerciseSubCategory = () => {
         description: data.description || "",
       });
       if (data.subCategoryImage) {
-        setPreview(`${BASE_URL}/resources/${data.subCategoryImage}`);
+        if (/^https?:\/\//i.test(data.subCategoryImage)) {
+          setPreview(data.subCategoryImage);
+        } else {
+          setPreview(`${BASE_URL}/resources/${data.subCategoryImage}`);
+        }
       }
     } catch (err) {
       setErrors({ submit: "Failed to load subcategory" });
@@ -55,7 +59,9 @@ const AddEditExerciseSubCategory = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value, type, files } = e.target as any;
     if (type === "file") {
       setForm((prev) => ({
@@ -79,15 +85,22 @@ const AddEditExerciseSubCategory = () => {
     setErrors({});
     const formData = new FormData();
     formData.append("subCategoryName", form.subCategoryName);
-    if (form.subCategoryImage) formData.append("subCategoryImage", form.subCategoryImage);
+    if (form.subCategoryImage)
+      formData.append("subCategoryImage", form.subCategoryImage);
     formData.append("description", form.description);
 
     try {
       let res;
       if (isEdit && id) {
-        res = await api.update(`/api/admin/exercise-sub-category/${id}`, formData);
+        res = await api.update(
+          `/api/admin/exercise-sub-category/${id}`,
+          formData
+        );
       } else {
-        res = await api.create("/api/admin/exercise-sub-category/create", formData);
+        res = await api.create(
+          "/api/admin/exercise-sub-category/create",
+          formData
+        );
       }
       if (res?.data?.success === false && res?.data?.errors) {
         setErrors(res.data.errors);
@@ -111,18 +124,32 @@ const AddEditExerciseSubCategory = () => {
     <>
       <PageBreadcrumb
         name={isEdit ? "Edit Exercise Subcategory" : "Add Exercise Subcategory"}
-        title={isEdit ? "Edit Exercise Subcategory" : "Add Exercise Subcategory"}
-        breadCrumbItems={["Fitmate", "Exercise Subcategories", isEdit ? "Edit" : "Add"]}
+        title={
+          isEdit ? "Edit Exercise Subcategory" : "Add Exercise Subcategory"
+        }
+        breadCrumbItems={[
+          "Fitmate",
+          "Exercise Subcategories",
+          isEdit ? "Edit" : "Add",
+        ]}
       />
       <div className="flex flex-col gap-6">
         <div className="card w-full mx-auto">
           <div className="card-header">
-            <h4 className="card-title">{isEdit ? "Edit" : "Add"} Exercise Subcategory</h4>
+            <h4 className="card-title">
+              {isEdit ? "Edit" : "Add"} Exercise Subcategory
+            </h4>
           </div>
           <div className="p-6">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4" encType="multipart/form-data">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col gap-4"
+              encType="multipart/form-data"
+            >
               <div>
-                <label className="block mb-1 font-medium">Subcategory Name</label>
+                <label className="block mb-1 font-medium">
+                  Subcategory Name
+                </label>
                 <input
                   type="text"
                   name="subCategoryName"
@@ -132,10 +159,14 @@ const AddEditExerciseSubCategory = () => {
                   required
                   disabled={loading}
                 />
-                {errors.subCategoryName && <div className="text-red-500">{errors.subCategoryName}</div>}
+                {errors.subCategoryName && (
+                  <div className="text-red-500">{errors.subCategoryName}</div>
+                )}
               </div>
               <div>
-                <label className="block mb-1 font-medium">Subcategory Image</label>
+                <label className="block mb-1 font-medium">
+                  Subcategory Image
+                </label>
                 <input
                   type="file"
                   name="subCategoryImage"
@@ -146,9 +177,15 @@ const AddEditExerciseSubCategory = () => {
                   disabled={loading}
                 />
                 {preview && (
-                  <img src={preview} alt="Preview" className="mt-2 rounded w-32 h-32 object-cover" />
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="mt-2 rounded w-32 h-32 object-cover"
+                  />
                 )}
-                {errors.subCategoryImage && <div className="text-red-500">{errors.subCategoryImage}</div>}
+                {errors.subCategoryImage && (
+                  <div className="text-red-500">{errors.subCategoryImage}</div>
+                )}
               </div>
               <div>
                 <label className="block mb-1 font-medium">Description</label>
@@ -161,14 +198,20 @@ const AddEditExerciseSubCategory = () => {
                   required
                   disabled={loading}
                 />
-                {errors.description && <div className="text-red-500">{errors.description}</div>}
+                {errors.description && (
+                  <div className="text-red-500">{errors.description}</div>
+                )}
               </div>
-              {errors.submit && <div className="text-red-500">{errors.submit}</div>}
+              {errors.submit && (
+                <div className="text-red-500">{errors.submit}</div>
+              )}
               <div className="flex gap-2 justify-end">
                 <button
                   type="button"
                   className="btn bg-gray-200"
-                  onClick={() => navigate("/admin/exercise/exercise-sub-categories")}
+                  onClick={() =>
+                    navigate("/admin/exercise/exercise-sub-categories")
+                  }
                   disabled={loading}
                 >
                   Cancel

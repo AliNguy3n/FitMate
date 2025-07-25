@@ -1,6 +1,14 @@
 import { APICore } from "../../helpers/api/apiCore";
 const api = new APICore();
 
+export interface ProductPromotion {
+  promotionId: number;
+  promotionName: string;
+  discountOverride: number;
+  startDate: number;
+  endDate: number;
+}
+
 export interface Product {
   id: number;
   name: string;
@@ -10,7 +18,7 @@ export interface Product {
   rating: number;
   image: string;
   supplier?: number | null;
-  promotion?: number | null;
+  promotions?: ProductPromotion[] | null;
   equipment?: number | null;
   supplement?: number | null;
 }

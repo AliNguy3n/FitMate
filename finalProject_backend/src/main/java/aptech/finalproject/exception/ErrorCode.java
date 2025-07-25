@@ -59,6 +59,7 @@ public enum ErrorCode {
     MIME_TYPE_NOT_FOUND(404, "Mime type not found."),
     FILE_UPLOAD_FAILED(400,"Cannot store file"),
     FILE_READ_FAILED(400, "Failed to load file"),
+    FILE_ALREADY_EXISTS(409, "File already exists."),
         //FILE SIZE
     FILE_TOO_LARGE(409 , "File too large."),
 
@@ -123,7 +124,9 @@ public enum ErrorCode {
     EXERCISE_SCHEDULE_NOT_FOUND(404, "Exercise schedule not found."),
     EXERCISE_SESSION_NOT_FOUND(404, "Exercise session not found."),
     EXERCISE_USER_NOT_FOUND(404, "Exercise user not found."),
-    EQUIPMENT_CREATION_FAILED(409, "Equipment creation failed.")
+    EQUIPMENT_CREATION_FAILED(409, "Equipment creation failed."),
+    DATE_VALUE_INVALID(400, "Date value is invalid."),
+    BAD_REQUEST(400, "Bad request"),
     ;
 
 

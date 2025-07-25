@@ -35,8 +35,12 @@ const AddEditMeal = () => {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    api.get("/api/admin/meal-subcategory").then((res: any) => setSubCategories(res.data.data || []));
-    api.get("/api/admin/meal-times").then((res: any) => setMealTimes(res.data.data || []));
+    api
+      .get("/api/admin/meal-subcategory")
+      .then((res: any) => setSubCategories(res.data.data || []));
+    api
+      .get("/api/admin/meal-times")
+      .then((res: any) => setMealTimes(res.data.data || []));
   }, []);
 
   useEffect(() => {
@@ -58,13 +62,19 @@ const AddEditMeal = () => {
           timeOfDayIds: data.timeOfDayIds || [],
         });
         if (data.mealImage) {
-          setPreview(`${BASE_URL}/resources/${data.mealImage}`);
+          if (/^https?:\/\//i.test(data.mealImage)) {
+            setPreview(data.mealImage);
+          } else {
+            setPreview(`${BASE_URL}/resources/${data.mealImage}`);
+          }
         }
       });
     }
   }, [id]);
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
     const { name, value, type } = e.target;
     if (type === "file") {
       const file = (e.target as HTMLInputElement).files?.[0] || null;
@@ -91,8 +101,12 @@ const AddEditMeal = () => {
     formData.append("fiber", form.fiber || "0");
     formData.append("sugar", form.sugar || "0");
     if (form.mealImage) formData.append("mealImage", form.mealImage);
-    form.subCategoryIds.forEach((id) => formData.append("subCategoryIds", id.toString()));
-    form.timeOfDayIds.forEach((id) => formData.append("timeOfDayIds", id.toString()));
+    form.subCategoryIds.forEach((id) =>
+      formData.append("subCategoryIds", id.toString())
+    );
+    form.timeOfDayIds.forEach((id) =>
+      formData.append("timeOfDayIds", id.toString())
+    );
 
     try {
       let res;
@@ -126,7 +140,7 @@ const AddEditMeal = () => {
 
   const subCategoryOptions = subCategories.map((s) => ({
     value: s.id,
-    label: s.subCategoryName, 
+    label: s.subCategoryName,
   }));
   const mealTimeOptions = mealTimes.map((t) => ({
     value: t.id,
@@ -138,14 +152,26 @@ const AddEditMeal = () => {
       <PageBreadcrumb
         title={isEdit ? "Edit Meal" : "Add Meal"}
         name={isEdit ? "Edit Meal" : "Add Meal"}
-        breadCrumbItems={["Fitmate", "Meals", isEdit ? "Edit Meal" : "Add Meal"]}
+        breadCrumbItems={[
+          "Fitmate",
+          "Meals",
+          isEdit ? "Edit Meal" : "Add Meal",
+        ]}
       />
       <div className="col-span-12 mx-auto">
-        <form className="card p-8 col-span-12 space-y-6" onSubmit={handleSubmit} encType="multipart/form-data">
-          <h2 className="text-xl font-semibold mb-4">{isEdit ? "Edit Meal" : "Add New Meal"}</h2>
+        <form
+          className="card p-8 col-span-12 space-y-6"
+          onSubmit={handleSubmit}
+          encType="multipart/form-data"
+        >
+          <h2 className="text-xl font-semibold mb-4">
+            {isEdit ? "Edit Meal" : "Add New Meal"}
+          </h2>
           {errors.submit && <div className="text-red-500">{errors.submit}</div>}
           <div>
-            <label className="block font-medium mb-1">Meal Name<span className="text-red-500">*</span></label>
+            <label className="block font-medium mb-1">
+              Meal Name<span className="text-red-500">*</span>
+            </label>
             <input
               type="text"
               name="mealName"
@@ -154,7 +180,9 @@ const AddEditMeal = () => {
               onChange={handleChange}
               disabled={loading}
             />
-            {errors.mealName && <div className="text-red-500">{errors.mealName}</div>}
+            {errors.mealName && (
+              <div className="text-red-500">{errors.mealName}</div>
+            )}
           </div>
           <div>
             <label className="block font-medium mb-1">Image</label>
@@ -168,12 +196,18 @@ const AddEditMeal = () => {
               disabled={loading}
             />
             {preview && (
-              <img src={preview} alt="Preview" className="mt-2 rounded w-32 h-32 object-cover" />
+              <img
+                src={preview}
+                alt="Preview"
+                className="mt-2 rounded w-32 h-32 object-cover"
+              />
             )}
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block font-medium mb-1">Weight<span className="text-red-500">*</span></label>
+              <label className="block font-medium mb-1">
+                Weight<span className="text-red-500">*</span>
+              </label>
               <input
                 type="number"
                 name="weight"
@@ -184,10 +218,14 @@ const AddEditMeal = () => {
                 step="0.01"
                 disabled={loading}
               />
-              {errors.weight && <div className="text-red-500">{errors.weight}</div>}
+              {errors.weight && (
+                <div className="text-red-500">{errors.weight}</div>
+              )}
             </div>
             <div>
-              <label className="block font-medium mb-1">Kcal<span className="text-red-500">*</span></label>
+              <label className="block font-medium mb-1">
+                Kcal<span className="text-red-500">*</span>
+              </label>
               <input
                 type="number"
                 name="kcal"
@@ -214,7 +252,9 @@ const AddEditMeal = () => {
                 step="0.01"
                 disabled={loading}
               />
-              {errors.protein && <div className="text-red-500">{errors.protein}</div>}
+              {errors.protein && (
+                <div className="text-red-500">{errors.protein}</div>
+              )}
             </div>
             <div>
               <label className="block font-medium mb-1">Fat</label>
@@ -242,7 +282,9 @@ const AddEditMeal = () => {
                 step="0.01"
                 disabled={loading}
               />
-              {errors.carbonhydrate && <div className="text-red-500">{errors.carbonhydrate}</div>}
+              {errors.carbonhydrate && (
+                <div className="text-red-500">{errors.carbonhydrate}</div>
+              )}
             </div>
             <div>
               <label className="block font-medium mb-1">Fiber</label>
@@ -256,7 +298,9 @@ const AddEditMeal = () => {
                 step="0.01"
                 disabled={loading}
               />
-              {errors.fiber && <div className="text-red-500">{errors.fiber}</div>}
+              {errors.fiber && (
+                <div className="text-red-500">{errors.fiber}</div>
+              )}
             </div>
             <div>
               <label className="block font-medium mb-1">Sugar</label>
@@ -270,48 +314,66 @@ const AddEditMeal = () => {
                 step="0.01"
                 disabled={loading}
               />
-              {errors.sugar && <div className="text-red-500">{errors.sugar}</div>}
+              {errors.sugar && (
+                <div className="text-red-500">{errors.sugar}</div>
+              )}
             </div>
           </div>
           <div>
-            <label className="block font-medium mb-1">Subcategories<span className="text-red-500">*</span></label>
+            <label className="block font-medium mb-1">
+              Subcategories<span className="text-red-500">*</span>
+            </label>
             <Select
               name="subCategoryIds"
               className="basic-multi-select"
               classNamePrefix="select"
               options={subCategoryOptions}
               isMulti
-              value={subCategoryOptions.filter((opt) => form.subCategoryIds.includes(opt.value))}
+              value={subCategoryOptions.filter((opt) =>
+                form.subCategoryIds.includes(opt.value)
+              )}
               onChange={(options) =>
                 setForm((prev) => ({
                   ...prev,
-                  subCategoryIds: options ? options.map((opt: any) => opt.value) : [],
+                  subCategoryIds: options
+                    ? options.map((opt: any) => opt.value)
+                    : [],
                 }))
               }
               isClearable={false}
               isDisabled={loading}
             />
-            {errors.subCategoryIds && <div className="text-red-500">{errors.subCategoryIds}</div>}
+            {errors.subCategoryIds && (
+              <div className="text-red-500">{errors.subCategoryIds}</div>
+            )}
           </div>
           <div>
-            <label className="block font-medium mb-1">Meal Times<span className="text-red-500">*</span></label>
+            <label className="block font-medium mb-1">
+              Meal Times<span className="text-red-500">*</span>
+            </label>
             <Select
               name="timeOfDayIds"
               className="basic-multi-select"
               classNamePrefix="select"
               options={mealTimeOptions}
               isMulti
-              value={mealTimeOptions.filter((opt) => form.timeOfDayIds.includes(opt.value))}
+              value={mealTimeOptions.filter((opt) =>
+                form.timeOfDayIds.includes(opt.value)
+              )}
               onChange={(options) =>
                 setForm((prev) => ({
                   ...prev,
-                  timeOfDayIds: options ? options.map((opt: any) => opt.value) : [],
+                  timeOfDayIds: options
+                    ? options.map((opt: any) => opt.value)
+                    : [],
                 }))
               }
               isClearable={false}
               isDisabled={loading}
             />
-            {errors.timeOfDayIds && <div className="text-red-500">{errors.timeOfDayIds}</div>}
+            {errors.timeOfDayIds && (
+              <div className="text-red-500">{errors.timeOfDayIds}</div>
+            )}
           </div>
           <div className="flex justify-end gap-2">
             <button
@@ -327,7 +389,13 @@ const AddEditMeal = () => {
               className="btn bg-primary text-white"
               disabled={loading}
             >
-              {loading ? (isEdit ? "Saving..." : "Saving...") : (isEdit ? "Update" : "Save")}
+              {loading
+                ? isEdit
+                  ? "Saving..."
+                  : "Saving..."
+                : isEdit
+                ? "Update"
+                : "Save"}
             </button>
           </div>
         </form>

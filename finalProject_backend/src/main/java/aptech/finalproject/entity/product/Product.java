@@ -40,10 +40,6 @@ public class Product {
     @JoinColumn(name = "supplier_id")
     private Supplier supplier;
 
-    @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn(name = "promotion_id")
-    private Promotion promotion;
-
     @OneToOne(mappedBy = "product", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
     @JsonIgnore
     private Equipment equipment;
@@ -63,4 +59,7 @@ public class Product {
     @OneToMany(mappedBy = "product")
     @JsonIgnore
     private List<OrderDetail> orderDetails;
+
+    @OneToMany(mappedBy = "product", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ProductPromotion> productPromotions;
 }

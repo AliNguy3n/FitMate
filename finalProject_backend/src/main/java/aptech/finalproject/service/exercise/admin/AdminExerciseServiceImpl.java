@@ -50,7 +50,7 @@ public class AdminExerciseServiceImpl implements AdminExerciseService {
         ExercisesModel exercise = exerciseMapper.toEntity(request);
 
         if (request.getExerciseImage() != null && !request.getExerciseImage().isEmpty()) {
-            FileMetadata fileMetadata = fileService.saveFile(request.getExerciseImage(), Optional.of("exercise"));
+            FileMetadata fileMetadata = fileService.saveFileByOriginal(request.getExerciseImage(), Optional.of("exercise"));
             exercise.setExerciseImage(fileMetadata.getStoredName()); //
         }
 
@@ -99,7 +99,7 @@ public class AdminExerciseServiceImpl implements AdminExerciseService {
 
         // Cập nhật file ảnh nếu có
         if (request.getExerciseImage() != null && !request.getExerciseImage().isEmpty()) {
-            FileMetadata fileMetadata = fileService.saveFile(request.getExerciseImage(), Optional.of("exercise"));
+            FileMetadata fileMetadata = fileService.saveFileByOriginal(request.getExerciseImage(), Optional.of("exercise"));
             exercise.setExerciseImage(fileMetadata.getStoredName()); // <- lưu storedName
         }
 

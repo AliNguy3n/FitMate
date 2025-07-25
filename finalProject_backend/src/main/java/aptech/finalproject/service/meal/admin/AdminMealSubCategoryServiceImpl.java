@@ -41,7 +41,7 @@ public class AdminMealSubCategoryServiceImpl implements AdminMealSubCategoryServ
 
         // Lưu hình ảnh nếu có
         if (request.getSubCategoryImage() != null && !request.getSubCategoryImage().isEmpty()) {
-            FileMetadata image = fileService.saveFile(request.getSubCategoryImage(), Optional.of("meal-subcategory"));
+            FileMetadata image = fileService.saveFileByOriginal(request.getSubCategoryImage(), Optional.of("meal-subcategory"));
             subCategory.setSubCategoryImage(image.getStoredName());
         }
 
@@ -62,7 +62,7 @@ public class AdminMealSubCategoryServiceImpl implements AdminMealSubCategoryServ
 
         // Cập nhật hình ảnh nếu có
         if (request.getSubCategoryImage() != null && !request.getSubCategoryImage().isEmpty()) {
-            FileMetadata image = fileService.saveFile(request.getSubCategoryImage(), Optional.of("meal-subcategory"));
+            FileMetadata image = fileService.saveFileByOriginal(request.getSubCategoryImage(), Optional.of("meal-subcategory"));
             existing.setSubCategoryImage(image.getStoredName());
         }
 

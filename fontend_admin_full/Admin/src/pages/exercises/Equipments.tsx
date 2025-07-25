@@ -71,10 +71,10 @@ const Equipments = () => {
                   e.equipmentName,
                   html(`
       <span class="inline-flex" style="min-width:70px;max-width:140px;">
-        <a href="/admin/equipment/edit/${e.id}" class="me-2" title="Edit">
+        <a href="/admin/exercise/equipment/edit/${e.id}" class="me-2" title="Edit">
           <i class="mgc_edit_line text-lg"></i>
         </a>
-        <a href="/admin/equipment/delete/${e.id}" class="ms-2 disabled" title="Delete" tabindex="-1" aria-disabled="true" onclick="event.preventDefault();">
+        <a href="/admin/exercise/equipment/delete/${e.id}" class="ms-2 disabled" title="Delete" tabindex="-1" aria-disabled="true" onclick="event.preventDefault();">
           <i class="mgc_delete_line text-lg"></i>
         </a>
       </span>

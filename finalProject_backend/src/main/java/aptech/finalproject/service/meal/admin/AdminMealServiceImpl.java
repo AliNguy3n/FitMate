@@ -60,7 +60,7 @@ public class AdminMealServiceImpl implements AdminMealService {
         // Upload image if provided
         MultipartFile image = request.getMealImage();
         if (image != null && !image.isEmpty()) {
-            FileMetadata metadata = fileService.saveFile(image, Optional.of("meal"));
+            FileMetadata metadata = fileService.saveFileByOriginal(image, Optional.of("meal"));
             meal.setMealImage(metadata.getStoredName());
         }
 
@@ -97,7 +97,7 @@ public class AdminMealServiceImpl implements AdminMealService {
         // Update image if provided
         MultipartFile image = request.getMealImage();
         if (image != null && !image.isEmpty()) {
-            FileMetadata metadata = fileService.saveFile(image, Optional.of("meal"));
+            FileMetadata metadata = fileService.saveFileByOriginal(image, Optional.of("meal"));
             existing.setMealImage(metadata.getStoredName());
         }
 

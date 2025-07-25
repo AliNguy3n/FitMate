@@ -5,13 +5,18 @@ spring:
     import: optional:env.properties
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/finalProject
-    username: root
-    password:
+#    url: jdbc:mysql://localhost:3306/fitmatedb
+#    username: root
+#    password:
+    url: jdbc:mysql://fitmate.mysql.database.azure.com:3306/fitmatedb?useSSL=true
+    username: fitmate
+    password: ${AZURE_PASSWORD}
   jpa:
     show-sql: true
     hibernate:
       ddl-auto: update
+    properties:
+      hibernate.hibernate.dialect: org.hibernate.dialect.MySQL8Dialect
   servlet:
     multipart:
       enabled: true
@@ -35,7 +40,7 @@ server:
 
 jwt: #JWT Config
   signerKey: ${JWT_SIGNER_KEY}
-  expiration: 160
+  expiration: 600
   expirationRefreshToken: 604800
   revoke: true
 

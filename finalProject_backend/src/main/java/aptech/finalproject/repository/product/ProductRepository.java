@@ -11,8 +11,6 @@ import java.util.Set;
 public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findBySupplier(Supplier supplier);
 
-    Set<Product> findByPromotion(Promotion promotion);
-
     List<Product> findByEquipment(Equipment equipment);
 
     List<Product> findBySupplement(Supplement supplement);

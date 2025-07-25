@@ -2,7 +2,7 @@ import React, { useEffect, useState, useRef } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { PageBreadcrumb } from "../../components";
 import { APICore } from "../../helpers/api/apiCore";
-import {FormInput} from "../../components";
+import { FormInput } from "../../components";
 import Select from "react-select";
 import config from "../../config";
 
@@ -12,7 +12,6 @@ const api = new APICore();
 type MealCategoryForm = {
   categoryImage: File | null;
   categoryName: string;
-
 };
 
 const AddEditMealCategory = () => {
@@ -24,7 +23,6 @@ const AddEditMealCategory = () => {
   const [form, setForm] = useState<MealCategoryForm>({
     categoryImage: null,
     categoryName: "",
-  
   });
   const [preview, setPreview] = useState<string | null>(null);
   const [subCategories, setSubCategories] = useState<any[]>([]);
@@ -32,7 +30,9 @@ const AddEditMealCategory = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
-    api.get("/api/admin/meal-subcategory").then((res: any) => setSubCategories(res.data.data || []));
+    api
+      .get("/api/admin/meal-subcategory")
+      .then((res: any) => setSubCategories(res.data.data || []));
     if (isEdit) {
       fetchCategory();
     }
@@ -49,7 +49,11 @@ const AddEditMealCategory = () => {
         categoryName: data.categoryName || "",
       });
       if (data.categoryImage) {
-        setPreview(`${BASE_URL}/resources/${data.categoryImage}`);
+        if (/^https?:\/\//i.test(data.categoryImage)) {
+          setPreview(data.categoryImage);
+        } else {
+          setPreview(`${BASE_URL}/resources/${data.categoryImage}`);
+        }
       }
     } catch (err) {
       setErrors({ submit: "Failed to load category" });
@@ -88,9 +92,9 @@ const AddEditMealCategory = () => {
     setLoading(true);
     setErrors({});
     const formData = new FormData();
-    if (form.categoryImage) formData.append("categoryImage", form.categoryImage);
+    if (form.categoryImage)
+      formData.append("categoryImage", form.categoryImage);
     formData.append("categoryName", form.categoryName);
-   
 
     try {
       let res;
@@ -136,10 +140,16 @@ const AddEditMealCategory = () => {
       <div className="flex flex-col gap-6">
         <div className="card w-full mx-auto">
           <div className="card-header">
-            <h4 className="card-title">{isEdit ? "Edit" : "Add"} Meal Category</h4>
+            <h4 className="card-title">
+              {isEdit ? "Edit" : "Add"} Meal Category
+            </h4>
           </div>
           <div className="p-6">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4" encType="multipart/form-data">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col gap-4"
+              encType="multipart/form-data"
+            >
               <div>
                 <label className="block mb-1 font-medium">Category Name</label>
                 <input
@@ -151,7 +161,9 @@ const AddEditMealCategory = () => {
                   required
                   disabled={loading}
                 />
-                {errors.categoryName && <div className="text-red-500">{errors.categoryName}</div>}
+                {errors.categoryName && (
+                  <div className="text-red-500">{errors.categoryName}</div>
+                )}
               </div>
               <div>
                 <label className="block mb-1 font-medium">Category Image</label>
@@ -165,12 +177,20 @@ const AddEditMealCategory = () => {
                   disabled={loading}
                 />
                 {preview && (
-                  <img src={preview} alt="Preview" className="mt-2 rounded w-32 h-32 object-cover" />
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="mt-2 rounded w-32 h-32 object-cover"
+                  />
                 )}
-                {errors.categoryImage && <div className="text-red-500">{errors.categoryImage}</div>}
+                {errors.categoryImage && (
+                  <div className="text-red-500">{errors.categoryImage}</div>
+                )}
               </div>
-              
-              {errors.submit && <div className="text-red-500">{errors.submit}</div>}
+
+              {errors.submit && (
+                <div className="text-red-500">{errors.submit}</div>
+              )}
               <div className="flex gap-2 justify-end">
                 <button
                   type="button"

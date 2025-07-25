@@ -22,28 +22,15 @@ import java.util.stream.Collectors;
 
 @Service
 public class ProductServiceImpl implements ProductService {
-    @Autowired
-    private ProductRepository productRepository;
-
-    @Autowired
-    private ProductMapper productMapper;
-
-    @Autowired
-    private FileMetadataRepository fileMetadataRepository;
-
-    @Autowired
-    private SupplierRepository supplierRepository;
-
-    @Autowired
-    private PromotionRepository promotionRepository;
-
-    @Autowired
-    private EquipmentRepository equipmentRepository;
-
-    @Autowired
-    private SupplementRepository supplementRepository;
-    @Autowired
-    private FileService fileService;
+    @Autowired private ProductRepository productRepository;
+    @Autowired private ProductMapper productMapper;
+    @Autowired private FileMetadataRepository fileMetadataRepository;
+    @Autowired private SupplierRepository supplierRepository;
+    @Autowired private EquipmentRepository equipmentRepository;
+    @Autowired private SupplementRepository supplementRepository;
+    @Autowired private ProductPromotionRepository productPromotionRepository;
+    @Autowired private PromotionRepository promotionRepository;
+    @Autowired private FileService fileService;
 
     @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public ProductResponse createProduct(ProductRequest productRequest) {
@@ -60,12 +47,6 @@ public class ProductServiceImpl implements ProductService {
             product.setSupplier(supplier);
         }
 
-        if (productRequest.getPromotionId() != null) {
-            Promotion promotion = promotionRepository.findById(productRequest.getPromotionId())
-                    .orElseThrow(() -> new ApiException(ErrorCode.PROMOTION_NOT_FOUND));
-            product.setPromotion(promotion);
-        }
-
         if (productRequest.getEquipmentId() != null) {
             Equipment equipment = equipmentRepository.findById(productRequest.getEquipmentId())
                     .orElseThrow(() -> new ApiException(ErrorCode.EQUIPMENT_NOT_FOUND));
@@ -78,7 +59,9 @@ public class ProductServiceImpl implements ProductService {
             product.setSupplement(supplement);
         }
 
-        return productMapper.toProductResponse(productRepository.save(product));
+        Product savedProduct = productRepository.save(product);
+
+        return productMapper.toProductResponse(savedProduct);
     }
 
     @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
@@ -97,12 +80,6 @@ public class ProductServiceImpl implements ProductService {
             Supplier supplier = supplierRepository.findById(productRequest.getSupplierId())
                     .orElseThrow(() -> new ApiException(ErrorCode.SUPPLIER_NOT_FOUND));
             product.setSupplier(supplier);
-        }
-
-        if (productRequest.getPromotionId() != null) {
-            Promotion promotion = promotionRepository.findById(productRequest.getPromotionId())
-                    .orElseThrow(() -> new ApiException(ErrorCode.PROMOTION_NOT_FOUND));
-            product.setPromotion(promotion);
         }
 
         if (productRequest.getEquipmentId() != null) {
@@ -125,6 +102,8 @@ public class ProductServiceImpl implements ProductService {
         if (!productRepository.existsById(productId)) {
             throw new ApiException(ErrorCode.PRODUCT_NOT_FOUND);
         }
+
+        productPromotionRepository.deleteByProductId(productId);
         productRepository.deleteById(productId);
     }
 
@@ -150,13 +129,6 @@ public class ProductServiceImpl implements ProductService {
 
     public List<ProductResponse> getProductsBySupplier(Supplier supplier) {
         return productRepository.findBySupplier(supplier)
-                .stream()
-                .map(productMapper::toProductResponse)
-                .collect(Collectors.toList());
-    }
-
-    public List<ProductResponse> getProductsByPromotion(Promotion promotion) {
-        return productRepository.findByPromotion(promotion)
                 .stream()
                 .map(productMapper::toProductResponse)
                 .collect(Collectors.toList());

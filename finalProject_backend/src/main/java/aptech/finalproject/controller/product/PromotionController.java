@@ -2,6 +2,7 @@ package aptech.finalproject.controller.product;
 
 import aptech.finalproject.dto.request.product.PromotionRequest;
 import aptech.finalproject.dto.response.ApiResponse;
+import aptech.finalproject.dto.response.product.PromotionOrderStatsResponse;
 import aptech.finalproject.dto.response.product.PromotionResponse;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.service.product.PromotionService;
@@ -21,6 +22,7 @@ public class PromotionController {
     @PostMapping("/create")
     public ApiResponse<PromotionResponse> create(@RequestBody @Valid PromotionRequest request,
                                                  BindingResult result) {
+        System.out.println("Creating promotion with request: " + request);
         if (result.hasErrors()) {
             return ApiResponse.badRequest(result);
         }
@@ -68,5 +70,11 @@ public class PromotionController {
     public ApiResponse<?> delete(@PathVariable Long id) {
         promotionService.deletePromotion(id);
         return ApiResponse.noContent("Deleted Promotion with id: " + id);
+    }
+
+    @GetMapping("/{promotionId}/order-stats")
+    public ApiResponse<PromotionOrderStatsResponse> getOrderStatsByPromotionId(@PathVariable Long promotionId) {
+        PromotionOrderStatsResponse stats = promotionService.getOrderStatsByPromotionId(promotionId);
+        return ApiResponse.ok(stats, "Get order stats by promotion id");
     }
 }

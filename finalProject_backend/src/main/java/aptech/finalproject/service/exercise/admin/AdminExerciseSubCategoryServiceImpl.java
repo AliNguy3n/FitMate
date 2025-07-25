@@ -43,7 +43,7 @@ public class AdminExerciseSubCategoryServiceImpl implements AdminExerciseSubCate
         ExerciseSubCategoryModel entity = mapper.toEntity(request);
 
         if (request.getSubCategoryImage() != null && !request.getSubCategoryImage().isEmpty()) {
-            FileMetadata fileMetadata = fileService.saveFile(request.getSubCategoryImage(), Optional.of("exercise"));
+            FileMetadata fileMetadata = fileService.saveFileByOriginal(request.getSubCategoryImage(), Optional.of("exercise"));
             entity.setSubCategoryImage(fileMetadata.getStoredName());
         }
 
@@ -63,7 +63,7 @@ public class AdminExerciseSubCategoryServiceImpl implements AdminExerciseSubCate
                 fileService.deleteImage(existing.getSubCategoryImage());
             }
 
-            FileMetadata fileMetadata = fileService.saveFile(request.getSubCategoryImage(), Optional.of("exercise"));
+            FileMetadata fileMetadata = fileService.saveFileByOriginal(request.getSubCategoryImage(), Optional.of("exercise"));
             existing.setSubCategoryImage(fileMetadata.getStoredName());
         }
 

@@ -28,6 +28,5 @@ public class OrderRequest {
 
     // private String userId;
 
-
     private Long paymentId;
 }

@@ -1,7 +1,10 @@
 package aptech.finalproject.dto.response.product;
 
 
+import aptech.finalproject.dto.product.ProductPromotionDTO;
 import lombok.*;
+
+import java.util.List;
 
 @Setter
 @Getter
@@ -27,7 +30,7 @@ public class ProductResponse {
 
     private Long supplier;
 
-    private Long promotion;
+    private List<ProductPromotionDTO> promotions;
 
     private Long equipment;
 

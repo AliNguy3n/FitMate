@@ -78,6 +78,54 @@ public class FileServiceImpl implements FileService {
         }
     }
 
+    public FileMetadata saveFileByOriginal(MultipartFile file, Optional<String> groupPath) throws ApiException {
+        validateFile(file);
+
+        FileType fileType = FileTypeUtil.detectFileType(file);
+        String originalName = file.getOriginalFilename();
+        if (originalName == null || originalName.isBlank()) {
+            throw new ApiException(ErrorCode.NOT_SUPPORTED_FILE_TYPE);
+        }
+        String storedName = originalName; // Keep original file name
+
+        String relativePath = groupPath.orElse(fileType.getTypeName());
+
+        Path targetDir = appPath.getUploadPath().resolve(relativePath);
+        Path targetPath = targetDir.resolve(storedName);
+
+        try {
+            Files.createDirectories(targetDir);
+            // Check for file name collision and handle if needed
+            if (Files.exists(targetPath)) {
+                throw new ApiException(ErrorCode.FILE_ALREADY_EXISTS);
+            }
+            file.transferTo(targetPath.toFile());
+        } catch (IOException e) {
+            throw new ApiException(ErrorCode.FILE_UPLOAD_FAILED);
+        }
+
+        FileMetadata metadata = FileMetadata.builder()
+                .id(UUID.randomUUID().toString())
+                .originalName(originalName)
+                .storedName(storedName)
+                .relativePath(relativePath)
+                .fileType(fileType)
+                .size(file.getSize())
+                .uploadAt(Instant.now())
+                .build();
+
+        try {
+            return fileMetadataRepository.save(metadata);
+        } catch (Exception e) {
+            try {
+                Files.deleteIfExists(targetPath);
+            } catch (IOException ex) {
+                log.error("Failed to delete file after DB error", ex);
+            }
+            throw new ApiException(ErrorCode.DATABASE_ERROR);
+        }
+    }
+
     public Resource getFile(String fileName) {
         FileMetadata metadata = fileMetadataRepository.findByStoredName(fileName).orElseThrow(()->new ApiException(ErrorCode.FILE_NOT_FOUND));
 

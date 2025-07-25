@@ -68,11 +68,13 @@ public class OrderServiceImpl implements OrderService{
                 .orElseThrow(() -> new ApiException(ErrorCode.ORDER_NOT_FOUND));
 
 
-        Payment payment = paymentRepository.findById(orderRequest.getPaymentId())
-                .orElseThrow(() -> new ApiException(ErrorCode.PAYMENT_NOT_FOUND));
+        if (orderRequest.getPaymentId() != null) {
+            Payment payment = paymentRepository.findById(orderRequest.getPaymentId())
+                    .orElseThrow(() -> new ApiException(ErrorCode.PAYMENT_NOT_FOUND));
+            order.setPayment(payment);
+        }
 
         orderMapper.updateOrder(order, orderRequest);
-        order.setPayment(payment);
 
         return orderMapper.toOrderResponse(orderRepository.save(order));
     }

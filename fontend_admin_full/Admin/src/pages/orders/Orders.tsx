@@ -50,6 +50,13 @@ const Orders = () => {
     return res.data.data?.content || [];
   };
 
+  function toInputDate(v?: number | string) {
+  if (!v) return "";
+  const seconds = typeof v === "string" ? parseInt(v, 10) : v;
+  const d = new Date(seconds * 1000); 
+  return isNaN(d.getTime()) ? "" : d.toISOString().slice(0, 10);
+}
+
   return (
     <>
       <PageBreadcrumb
@@ -72,7 +79,7 @@ const Orders = () => {
               <Grid
                 data={orders.map((o) => [
                   o.id,
-                  new Date(o.orderDate).toLocaleString(),
+                  toInputDate(o.orderDate),
                   o.totalAmount,
                   // Status button
                   html(

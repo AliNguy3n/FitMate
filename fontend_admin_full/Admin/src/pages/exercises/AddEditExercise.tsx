@@ -43,9 +43,15 @@ const AddEditExercise = () => {
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
 
   useEffect(() => {
-    api.get("/api/admin/meal-subcategory").then((res: any) => setSubCategories(res.data.data || []));
-    api.get("/api/admin/equipment").then((res: any) => setEquipments(res.data.data || []));
-    api.get("/api/admin/exercise-mode").then((res: any) => setModes(res.data.data || []));
+    api
+      .get("/api/admin/meal-subcategory")
+      .then((res: any) => setSubCategories(res.data.data || []));
+    api
+      .get("/api/admin/equipment")
+      .then((res: any) => setEquipments(res.data.data || []));
+    api
+      .get("/api/admin/exercise-mode")
+      .then((res: any) => setModes(res.data.data || []));
     if (isEdit) {
       fetchExercise();
     }
@@ -68,7 +74,11 @@ const AddEditExercise = () => {
         modeIds: data.modeIds || [],
       });
       if (data.exerciseImage) {
-        setPreview(`${BASE_URL}/resources/${data.exerciseImage}`);
+        if (/^https?:\/\//i.test(data.exerciseImage)) {
+          setPreview(data.exerciseImage);
+        } else {
+          setPreview(`${BASE_URL}/resources/${data.exerciseImage}`);
+        }
       }
     } catch (err) {
       setErrors({ submit: "Failed to load exercise" });
@@ -77,7 +87,11 @@ const AddEditExercise = () => {
     }
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) => {
     const { name, value, type, files } = e.target as any;
     if (type === "file") {
       setForm((prev) => ({
@@ -87,7 +101,12 @@ const AddEditExercise = () => {
       if (files && files[0]) {
         setPreview(URL.createObjectURL(files[0]));
       }
-    } else if (name === "duration" || name === "kcal" || name === "equipmentId" || name === "modeIds") {
+    } else if (
+      name === "duration" ||
+      name === "kcal" ||
+      name === "equipmentId" ||
+      name === "modeIds"
+    ) {
       setForm((prev) => ({
         ...prev,
         [name]: value === "" ? "" : Number(value),
@@ -131,14 +150,16 @@ const AddEditExercise = () => {
 
     const formData = new FormData();
     formData.append("exerciseName", form.exerciseName);
-    if (form.exerciseImage) formData.append("exerciseImage", form.exerciseImage);
+    if (form.exerciseImage)
+      formData.append("exerciseImage", form.exerciseImage);
     formData.append("description", form.description);
     formData.append("duration", String(form.duration));
     formData.append("kcal", String(form.kcal));
-    form.subCategoryIds.forEach((id) => formData.append("subCategoryIds", id.toString()));
+    form.subCategoryIds.forEach((id) =>
+      formData.append("subCategoryIds", id.toString())
+    );
     formData.append("equipmentId", String(form.equipmentId));
     form.modeIds.forEach((id) => formData.append("modeIds", id.toString()));
-
 
     for (let pair of formData.entries()) {
       console.log(pair[0], pair[1]);
@@ -197,7 +218,11 @@ const AddEditExercise = () => {
             <h4 className="card-title">{isEdit ? "Edit" : "Add"} Exercise</h4>
           </div>
           <div className="p-6">
-            <form onSubmit={handleSubmit} className="flex flex-col gap-4" encType="multipart/form-data">
+            <form
+              onSubmit={handleSubmit}
+              className="flex flex-col gap-4"
+              encType="multipart/form-data"
+            >
               <div>
                 <label className="block mb-1 font-medium">Exercise Name</label>
                 <input
@@ -209,7 +234,9 @@ const AddEditExercise = () => {
                   required
                   disabled={loading}
                 />
-                {errors.exerciseName && <div className="text-red-500">{errors.exerciseName}</div>}
+                {errors.exerciseName && (
+                  <div className="text-red-500">{errors.exerciseName}</div>
+                )}
               </div>
               <div>
                 <label className="block mb-1 font-medium">Exercise Image</label>
@@ -223,9 +250,15 @@ const AddEditExercise = () => {
                   disabled={loading}
                 />
                 {preview && (
-                  <img src={preview} alt="Preview" className="mt-2 rounded w-32 h-32 object-cover" />
+                  <img
+                    src={preview}
+                    alt="Preview"
+                    className="mt-2 rounded w-32 h-32 object-cover"
+                  />
                 )}
-                {errors.exerciseImage && <div className="text-red-500">{errors.exerciseImage}</div>}
+                {errors.exerciseImage && (
+                  <div className="text-red-500">{errors.exerciseImage}</div>
+                )}
               </div>
               <div>
                 <label className="block mb-1 font-medium">Description</label>
@@ -238,10 +271,14 @@ const AddEditExercise = () => {
                   required
                   disabled={loading}
                 />
-                {errors.description && <div className="text-red-500">{errors.description}</div>}
+                {errors.description && (
+                  <div className="text-red-500">{errors.description}</div>
+                )}
               </div>
               <div>
-                <label className="block mb-1 font-medium">Duration (minutes)</label>
+                <label className="block mb-1 font-medium">
+                  Duration (minutes)
+                </label>
                 <input
                   type="number"
                   name="duration"
@@ -252,7 +289,9 @@ const AddEditExercise = () => {
                   required
                   disabled={loading}
                 />
-                {errors.duration && <div className="text-red-500">{errors.duration}</div>}
+                {errors.duration && (
+                  <div className="text-red-500">{errors.duration}</div>
+                )}
               </div>
               <div>
                 <label className="block mb-1 font-medium">Kcal</label>
@@ -267,7 +306,9 @@ const AddEditExercise = () => {
                   required
                   disabled={loading}
                 />
-                {errors.kcal && <div className="text-red-500">{errors.kcal}</div>}
+                {errors.kcal && (
+                  <div className="text-red-500">{errors.kcal}</div>
+                )}
               </div>
               <div>
                 <label className="block mb-1 font-medium">Subcategories</label>
@@ -277,12 +318,16 @@ const AddEditExercise = () => {
                   classNamePrefix="select"
                   options={subCategoryOptions}
                   isMulti
-                  value={subCategoryOptions.filter((opt) => form.subCategoryIds.includes(opt.value))}
+                  value={subCategoryOptions.filter((opt) =>
+                    form.subCategoryIds.includes(opt.value)
+                  )}
                   onChange={handleSubCategoryChange}
                   isClearable={false}
                   isDisabled={loading}
                 />
-                {errors.subCategoryIds && <div className="text-red-500">{errors.subCategoryIds}</div>}
+                {errors.subCategoryIds && (
+                  <div className="text-red-500">{errors.subCategoryIds}</div>
+                )}
               </div>
               <div>
                 <label className="block mb-1 font-medium">Equipment</label>
@@ -300,7 +345,9 @@ const AddEditExercise = () => {
                     </option>
                   ))}
                 </select>
-                {errors.equipmentId && <div className="text-red-500">{errors.equipmentId}</div>}
+                {errors.equipmentId && (
+                  <div className="text-red-500">{errors.equipmentId}</div>
+                )}
               </div>
               <div>
                 <label className="block mb-1 font-medium">Mode</label>
@@ -310,18 +357,26 @@ const AddEditExercise = () => {
                   classNamePrefix="select"
                   options={modeOptions}
                   isMulti
-                  value={modeOptions.filter((opt) => form.modeIds.includes(opt.value))}
+                  value={modeOptions.filter((opt) =>
+                    form.modeIds.includes(opt.value)
+                  )}
                   onChange={(options) =>
                     setForm((prev) => ({
                       ...prev,
-                      modeIds: options ? options.map((opt: any) => opt.value) : [],
+                      modeIds: options
+                        ? options.map((opt: any) => opt.value)
+                        : [],
                     }))
                   }
                   isDisabled={loading}
                 />
-                {errors.modeIds && <div className="text-red-500">{errors.modeId}</div>}
+                {errors.modeIds && (
+                  <div className="text-red-500">{errors.modeId}</div>
+                )}
               </div>
-              {errors.submit && <div className="text-red-500">{errors.submit}</div>}
+              {errors.submit && (
+                <div className="text-red-500">{errors.submit}</div>
+              )}
               <div className="flex gap-2 justify-end">
                 <button
                   type="button"

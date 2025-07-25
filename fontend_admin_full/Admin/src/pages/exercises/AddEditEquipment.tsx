@@ -43,7 +43,11 @@ const AddEditEquipment = () => {
         equipmentImage: null,
       });
       if (data.equipmentImage) {
-        setPreview(`${BASE_URL}/resources/${data.equipmentImage}`);
+        if (/^https?:\/\//i.test(data.equipmentImage)) {
+          setPreview(data.equipmentImage);
+        } else {
+          setPreview(`${BASE_URL}/resources/${data.equipmentImage}`);
+        }
       }
     } catch (err) {
       setErrors({ submit: "Failed to load equipment" });

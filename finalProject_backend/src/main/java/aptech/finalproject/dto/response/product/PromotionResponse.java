@@ -1,10 +1,10 @@
 package aptech.finalproject.dto.response.product;
 
 
+import aptech.finalproject.dto.product.ProductWithPromotionDTO;
 import lombok.*;
 
 import java.time.Instant;
-import java.util.List;
 import java.util.Set;
 
 @Setter
@@ -23,5 +23,7 @@ public class PromotionResponse {
 
     private Instant endDate;
 
-    private Set<Long> productIds;
+    private Set<ProductWithPromotionDTO> products;
+
+    private Integer usageLimit;
 }
