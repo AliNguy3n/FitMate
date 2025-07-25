@@ -30,48 +30,36 @@ function Notification({ message, type = 'info', isVisible, onClose, duration = 5
     switch (type) {
       case 'success':
         return {
-          bg: 'bg-gradient-to-r from-emerald-500 to-green-500',
-          border: 'border-emerald-300',
+          bg: 'bg-green-500',
+          border: 'border-green-600',
           text: 'text-white',
           icon: 'check-circle',
-          iconColor: 'text-emerald-100',
-          iconBg: 'bg-white/20',
-          progressBar: 'bg-emerald-200/30',
-          shadow: 'shadow-emerald-500/25'
+          iconColor: 'text-green-100'
         };
       case 'error':
         return {
-          bg: 'bg-gradient-to-r from-rose-500 to-red-500',
-          border: 'border-rose-300',
+          bg: 'bg-red-500',
+          border: 'border-red-600',
           text: 'text-white',
           icon: 'times-circle',
-          iconColor: 'text-rose-100',
-          iconBg: 'bg-white/20',
-          progressBar: 'bg-rose-200/30',
-          shadow: 'shadow-rose-500/25'
+          iconColor: 'text-red-100'
         };
       case 'warning':
         return {
-          bg: 'bg-gradient-to-r from-amber-500 to-orange-500',
-          border: 'border-amber-300',
+          bg: 'bg-yellow-500',
+          border: 'border-yellow-600',
           text: 'text-white',
           icon: 'exclamation-triangle',
-          iconColor: 'text-amber-100',
-          iconBg: 'bg-white/20',
-          progressBar: 'bg-amber-200/30',
-          shadow: 'shadow-amber-500/25'
+          iconColor: 'text-yellow-100'
         };
       case 'info':
       default:
         return {
-          bg: 'bg-gradient-to-r from-blue-500 to-cyan-500',
-          border: 'border-blue-300',
+          bg: 'bg-blue-500',
+          border: 'border-blue-600',
           text: 'text-white',
           icon: 'info-circle',
-          iconColor: 'text-blue-100',
-          iconBg: 'bg-white/20',
-          progressBar: 'bg-blue-200/30',
-          shadow: 'shadow-blue-500/25'
+          iconColor: 'text-blue-100'
         };
     }
   };
@@ -80,45 +68,42 @@ function Notification({ message, type = 'info', isVisible, onClose, duration = 5
 
   return (
     <div
-      className={`fixed top-4 right-4 z-50 transform transition-all duration-500 ease-out ${
+      className={`fixed top-4 right-4 z-50 transform transition-all duration-300 ease-in-out ${
         isAnimating
           ? 'translate-x-0 opacity-100 scale-100'
           : 'translate-x-full opacity-0 scale-95'
       }`}
     >
-      <div className={`${styles.bg} ${styles.border} ${styles.text} ${styles.shadow} border backdrop-blur-sm rounded-2xl shadow-2xl min-w-80 max-w-md overflow-hidden`}>
-        <div className="flex items-center p-5">
-          {/* Icon with background */}
-          <div className={`flex-shrink-0 ${styles.iconColor} ${styles.iconBg} p-2.5 rounded-xl`}>
+      <div className={`${styles.bg} ${styles.border} ${styles.text} border-l-4 rounded-lg shadow-lg min-w-80 max-w-md`}>
+        <div className="flex items-center p-4">
+          {/* Icon */}
+          <div className={`flex-shrink-0 ${styles.iconColor}`}>
             <FontAwesomeIcon icon={['fas', styles.icon]} size="lg" />
           </div>
 
           {/* Message */}
-          <div className="ml-4 flex-1">
-            <div className="text-sm font-semibold leading-relaxed drop-shadow-sm">{message}</div>
+          <div className="ml-3 flex-1">
+            <p className="text-sm font-medium">{message}</p>
           </div>
 
           {/* Close Button */}
           <button
             onClick={handleClose}
-            className={`flex-shrink-0 ml-4 ${styles.iconColor} hover:bg-white/20 p-2 rounded-lg transition-all duration-200 hover:scale-110`}
+            className={`flex-shrink-0 ml-4 ${styles.iconColor} hover:opacity-75 transition-opacity`}
           >
             <FontAwesomeIcon icon={['fas', 'times']} size="sm" />
           </button>
         </div>
 
-        {/* Enhanced Progress Bar */}
-        <div className="h-1.5 bg-black/10 overflow-hidden">
+        {/* Progress Bar */}
+        <div className="h-1 bg-black bg-opacity-20 overflow-hidden">
           <div
-            className={`h-full ${styles.progressBar} bg-white/40 transition-all linear relative`}
+            className="h-full bg-white bg-opacity-30 transition-all linear"
             style={{
               width: '100%',
               animation: `shrink ${duration}ms linear forwards`
             }}
-          >
-            {/* Shimmer effect */}
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent transform -skew-x-12 animate-pulse"></div>
-          </div>
+          />
         </div>
       </div>
 
@@ -136,7 +121,7 @@ function Notification({ message, type = 'info', isVisible, onClose, duration = 5
   );
 }
 
-// Enhanced Notification Hook with stacking support
+// Notification Hook for easier usage
 export function useNotification() {
   const [notifications, setNotifications] = useState([]);
 
@@ -158,24 +143,16 @@ export function useNotification() {
   };
 
   const NotificationContainer = () => (
-    <div className="fixed top-0 right-0 z-50 p-4 space-y-3 max-w-sm">
-      {notifications.map((notification, index) => (
-        <div
+    <div className="fixed top-0 right-0 z-50 space-y-2 p-4">
+      {notifications.map((notification) => (
+        <Notification
           key={notification.id}
-          style={{
-            transform: `translateY(${index * 10}px) scale(${1 - index * 0.05})`,
-            zIndex: 1000 - index
-          }}
-          className="transition-all duration-300"
-        >
-          <Notification
-            message={notification.message}
-            type={notification.type}
-            isVisible={notification.isVisible}
-            duration={notification.duration}
-            onClose={() => hideNotification(notification.id)}
-          />
-        </div>
+          message={notification.message}
+          type={notification.type}
+          isVisible={notification.isVisible}
+          duration={notification.duration}
+          onClose={() => hideNotification(notification.id)}
+        />
       ))}
     </div>
   );

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.*;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 
 
@@ -20,7 +21,7 @@ public class OrderRequest {
 
     @NotNull(message = "Total amount is required")
     @Positive(message = "Total amount must be positive")
-    private Integer totalAmount;
+    private BigDecimal totalAmount;
 
     private Boolean status;
 

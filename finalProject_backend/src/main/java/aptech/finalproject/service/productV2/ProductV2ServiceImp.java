@@ -69,18 +69,18 @@
              }
 
              // discount & check Date
-             if (product.getPromotion() != null) {
-                 Promotion promotion = product.getPromotion();
-                 Instant now = Instant.now();
+            //  if (product.getPromotion() != null) {
+            //      Promotion promotion = product.getPromotion();
+            //      Instant now = Instant.now();
 
-                 if (promotion.getStartDate().isBefore(now) && promotion.getEndDate().isAfter(now)) {
-                     productCardDTO.setDiscount(promotion.getDiscount());
-                 } else {
-                     productCardDTO.setDiscount(0f);
-                 }
-             } else {
-                 productCardDTO.setDiscount(0f);
-             }
+            //      if (promotion.getStartDate().isBefore(now) && promotion.getEndDate().isAfter(now)) {
+            //          productCardDTO.setDiscount(promotion.getDiscount());
+            //      } else {
+            //          productCardDTO.setDiscount(0f);
+            //      }
+            //  } else {
+            //      productCardDTO.setDiscount(0f);
+            //  }
 
              // categoryIds
              if ("equipment".equals(product.getType()) && product.getEquipment() != null) {
@@ -175,17 +175,17 @@
          }
 
          // Discount
-         if (product.getPromotion() != null) {
-             var promotion = product.getPromotion();
-             Instant now = Instant.now();
-             if (!promotion.getStartDate().isAfter(now) && !promotion.getEndDate().isBefore(now)) {
-                 dto.setDiscount(promotion.getDiscount());
-             } else {
-                 dto.setDiscount(0f);
-             }
-         } else {
-             dto.setDiscount(0f);
-         }
+        //  if (product.getPromotion() != null) {
+        //      var promotion = product.getPromotion();
+        //      Instant now = Instant.now();
+        //      if (!promotion.getStartDate().isAfter(now) && !promotion.getEndDate().isBefore(now)) {
+        //          dto.setDiscount(promotion.getDiscount());
+        //      } else {
+        //          dto.setDiscount(0f);
+        //      }
+        //  } else {
+        //      dto.setDiscount(0f);
+        //  }
 
          // Category & DetailId
          if ("equipment".equals(product.getType()) && product.getEquipment() != null) {

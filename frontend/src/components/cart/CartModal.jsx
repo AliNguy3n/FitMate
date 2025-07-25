@@ -2,9 +2,8 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useCartStore from '../../stores/useCartStore';
 import { useNavigate } from 'react-router-dom';
-import ApiImage from '../ui/ApiImage';
 
-function CartModal({onClose}) {
+function CartModal({onClose }) {
   const {
     cart,
     getTotal,
@@ -54,8 +53,8 @@ function CartModal({onClose}) {
                 <div key={item.id || index} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                   {/* Product Image */}
                   <div className="flex-shrink-0">
-                    <ApiImage
-                      imageId={item.image}
+                    <img
+                      src={item.image}
                       alt={item.name}
                       className="w-20 h-20 object-cover rounded-lg"
                     />
@@ -64,7 +63,7 @@ function CartModal({onClose}) {
                   {/* Product Info */}
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-800 mb-1">{item.name}</h3>
-                    <p className="text-sm text-gray-500 mb-2">
+                    <p className="text-sm text-gray-500 mb-3">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         item.type === 'equipment'
                           ? 'bg-blue-100 text-blue-800'
@@ -74,7 +73,6 @@ function CartModal({onClose}) {
                       </span>
                     </p>
                     <p className="text-lg font-bold text-gray-800">${item.price}</p>
-                    <p className="text-xs text-gray-500">Stock: {item.stock}</p>
                   </div>
 
                   {/* Quantity Controls */}
@@ -133,7 +131,7 @@ function CartModal({onClose}) {
               <button
                 onClick={() => {
                   // Handle checkout logic here
-                  navigate("/user/checkout");
+                  navigate("/cart");
                 }}
                 className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >

@@ -1,136 +1,87 @@
 import React, { useEffect, useState } from "react";
-import useCartStore from "../../stores/useCartStore";
+import HeartImg from "../../assets/images/heart.png";
+import WeightImg from "../../assets/images/weight.png";
+import useEquipmentStore from "../../stores/useEquipmentStore";
+import useSupplementStore from "../../stores/useSupplementStore";
 import Rating from "../ui/Rating";
-import {
-  getEquipmentById,
-  getSupplementById,
-} from "../../services/productService";
-import ApiImage from "../ui/ApiImage";
+import useCartStore from "../../stores/useCartStore";
 import { useNotification } from "../ui/Notification";
-import { useNavigate } from "react-router-dom";
+import SupplierImage from "../../assets/images/supplier.png";
+// import { toast } from "react-toastify";
 
-// id is id of equipment or supplement
+// id = productId
 function ProductModal({ type, id }) {
   const [detail, setDetail] = useState({});
   const [quantity, setQuantity] = useState(1);
+  const { getDetail: getEquipmentDetail } = useEquipmentStore();
+  const { getDetail: getSupplementDetail } = useSupplementStore();
   const { addToCart } = useCartStore();
   const { showNotification, NotificationContainer } = useNotification();
-  const navigate = useNavigate();
-
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        let result;
-        if (type === "equipment") {
-          result = await getEquipmentById(id);
-          setDetail(result.data);
-        } else if (type === "supplement") {
-          result = await getSupplementById(id);
-          setDetail(result.data);
-        }
-      } catch (error) {
-        console.error("Error fetching product details:", error);
-      }
-    };
-
-    if (id) {
-      fetchData();
+    if (type === "equipment") {
+      setDetail(getEquipmentDetail(id));
     }
-  }, [type, id]);
 
-  // Extract product data from nested structure
-  const product = detail?.product || {};
+    if (type === "supplement") {
+      setDetail(getSupplementDetail(id));
+    }
+  }, [type, id, getEquipmentDetail, getSupplementDetail]);
 
   // Calculate discounted price
-  const promotion = product.promotion;
-  const price = product.price || 0;
-  const discountedPrice = promotion
-    ? price - (price * promotion.discount) / 100
+  const discountedPrice = detail.promotion
+    ? detail.price - (detail.price * detail.promotion.discount / 100)
     : null;
 
   // Check if promotion is active
-  const isPromotionActive = promotion
-    ? new Date() >= new Date(promotion.startDate * 1000) &&
-      new Date() <= new Date(promotion.endDate * 1000)
+  const isPromotionActive = detail.promotion
+    ? new Date() >= new Date(detail.promotion.startDate) && new Date() <= new Date(detail.promotion.endDate)
     : false;
 
   // Get current price (discounted or regular)
-  const currentPrice =
-    isPromotionActive && discountedPrice ? discountedPrice : price;
+  const currentPrice = isPromotionActive && discountedPrice ? discountedPrice : detail.price;
 
   // Handle quantity change
   const handleQuantityChange = (change) => {
     const newQuantity = quantity + change;
-    const stock = product.stock || 0;
-    if (newQuantity >= 1 && newQuantity <= stock) {
+    if (newQuantity >= 1 && newQuantity <= detail.stock) {
       setQuantity(newQuantity);
     }
   };
 
   // Handle add to cart
   const handleAddToCart = () => {
-    if (product.stock > 0) {
-      const imageId = product.image?.storedName || null;
-
+    if (detail.stock > 0) {
       const cartItem = {
-        id: product.id,
-        name: product.name,
+        id: detail.id,
+        name: detail.name,
         price: currentPrice,
         quantity: quantity,
-        image: imageId,
+        image: detail.image,
         type: type,
-        stock: product.stock,
-        originalPrice: price,
-        discount: promotion?.discount || 0,
+        stock: detail.stock,
+        // Add any additional properties you need
+        originalPrice: detail.price,
+        discount: detail.promotion?.discount || 0
       };
 
       addToCart(cartItem, quantity);
-
-      // Show notification with actions
-      showActionNotification();
+      showNotification(`${detail.name} added to cart!`);
     }
   };
-
-  // Show notification with action buttons
-  const showActionNotification = () => {
-    const message = (
-      <div className="flex flex-col space-y-3">
-        <div className="flex items-center">
-          <span className="font-medium">
-            {quantity}x {product.name}
-          </span>{" "}
-          added to cart!
-        </div>
-        <div className="flex items-center space-x-3 pt-2">
-          <button
-            onClick={() => navigate("/user/checkout")}
-            className="px-3 py-1 bg-white/30 hover:bg-white/40 rounded-md text-sm font-medium transition"
-          >
-            Checkout
-          </button>
-          <button
-            onClick={() => navigate("/products")}
-            className="px-3 py-1 bg-white/20 hover:bg-white/30 rounded-md text-sm transition"
-          >
-            Continue Shopping
-          </button>
-        </div>
-      </div>
-    );
-
-    showNotification(message, "success", 8000);
-  };
-
+  if (!detail || Object.keys(detail).length === 0) {
+    return <div className="p-10 text-center text-gray-500">Loading product details...</div>;
+  }
   return (
     <>
+
       <NotificationContainer />
       {/* Card Container */}
       <div className="flex flex-col p-6 m-3 space-y-10 bg-white rounded-2xl shadow-2xl md:flex-row md:space-y-0 md:space-x-10 md:m-0 md:p-16 max-w-4xl">
         {/* Image Div */}
         <div className="flex-shrink-0">
-          <ApiImage
-            imageId={product.image?.storedName}
-            alt={product.name}
+          <img
+            src={detail.image || "https://via.placeholder.com/320x320?text=No+Image"}
+            alt={detail.name}
             className="mx-auto duration-200 w-80 h-80 object-cover rounded-lg hover:scale-105"
           />
         </div>
@@ -141,122 +92,153 @@ function ProductModal({ type, id }) {
           <div className="flex flex-col mb-4 space-y-3 text-center md:text-left">
             {/* Title */}
             <div className="max-w-lg text-2xl font-medium text-gray-800">
-              {product.name}
+              {detail.name}
             </div>
 
-            {/* Product ID */}
-            <div className="text-sm text-gray-500">
-              Product ID: {product.id}
-            </div>
+            {/* Supplier Info */}
+            {detail.supplier && (
+              <div className="flex items-center bg-gray-50 rounded-lg space-x-3 w-full">
+                <img
+                  src={SupplierImage}
+                  alt={detail.supplier.name}
+                  className="w-10 h-12 rounded-full object-cover"
+                />
+                <div className="flex-1">
+                  <p className="text-sm text-gray-700">
+                    <span className="font-medium">Supplier:</span> {detail.supplier.name}
+                  </p>
+                  <p className="text-sm text-gray-700"><span className="font-medium">
+                    Contact:</span> {detail.supplier.contact}</p>
+                  <p className="text-sm text-gray-700">
+                    <span className="font-medium">Type:</span> {detail.supplier.type}</p>
+                </div>
+              </div>
+            )}
+
 
             {/* Description */}
             <div className="text-gray-600 text-sm max-w-lg">
-              {product.description}
+              {detail.description}
             </div>
 
-            {/* Product Details */}
-            <div
-              className={`grid grid-cols-2 gap-4 p-4 ${
-                type === "equipment" ? "bg-gray-50" : "bg-purple-50"
-              } rounded-lg`}
-            >
-              {/* Show supplement or equipment specific details */}
-              <div>
-                <span className="text-sm font-medium text-gray-700">Size:</span>
-                <p className="text-sm text-gray-600">
-                  {detail.size === 1
-                    ? "Small"
-                    : detail.size === 2
-                    ? "Medium"
-                    : detail.size === 3
-                    ? "Large"
-                    : "N/A"}
-                </p>
-              </div>
-
-              {/* Color - mainly for equipment */}
-              {detail.color && (
+            {/* Equipment Details */}
+            {detail.equipment && (
+              <div className="grid grid-cols-2 gap-4 bg-gray-50 rounded-lg">
                 <div>
-                  <span className="text-sm font-medium text-gray-700">
-                    Color:
-                  </span>
-                  <p className="text-sm text-gray-600">{detail.color}</p>
+                  <span className="text-sm font-medium text-gray-700">Size:</span>
+                  <p className="text-sm text-gray-600">{detail.equipment.size}</p>
                 </div>
-              )}
-
-              {/* Gender */}
-              <div>
-                <span className="text-sm font-medium text-gray-700">
-                  Gender:
-                </span>
-                <p className="text-sm text-gray-600 capitalize">
-                  {detail.gender}
-                </p>
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Color:</span>
+                  <p className="text-sm text-gray-600">{detail.equipment.color}</p>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Gender:</span>
+                  <p className="text-sm text-gray-600">{detail.equipment.gender}</p>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Equipment ID:</span>
+                  <p className="text-sm text-gray-600">{detail.equipment.equipmentId}</p>
+                </div>
               </div>
+            )}
 
-              {/* ID */}
-              <div>
-                <span className="text-sm font-medium text-gray-700">
-                  {type === "equipment" ? "Equipment ID:" : "Supplement ID:"}
-                </span>
-                <p className="text-sm text-gray-600">{detail.id}</p>
+            {/* Supplement Details */}
+            {detail.supplement && (
+              <div className="grid grid-cols-2 gap-4 p-4 bg-purple-50 rounded-lg">
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Size:</span>
+                  <p className="text-sm text-gray-600">{detail.supplement.size}</p>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Flavor:</span>
+                  <p className="text-sm text-gray-600">{detail.supplement.flavor}</p>
+                </div>
+                <div className="col-span-2">
+                  <span className="text-sm font-medium text-gray-700">Ingredients:</span>
+                  <p className="text-sm text-gray-600">{detail.supplement.ingredient}</p>
+                </div>
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Supplement ID:</span>
+                  <p className="text-sm text-gray-600">{detail.supplement.supplementId}</p>
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Categories */}
-            <div className="flex flex-wrap gap-2">
-              {detail.categoryIds &&
-                detail.categoryIds.map((categoryId) => (
+            <div className="flex justify-between items-center flex-wrap gap-2 w-full bg-gray-50 rounded-lg p-3 group">
+              <div className="flex flex-wrap gap-2">
+                {detail.equipment.categories.map((category) => (
                   <span
-                    key={categoryId}
-                    className={`px-3 py-1 ${
-                      type === "equipment"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-purple-100 text-purple-800"
-                    } rounded-full text-sm font-medium`}
+                    key={category.categoryId}
+                    className="px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-sm font-medium"
+                    title={category.description}
                   >
-                    Category #{categoryId}
+                    {category.name}
                   </span>
                 ))}
+              </div>
+
+              {/* Stock */}
+              <div className="flex items-center space-x-2">
+                <div className={`w-3 h-3 rounded-full group-hover:animate-ping ${detail.stock > 0 ? 'bg-green-400' : 'bg-red-400'}`} />
+                <div className="text-sm text-gray-700">
+                  {detail.stock > 0 ? `${detail.stock}+ pcs. in stock` : 'Out of stock'}
+                </div>
+              </div>
             </div>
 
-            {/* Rating */}
-            <div className="flex items-center space-x-2">
-              <Rating rating={product.rating || 0} />
-            </div>
 
-            {/* Price Container */}
-            <div className="flex flex-col mb-4 space-y-3 text-center md:text-left">
-              {isPromotionActive && discountedPrice ? (
-                <>
-                  <div className="flex items-center space-x-2">
-                    <p className="line-through text-gray-500 text-lg">
-                      ${price.toFixed(2)}
+
+            {/* Supplement Categories */}
+            {detail.supplement?.categories && (
+              <div className="flex flex-wrap gap-2">
+                {detail.supplement.categories.map((category) => (
+                  <span
+                    key={category.categoryId}
+                    className="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm font-medium"
+                    title={category.description}
+                  >
+                    {category.name}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            <div className="flex justify-between items-center mb-4">
+              {/* Rating */}
+              <div className="flex items-center space-x-2">
+                <Rating rating={detail.rating} />
+              </div>
+
+              {/* Price */}
+              <div className="text-right">
+                <p className="text-sm text-gray-500 font-medium">Price:</p>
+
+                {isPromotionActive && discountedPrice ? (
+                  <>
+                    <div className="flex items-center space-x-2 justify-end">
+                      <p className="line-through text-gray-500 text-lg">${detail.price}</p>
+                      <span className="bg-red-500 text-white px-2 py-1 rounded text-sm">
+                        -{detail.promotion.discount}%
+                      </span>
+                    </div>
+                    <p className="text-2xl font-bold text-green-600">${discountedPrice.toFixed(2)}</p>
+                    <p className="text-xs font-light text-gray-400">
+                      {detail.promotion.name} - until {new Date(detail.promotion.endDate).toLocaleDateString()}
                     </p>
-                    <span className="bg-red-500 text-white px-2 py-1 rounded text-sm">
-                      -{promotion.discount}%
-                    </span>
-                  </div>
-                  <p className="text-4xl font-bold text-green-600">
-                    ${discountedPrice.toFixed(2)}
-                  </p>
-                  <p className="text-sm font-light text-gray-400">
-                    {promotion.name} - Valid until{" "}
-                    {new Date(promotion.endDate * 1000).toLocaleDateString()}
-                  </p>
-                </>
-              ) : (
-                <p className="text-4xl font-bold text-gray-800">
-                  ${price.toFixed(2)}
-                </p>
-              )}
+                  </>
+                ) : (
+                  <p className="text-2xl font-bold text-gray-800">${detail.price}</p>
+                )}
+              </div>
             </div>
+
+
 
             {/* Quantity Selector */}
-            <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
-                Quantity:
-              </span>
+            <div className="flex items-center justify-between bg-gray-50 rounded-lg">
+              <span className="text-sm font-medium text-gray-700">Quantity:</span>
               <div className="flex items-center space-x-3">
                 <button
                   onClick={() => handleQuantityChange(-1)}
@@ -265,93 +247,48 @@ function ProductModal({ type, id }) {
                 >
                   -
                 </button>
-                <span className="w-12 text-center font-medium text-lg">
-                  {quantity}
-                </span>
+                <span className="w-12 text-center font-medium text-lg">{quantity}</span>
                 <button
                   onClick={() => handleQuantityChange(1)}
-                  disabled={quantity >= product.stock}
+                  disabled={quantity >= detail.stock}
                   className="w-8 h-8 flex items-center justify-center bg-gray-200 rounded-full hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
                 >
                   +
                 </button>
               </div>
               <div className="text-sm text-gray-500">
-                Max: {product.stock || 0}
+                Max: {detail.stock}
               </div>
             </div>
 
             {/* Total Price */}
-            <div className="flex justify-between items-center p-4 bg-gray-100 rounded-lg">
+            <div className="flex justify-between items-center py-4 bg-gray-100 rounded-lg">
               <span className="text-lg font-medium text-gray-700">Total:</span>
               <span className="text-2xl font-bold text-gray-800">
                 ${(currentPrice * quantity).toFixed(2)}
               </span>
             </div>
 
-            {/* Supplier Info */}
-            {product.supplier && (
-              <div className="flex items-center p-3 bg-gray-50 rounded-lg space-x-3">
-                {product.supplier.image && (
-                  <ApiImage
-                    imageId={product.supplier.image.storedName}
-                    alt={product.supplier.name}
-                    className="w-12 h-12 rounded-full object-cover"
-                  />
-                )}
-                <div className="flex-1">
-                  <p className="text-sm text-gray-700">
-                    <span className="font-medium">Supplier:</span>{" "}
-                    {product.supplier.name}
-                  </p>
-                  <p className="text-sm text-gray-600">
-                    Contact: {product.supplier.contact}
-                  </p>
-                  <p className="text-xs text-gray-500">
-                    Address: {product.supplier.address}
-                  </p>
-                </div>
-              </div>
-            )}
 
             {/* Button Group */}
             <div className="group">
               <button
                 onClick={handleAddToCart}
-                className={`w-full transition-all duration-150 text-white border-b-8 rounded-lg group-hover:border-t-8 group-hover:border-b-0 group-hover:shadow-lg ${
-                  type === "supplement"
-                    ? "bg-purple-700 border-b-purple-700 group-hover:bg-purple-700 group-hover:border-t-purple-700"
-                    : "bg-blue-700 border-b-blue-700 group-hover:bg-blue-700 group-hover:border-t-blue-700"
-                }`}
-                disabled={!product.stock || product.stock === 0}
-              >
-                <div
-                  className={`px-8 py-4 duration-150 rounded-lg ${
-                    type === "supplement"
-                      ? "bg-purple-500 group-hover:bg-purple-700"
-                      : "bg-blue-500 group-hover:bg-blue-700"
+                className={`w-full transition-all duration-150 text-white border-b-8 rounded-lg group-hover:border-t-8 group-hover:border-b-0 group-hover:shadow-lg ${type === "supplement"
+                  ? "bg-purple-700 border-b-purple-700 group-hover:bg-purple-700 group-hover:border-t-purple-700"
+                  : "bg-blue-700 border-b-blue-700 group-hover:bg-blue-700 group-hover:border-t-blue-700"
                   }`}
-                >
-                  {product.stock > 0
-                    ? `Add ${quantity} to cart`
-                    : "Out of Stock"}
+                disabled={!detail.stock || detail.stock === 0}
+              >
+                <div className={`px-8 py-4 duration-150 rounded-lg ${type === "supplement"
+                  ? "bg-purple-500 group-hover:bg-purple-700"
+                  : "bg-blue-500 group-hover:bg-blue-700"
+                  }`}>
+                  {detail.stock > 0 ? `Add ${quantity} to cart` : "Out of Stock"}
                 </div>
               </button>
             </div>
 
-            {/* Stock */}
-            <div className="flex items-center space-x-3 group">
-              <div
-                className={`w-3 h-3 rounded-full group-hover:animate-ping ${
-                  (product.stock || 0) > 0 ? "bg-green-400" : "bg-red-400"
-                }`}
-              ></div>
-              <div className="text-sm">
-                {(product.stock || 0) > 0
-                  ? `${product.stock}+ pcs. in stock`
-                  : "Out of stock"}
-              </div>
-            </div>
           </div>
         </div>
       </div>

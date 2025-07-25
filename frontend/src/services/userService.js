@@ -1,34 +1,32 @@
-import { api, apiAuth, successResponse, failResponse } from "./baseApi.js";
+import api from "./baseApi.js";
 // import { createApiResponse, createApiError } from "./baseApi.js";
 
 // User Api Functions
 export const createUser = async (userData) => {
   try {
     const result = await api.post("/identity/user/create", userData);
-    return successResponse(result);
+    return {
+      success: true,
+      data: result.data,
+    };
   } catch (error) {
-    return failResponse(error);
+    return {
+      success: false,
+      errors: error.response?.data || { Exception: error.message || "Unknown error" },
+    };
   }
 };
-
-export const loginUser = async (data) => {
-  try {
-    const result = await api.post("/auth/login", data, {
-      headers: {
-        "X-Device-Type": "MOBILE",
-      },
-    });
-     return successResponse(result);
-  } catch (error) {
-    return failResponse(error);
-  }
-};
-
 export const getUserByUsername = async (username) => {
   try {
-    const result = await apiAuth.get(`identity/user/username/${username}`);
-     return successResponse(result);
+    const result = await api.get(`/identity/user/username/${username}`);
+    return {
+      success: true,
+      data: result.data, // chứa user info + role
+    };
   } catch (error) {
-    return failResponse(error);
+    return {
+      success: false,
+      errors: error.response?.data || { Exception: error.message },
+    };
   }
 };

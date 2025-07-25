@@ -14,13 +14,7 @@ import {
   faMinus,
   faTrash,
   faTimesCircle,
-  faCheckCircle,
-  faLock,
-  faSignInAlt,
-  faUserPlus,
-  faArrowLeft,
-  faChevronDown,
-  faExclamationTriangle
+  faCheckCircle
 } from "@fortawesome/free-solid-svg-icons"; // Solid icons : fas
 import {
   faBell,
@@ -39,10 +33,7 @@ import {
 
 // Add icons to library
 library.add(faAnglesLeft, faAnglesRight);
-library.add(faHome, faUser, faDownLong, faShoppingCart, faXmark,
-  faStar, faPlus, faMinus, faTrash, faTimesCircle, faCheckCircle,
-  faLock, faSignInAlt, faUserPlus, faArrowLeft,faChevronDown, faExclamationTriangle
-);
+library.add(faHome, faUser, faDownLong, faShoppingCart, faXmark, faStar, faPlus, faMinus, faTrash, faTimesCircle, faCheckCircle);
 library.add(faFacebook, faFacebookMessenger, faXTwitter, faWhatsapp);
 library.add(faApplePay, faPaypal);
 library.add(faFacebookF, faGooglePlusG, faGooglePlay);
