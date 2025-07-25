@@ -68,7 +68,7 @@
                  productCardDTO.setImage(product.getImage().getStoredName());
              }
 
-             // discount & check Date
+              discount & check Date
              if (product.getPromotion() != null) {
                  Promotion promotion = product.getPromotion();
                  Instant now = Instant.now();
@@ -174,7 +174,7 @@
              dto.setImage(product.getImage().getStoredName());
          }
 
-         // Discount
+          Discount
          if (product.getPromotion() != null) {
              var promotion = product.getPromotion();
              Instant now = Instant.now();
