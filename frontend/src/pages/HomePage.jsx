@@ -6,39 +6,64 @@ import AnyWhereImage from "../assets/images/icon-access-anywhere.svg";
 import SecurityImage from "../assets/images/icon-security.svg";
 import CollaborationImage from "../assets/images/icon-collaboration.svg";
 import AnyFileImage from "../assets/images/icon-any-file.svg";
-import useEquipmentStore from "../stores/useEquipmentStore";
-import useSupplementStore from "../stores/useSupplementStore";
 import useExerciseStore from "../stores/useExerciseStore";
 import ExerciseLinkCard from "../components/exercises/ExerciseLinkCard";
+import { getProductTopCards } from "../services/productService";
+import { useEffect, useState } from "react";
 
 function HomePage() {
   // get best products, workouts from API
-  const { bestEquipments } = useEquipmentStore();
-  const { bestSupplements } = useSupplementStore();
   const { bestExercises } = useExerciseStore();
+
+  const [bestEquipments, setBestEquipments] = useState([]);
+  const [bestSupplements, setBestSupplements] = useState([]);
+
+  // Api
+  const fetchTopCards = async () => {
+    const result = await getProductTopCards(4);
+    return result.data;
+  };
+
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const products = await fetchTopCards();
+        const equipments = products.filter((p) => p.type === "equipment");
+        const supplements = products.filter((p) => p.type === "supplement");
+        setBestEquipments(equipments);
+        setBestSupplements(supplements);
+      } catch (error) {
+        console.error("Can't not load data: ", error);
+      }
+    };
+    loadData();
+  }, []);
 
   return (
     <MainLayout>
-      <section id="hero" className="py-10">
-        <div className="container mx-auto flex flex-col lg:flex-row items-center justify-center px-6 gap-10">
-          {/* Content Left */}
-          <div className="lg:w relative flex flex-col items-start gap-y-6">
-            <h1 className="text-3xl lg:text-4xl font-bold text-left">
+      <section id="hero">
+        {/* <!-- Container For Image & Content --> */}
+        <div className="container flex flex-col-reverse mx-auto p-6 lg:flex-row lg:mb-0">
+          {/* <!-- Content --> */}
+          <div className="flex flex-col space-y-10 lg:mt-16 lg:w-1/2">
+            <div className="text-2xl font-semibold text-center lg:text-6xl lg:text-left">
               A Simple Application for home workouts
-            </h1>
-            <p className="text-gray-500 text-left text-[18px] leading-relaxed max-w-lg">
+            </div>
+            <div className="max-w-md mx-auto text-sm text-center text-gray-400 lg:text-2xl lg:text-left lg:mt-0 lg:mx-0">
               <i>
-                Fitmate is a user-friendly application designed to help you track your
-                fitness journey, monitor your progress, and discover new fitness products
-                that suit your needs. Whether you're a beginner or an experienced fitness
-                enthusiast, Fitmate has something for everyone.
+                Fitmate is a user-friendly application designed to help you
+                track your fitness journey, monitor your progress, and discover
+                new fitness products that suit your needs. Whether you're a
+                beginner or an experienced fitness enthusiast, Fitmate has
+                something for everyone.
               </i>
-            </p>
+            </div>
 
-            <div className="flex space-x-4 mt-4">
+            {/* <!-- Buttons Container --> */}
+            <div className="flex items-center justify-center w-full space-x-4 lg:justify-start">
               <a
                 href="#"
-                className="p-4 text-sm font-semibold text-white bg-sky-400 rounded-md shadow-md border-2 border-sky-200 hover:bg-white hover:text-[#000]"
+                className="p-4 text-sm font-semibold text-white bg-sky-400 rounded shadow-md border-2 border-sky-200 md:text-base hover:bg-white hover:text-sky-200"
               >
                 Get It On Google Play
                 <FontAwesomeIcon
@@ -49,20 +74,20 @@ function HomePage() {
               </a>
               <a
                 href="/login"
-                className="p-4 text-sm font-semibold text-black bg-gray-300 rounded-md shadow-md border-2 border-gray-300 hover:bg-white hover:text-gray-600"
+                className="p-4 text-sm font-semibold text-black bg-gray-300 rounded shadow-md border-2 border-gray-300 md:text-base hover:bg-white hover:text-gray-600"
               >
                 Login to Your Account
               </a>
             </div>
           </div>
 
-
-          {/* Image Right */}
-          <div className="lg:w-1/2 flex justify-center">
+          {/* <!-- Image --> */}
+          <div className="relative mx-auto lg:mx-0 lg:mb-0 lg:w-1/2">
+            <div className="bg-hero"></div>
             <img
               src={HomeImage}
-              alt="Workout"
-              className="rounded-2xl shadow-lg w-full max-w-lg"
+              alt=""
+              className="relative z-10 lg:top-24 xl:top-0 overflow-x-visible rounded-4xl shadow-lg"
             />
           </div>
         </div>
@@ -77,16 +102,17 @@ function HomePage() {
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
           {bestEquipments.length > 0 ? (
             bestEquipments.map((p, index) => (
-              <LinkCard
+             <LinkCard
                 key={p.id || index}
-                type="equipment"
+                type={p.type}
                 id={p.id}
                 name={p.name}
+                image={p.image}
                 price={p.price}
                 discount={p.discount}
                 stock={p.stock}
-                image={p.image}
                 rating={p.rating}
+                detailId={p.detailId}
               />
             ))
           ) : (
@@ -107,14 +133,15 @@ function HomePage() {
             bestSupplements.map((p, index) => (
               <LinkCard
                 key={p.id || index}
-                type="supplement"
+                type={p.type}
                 id={p.id}
                 name={p.name}
+                image={p.image}
                 price={p.price}
                 discount={p.discount}
                 stock={p.stock}
-                image={p.image}
                 rating={p.rating}
+                detailId={p.detailId}
               />
             ))
           ) : (
@@ -223,7 +250,7 @@ function HomePage() {
           <h2 className="px-3 mb-6 text-3xl font-semibold text-center text-gray-800 md:text-4xl">
             Stay up-to-date with what we're doing
           </h2>
-          <form className="flex flex-col items-start justify-center max-w-2xl mx-auto mt-6 space-y-6 text-base px-6 md:flex-row md:space-y-0 md:space-x-4 md:px-0">
+          <form className="flex flex-col items-start justify-center max-w-2xl mx-auto mt-3 space-y-6 text-base px-6 md:flex-row md:space-y-0 md:space-x-4 md:px-0">
             <div className="flex flex-col justify-between items-center mx-auto md:flex-row md:mx-0">
               <input
                 type="text"
@@ -233,7 +260,7 @@ function HomePage() {
 
               <input
                 type="submit"
-                className="inline-flex px-6 py-3 font-semibold text-center text-white duration-200 transform rounded-lg cursor-pointer focus:outline-none bg-[#0D5EA6] hover:opacity-90"
+                className="inline-flex px-6 py-3 font-semibold text-center text-white duration-200 transform rounded-lg cursor-pointer focus:outline-none bg-orange-500 hover:opacity-90"
                 value="Contact Us"
               />
             </div>

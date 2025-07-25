@@ -2,8 +2,9 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import useCartStore from '../../stores/useCartStore';
 import { useNavigate } from 'react-router-dom';
+import ApiImage from '../ui/ApiImage';
 
-function CartModal({onClose }) {
+function CartModal({onClose}) {
   const {
     cart,
     getTotal,
@@ -14,7 +15,6 @@ function CartModal({onClose }) {
     clearCart
   } = useCartStore();
   const navigate = useNavigate();
-
 
   const total = getTotal();
   const totalItems = getTotalItems();
@@ -53,8 +53,8 @@ function CartModal({onClose }) {
                 <div key={item.id || index} className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
                   {/* Product Image */}
                   <div className="flex-shrink-0">
-                    <img
-                      src={item.image}
+                    <ApiImage
+                      imageId={item.image}
                       alt={item.name}
                       className="w-20 h-20 object-cover rounded-lg"
                     />
@@ -63,7 +63,7 @@ function CartModal({onClose }) {
                   {/* Product Info */}
                   <div className="flex-1">
                     <h3 className="font-semibold text-gray-800 mb-1">{item.name}</h3>
-                    <p className="text-sm text-gray-500 mb-3">
+                    <p className="text-sm text-gray-500 mb-2">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${
                         item.type === 'equipment'
                           ? 'bg-blue-100 text-blue-800'
@@ -72,7 +72,25 @@ function CartModal({onClose }) {
                         {item.type === 'equipment' ? 'Equipment' : 'Supplement'}
                       </span>
                     </p>
-                    <p className="text-lg font-bold text-gray-800">${item.price}</p>
+
+                    {/* Price with Promotion Display */}
+                    <div className="flex items-center space-x-2">
+                      {item.discount && item.discount > 0 ? (
+                        <>
+                          <p className="text-sm text-gray-500 line-through">
+                            ${item.originalPrice?.toFixed(2) || item.price.toFixed(2)}
+                          </p>
+                          <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                            -{(item.discount * 100).toFixed(0)}%
+                          </span>
+                          <p className="text-lg font-bold text-green-600">${item.price.toFixed(2)}</p>
+                        </>
+                      ) : (
+                        <p className="text-lg font-bold text-gray-800">${item.price.toFixed(2)}</p>
+                      )}
+                    </div>
+
+                    <p className="text-xs text-gray-500">Stock: {item.stock}</p>
                   </div>
 
                   {/* Quantity Controls */}
@@ -96,6 +114,11 @@ function CartModal({onClose }) {
                   {/* Subtotal */}
                   <div className="text-right">
                     <p className="font-bold text-gray-800">${(item.price * item.quantity).toFixed(2)}</p>
+                    {item.discount && item.discount > 0 && (
+                      <p className="text-xs text-green-600">
+                        You save: ${((item.originalPrice || item.price) * item.discount * item.quantity).toFixed(2)}
+                      </p>
+                    )}
                   </div>
 
                   {/* Remove Button */}
@@ -114,6 +137,27 @@ function CartModal({onClose }) {
         {/* Footer */}
         {cart.length > 0 && (
           <div className="border-t border-gray-200 p-6 bg-gray-50">
+            {/* Savings Summary */}
+            {cart.some(item => item.discount && item.discount > 0) && (
+              <div className="mb-4 p-3 bg-green-50 rounded-lg border border-green-200">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-green-800">
+                    <FontAwesomeIcon icon={['fas', 'tag']} className="mr-2" />
+                    Total Savings:
+                  </span>
+                  <span className="text-lg font-bold text-green-600">
+                    ${cart.reduce((savings, item) => {
+                      if (item.discount && item.discount > 0) {
+                        const originalPrice = item.originalPrice || (item.price / (1 - item.discount));
+                        return savings + ((originalPrice - item.price) * item.quantity);
+                      }
+                      return savings;
+                    }, 0).toFixed(2)}
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Total */}
             <div className="flex justify-between items-center mb-4">
               <span className="text-xl font-bold text-gray-800">Total:</span>
@@ -130,8 +174,8 @@ function CartModal({onClose }) {
               </button>
               <button
                 onClick={() => {
-                  // Handle checkout logic here
-                  navigate("/cart");
+                  navigate("/user/checkout");
+                  onClose();
                 }}
                 className="flex-1 py-3 px-4 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
               >

@@ -1,62 +1,81 @@
-import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import LoginImage from "../../assets/images/login_image.jpg";
 import { Link, useNavigate } from "react-router-dom";
-import { loginUser } from "../../services/authService";
-import { getUserByUsername } from "../../services/userService";
+import { getUserByUsername, loginUser } from "../../services/userService";
 import { useNotification } from "../ui/Notification";
+import useUserStore from "../../stores/useUserStore";
 
 const LoginForm = () => {
+  const { setUser } = useUserStore();
   const navigate = useNavigate();
   const { showNotification, NotificationContainer } = useNotification();
+  // handle Login action
+  const handleLogin = async (values, { setSubmitting }) => {
+    const requestData = {
+      username: values.username,
+      password: values.password,
+    };
+
+    // login to get token
+
+    const tokenResult = await loginUser(requestData);
+    if (tokenResult.success) {
+      const token = tokenResult.data.token;
+      localStorage.setItem("authToken", token);
+
+      // get username and role from User by username
+
+      const userResult = await getUserByUsername(requestData.username);
+      if (userResult.success) {
+        const user = {
+          username: userResult?.data.username,
+          role: userResult?.data.role.role,
+          id: userResult?.data.id
+        };
+        setUser(user);
+
+        showNotification(
+          `Login successful! Welcome ${requestData.username}`,
+          "success",
+          2000
+        );
+
+        setTimeout(() => {
+          navigate("/");
+        }, 2000);
+      } else {
+        showNotification(
+          `Can't not get role of account: ${requestData.username}\n
+          ${userResult.errors}
+          `,
+          "warning",
+          2000
+        );
+      }
+    } else {
+      // console.log(JSON.stringify(tokenResult?.errors))
+      showNotification(
+        "Login failed,\nPlease check username and password again!",
+        "error"
+      );
+      setSubmitting(false);
+    }
+  };
   return (
     <>
-    <NotificationContainer />
-    <Formik
-      initialValues={{ username: "", password: "", remember: false }}
-      validationSchema={Yup.object({
-        username: Yup.string().required("Username is required"),
-        password: Yup.string()
-          .min(6, "Password must be at least 6 characters")
-          .required("Password is required"),
-      })}
-      onSubmit={async (values, { setSubmitting }) => {
-        const credentials = {
-          username: values.username,
-          password: values.password,
-        };
-
-        const result = await loginUser(credentials);
-        if (result.success && result.data?.data?.token) {
-          const { token, refreshToken } = result.data.data;
-         
-          localStorage.setItem("authToken", token);
-          localStorage.setItem("refreshToken", refreshToken);
-          const userInfo = await getUserByUsername(credentials.username);
-          if (userInfo.success) {
-            const userData = userInfo.data?.data;
-            localStorage.setItem("userId", userData.id);
-            const roleName = userInfo.data?.data?.role?.role || "";
-            if (roleName === "USER") {
-              showNotification("Login Successfully!", "success");
-              navigate("/");
-            }
-          } else {
-            showNotification("Login succeeded but failed to get user info", "error");
-          }
-        } else {
-          showNotification(
-            `Login failed: ${result.errors?.errors?.Exception || "Unknown error"}`,
-            "error"
-          );
-        }
-
-        setSubmitting(false);
-        //  toast.success(`Login Successfully!`);
-      }}
-    >
-      {() => (
-        
+      <NotificationContainer />
+      {/* Card Container */}
+      {/* Form */}
+      <Formik
+        initialValues={{ username: "", password: "" }}
+        validationSchema={Yup.object({
+          username: Yup.string().required("Username is required"),
+          password: Yup.string().required("Password is required"),
+        })}
+        onSubmit={handleLogin}
+      >
         <Form className="space-y-6 mt-4">
           <div>
             <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -115,12 +134,9 @@ const LoginForm = () => {
           >
             Log In
           </button>
-
         </Form>
-      )}
-    </Formik>
+      </Formik>
     </>
-    
   );
 };
 

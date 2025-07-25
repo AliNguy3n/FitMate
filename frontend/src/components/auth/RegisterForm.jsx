@@ -1,40 +1,43 @@
 import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { useNavigate } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import LoginImage from "../../assets/images/login_image.jpg";
+import { Link, useNavigate } from "react-router-dom";
 import { createUser } from "../../services/userService";
 import { useNotification } from "../ui/Notification";
 
-const RegisterForm = () => {
+function RegisterForm() {
   const navigate = useNavigate();
   const { showNotification, NotificationContainer } = useNotification();
 
+  // handle Resister Action
   const handleRegister = async (values, { setSubmitting }) => {
-    try {
-      const userData = {
-        username: values.username,
-        password: values.password,
-        email: values.email,
-        firstName: values.firstName,
-        lastName: values.lastName,
-        gender: values.gender === "male" ? 1 : 0,
-        phone: values.phone,
-        dob: values.dob,
-        address: values.address,
-      };
+    const userData = {
+      username: values.username,
+      password: values.password,
+      email: values.email,
+      firstName: values.firstName,
+      lastName: values.lastName,
+      gender: values.gender == "male" ? 1 : 0,
+      phone: values.phone,
+      dob: values.dob,
+      address: values.address,
+    };
 
-      const result = await createUser(userData);
-
-      if (result?.success) {
-        showNotification("Please check your email to activate your account!", "success");
-        navigate("/login");
-      } else {
-        showNotification(`Error: ${result?.errors?.Exception || "Unknown error"}`, "error");
-        setSubmitting(false);
-      }
-    } catch (error) {
-      console.error("API Error:", error);
-      showNotification("Something went wrong. Please try again later.", "error");
+    const resultCreate = await createUser(userData);
+    if (resultCreate.success) {
+      showNotification(
+        `Hello ${resultCreate?.firstName} ${resultCreate?.lastName},\n
+        Please, go to your email(${resultCreate?.email}) to complete created account!`,
+        "warning",
+        5000
+      );
+      navigate("/login");
+    } else {
+      const exception = resultCreate.errors?.Exception;
+      console.log(exception);
+      showNotification(`Please check your input data!\n${exception}`, "error");
       setSubmitting(false);
     }
   };
@@ -42,7 +45,7 @@ const RegisterForm = () => {
   return (
     <>
       <NotificationContainer />
-      <Formik
+       <Formik
         initialValues={{
           username: "",
           password: "",
@@ -139,6 +142,6 @@ const RegisterForm = () => {
       </Formik>
     </>
   );
-};
+}
 
 export default RegisterForm;
