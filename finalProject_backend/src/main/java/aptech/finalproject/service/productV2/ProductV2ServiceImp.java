@@ -83,7 +83,6 @@
              if(productCardDTO.getDiscount() == null){
                  productCardDTO.setDiscount(0f);
              }
-
              // categoryIds
              if ("equipment".equals(product.getType()) && product.getEquipment() != null) {
                  var eId = product.getEquipment().getId();
@@ -191,7 +190,6 @@
          if(dto.getDiscount() == null){
              dto.setDiscount(0f);
          }
-
 
          // Category & DetailId
          if ("equipment".equals(product.getType()) && product.getEquipment() != null) {

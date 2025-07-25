@@ -3,7 +3,7 @@ import ProductModal from "./ProductModal";
 import Modal from "../ui/Modal";
 
 function ProductCard({product}) {
-  // product: (id, name, image, price, discount, rate, type, categoryIds)
+  // product: (id, name, image, price, discount, rate, type)
 
   // handles Product Modal
   const [modalIsOpen, setModalIsOpen] = useState(false);

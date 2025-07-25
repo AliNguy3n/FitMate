@@ -226,23 +226,23 @@ public class PaymentController {
         return "Payment canceled.";
     }
 
-//    @PostMapping("/order")
-//    public ResponseEntity<?> createOrder(@RequestBody @Valid OrderRequest request,
-//            @AuthenticationPrincipal CustomUserPrincipal userPrincipal) {
-//
-//        User user = userRepository.findById(userPrincipal.getId())
-//                .orElseThrow(() -> new RuntimeException("User not found"));
-//
-//        Order order = new Order();
-//        order.setOrderDate(request.getOrderDate() != null ? request.getOrderDate() : Instant.now());
-//        order.setStatus(request.getStatus() != null ? request.getStatus() : false);
-//        order.setDelivered(request.getDelivered() != null ? request.getDelivered() : false);
-//        order.setTotalAmount(request.getTotalAmount());
-//        order.setUser(user);
-//
-//        orderRepository.save(order);
-//
-//        return ResponseEntity.ok(Map.of("orderId", order.getId()));
-//    }
+   @PostMapping("/order")
+   public ResponseEntity<?> createOrder(@RequestBody @Valid OrderRequest request,
+           @AuthenticationPrincipal CustomUserPrincipal userPrincipal) {
+
+       User user = userRepository.findById(userPrincipal.getId())
+               .orElseThrow(() -> new RuntimeException("User not found"));
+
+       Order order = new Order();
+       order.setOrderDate(request.getOrderDate() != null ? request.getOrderDate() : Instant.now());
+       order.setStatus(request.getStatus() != null ? request.getStatus() : false);
+       order.setDelivered(request.getDelivered() != null ? request.getDelivered() : false);
+       order.setTotalAmount(request.getTotalAmount());
+       order.setUser(user);
+
+       orderRepository.save(order);
+
+       return ResponseEntity.ok(Map.of("orderId", order.getId()));
+   }
 
 }

@@ -88,7 +88,7 @@ const store = (set, get) => ({
 });
 
 // store cart to LocalStorage
-const useCartStore = create(persist(store, { name: "cart-store" }));
+const useCartStore = create(persist(store, { name: "cart" }));
 
 export default useCartStore;
 

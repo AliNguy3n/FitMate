@@ -1,165 +1,126 @@
+import React from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import LoginImage from "../../assets/images/login_image.jpg";
 import { Link, useNavigate } from "react-router-dom";
-import { getUserByUsername, loginUser } from "../../services/userService";
+import { loginUser } from "../../services/authService";
+import { getUserByUsername } from "../../services/userService";
 import { useNotification } from "../ui/Notification";
-import useUserStore from "../../stores/useUserStore";
 
 const LoginForm = () => {
-  const { setUser } = useUserStore();
   const navigate = useNavigate();
   const { showNotification, NotificationContainer } = useNotification();
-  // handle Login action
-  const handleLogin = async (values, { setSubmitting }) => {
-    const requestData = {
-      username: values.username,
-      password: values.password,
-    };
-
-    // login to get token
-
-    const tokenResult = await loginUser(requestData);
-    if (tokenResult.success) {
-      const token = tokenResult.data.token;
-      localStorage.setItem("authToken", token);
-
-      // get username and role from User by username
-
-      const userResult = await getUserByUsername(requestData.username);
-      if (userResult.success) {
-        const user = {
-          username: userResult?.data.username,
-          role: userResult?.data.role.role,
-        };
-        setUser(user);
-
-        showNotification(
-          `Login successful! Welcome ${requestData.username}`,
-          "success",
-          2000
-        );
-
-        setTimeout(() => {
-          navigate("/");
-        }, 2000);
-      } else {
-        showNotification(
-          `Can't not get role of account: ${requestData.username}\n
-          ${userResult.errors}
-          ` ,
-          "warning",
-          2000
-        );
-      }
-    } else {
-      // console.log(JSON.stringify(tokenResult?.errors))
-      showNotification(
-        "Login failed,\nPlease check username and password again!",
-        "error"
-      );
-      setSubmitting(false);
-    }
-  };
   return (
     <>
-      <NotificationContainer />
-      {/* Card Container */}
-      <div className="flex flex-col m-6 space-y-10 bg-white shadow-2xl rounded-2xl md:flex-row md:space-y-0 md:m-0">
-        {/* Left Side */}
-        <div className="p-6 md:p-20">
-          <div className="mb-5 text-4xl font-bold">Sign In</div>
-          <div className="max-w-sm mb-5 py-4 font-light text-gray-600">
-            Log in to your account to get products or track your progress about
-            exercises and meals. If you don't had an account, please{" "}
-            <Link className="text-sky-800" to={"/register"}>
-              <b>register</b>
-            </Link>{" "}
-            first.
-          </div>
-          <div className="flex flex-col space-x-0 space-y-0 md:flex-row md:space-x-4 md:space-y-0">
-            <button className="flex items-center justify-center py-2 space-x-3 border border-gray-300 rounded shadow-sm hover:bg-opacity-30 hover:shadow-lg hover:-transition-y-0 5 transition duration-150 md:w-1/2">
-              <a href="#">
-                <FontAwesomeIcon
-                  icon={["fab", "facebook-f"]}
-                  size="3x"
-                  color="blue"
-                />
-              </a>
-              <p>with Facebook</p>
-            </button>
-            <button className="flex items-center justify-center py-2 space-x-3 border border-gray-300 rounded shadow-sm hover:bg-opacity-30 hover:shadow-lg hover:-transition-y-0 5 transition duration-150 md:w-1/2">
-              <a href="#">
-                <FontAwesomeIcon
-                  icon={["fab", "google-plus-g"]}
-                  size="3x"
-                  color="#C70039"
-                />
-              </a>
-              <p>with Google</p>
-            </button>
+    <NotificationContainer />
+    <Formik
+      initialValues={{ username: "", password: "", remember: false }}
+      validationSchema={Yup.object({
+        username: Yup.string().required("Username is required"),
+        password: Yup.string()
+          .min(6, "Password must be at least 6 characters")
+          .required("Password is required"),
+      })}
+      onSubmit={async (values, { setSubmitting }) => {
+        const credentials = {
+          username: values.username,
+          password: values.password,
+        };
+
+        const result = await loginUser(credentials);
+        if (result.success && result.data?.data?.token) {
+          const { token, refreshToken } = result.data.data;
+         
+          localStorage.setItem("authToken", token);
+          localStorage.setItem("refreshToken", refreshToken);
+          const userInfo = await getUserByUsername(credentials.username);
+          if (userInfo.success) {
+            const userData = userInfo.data?.data;
+            localStorage.setItem("userId", userData.id);
+            const roleName = userInfo.data?.data?.role?.role || "";
+            if (roleName === "USER") {
+              showNotification("Login Successfully!", "success");
+              navigate("/");
+            }
+          } else {
+            showNotification("Login succeeded but failed to get user info", "error");
+          }
+        } else {
+          showNotification(
+            `Login failed: ${result.errors?.errors?.Exception || "Unknown error"}`,
+            "error"
+          );
+        }
+
+        setSubmitting(false);
+        //  toast.success(`Login Successfully!`);
+      }}
+    >
+      {() => (
+        
+        <Form className="space-y-6 mt-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Username
+            </label>
+            <Field
+              name="username"
+              type="text"
+              placeholder="Enter your username"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md bg-blue-50 focus:outline-none"
+            />
+            <ErrorMessage
+              name="username"
+              component="div"
+              className="text-red-600 text-sm mt-1"
+            />
           </div>
 
-          <div className="mt-12 border-b border-b-gray-300"></div>
-
-          <div className="mb-2 text-center text-2xl">
-            <i>or with your email and password</i>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Password
+            </label>
+            <Field
+              name="password"
+              type="password"
+              placeholder="Enter your password"
+              className="w-full px-4 py-2 border border-gray-300 rounded-md bg-blue-50 focus:outline-none"
+            />
+            <ErrorMessage
+              name="password"
+              component="div"
+              className="text-red-600 text-sm mt-1"
+            />
           </div>
 
-          {/* Form */}
-          <Formik
-            initialValues={{ username: "", password: "" }}
-            validationSchema={Yup.object({
-              username: Yup.string().required("Username is required"),
-              password: Yup.string().required("Password is required"),
-            })}
-            onSubmit={handleLogin}
+          <div className="flex items-center justify-between">
+            <label className="flex items-center text-sm text-gray-600">
+              <Field
+                type="checkbox"
+                name="remember"
+                className="form-checkbox rounded text-blue-500"
+              />
+              <span className="ml-2">Remember me</span>
+            </label>
+            <Link
+              to="/recover-password"
+              className="text-sm text-blue-600 underline"
+            >
+              Forget Password?
+            </Link>
+          </div>
+
+          <button
+            type="submit"
+            className="w-full p-3 font-semibold text-white bg-blue-600 rounded-md hover:bg-blue-700 transition"
           >
-            <Form>
-              <Field
-                name="username"
-                type="text"
-                placeholder="Enter your Username"
-                className="w-full p-6 border mb-2 border-gray-300 rounded-md placeholder:font-light"
-              />
-              <div className="mb-6 text-red-600">
-                <ErrorMessage name="username" />
-              </div>
+            Log In
+          </button>
 
-              <Field
-                name="password"
-                type="password"
-                placeholder="Enter your Password"
-                className="w-full p-6 border mb-2 border-gray-300 rounded-md placeholder:font-light"
-              />
-              <div className="mb-6 text-red-600">
-                <ErrorMessage name="password" />
-              </div>
-
-              <div className="flex flex-col items-center justify-between mt-6 space-y-6 md:flex-row md:space-y-0">
-                <a href="#" className="font-thin text-cyan-700">
-                  Forgot password
-                </a>
-                <button
-                  type="submit"
-                  className="w-full md:width-auto p-6 font-bold text-white border rounded-md shadow-lg px-9 bg-cyan-700 shadow-cyan-100 hover:bg-sky-500 hover:shadow-2xl"
-                >
-                  Login
-                </button>
-              </div>
-            </Form>
-          </Formik>
-        </div>
-
-        {/* Right Side */}
-        <img
-          src={LoginImage}
-          alt="Login Right Side Image"
-          className="w-[430px] hidden md:block"
-        />
-      </div>
+        </Form>
+      )}
+    </Formik>
     </>
+    
   );
 };
 

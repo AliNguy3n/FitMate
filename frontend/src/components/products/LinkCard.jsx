@@ -2,20 +2,8 @@ import Rating from "../ui/Rating";
 import { useState } from "react";
 import Modal from "../ui/Modal";
 import ProductModal from "./ProductModal";
-import ApiImage from "../ui/ApiImage";
 
-function LinkCard({
-  type,
-  id,
-  name,
-  image,
-  price,
-  discount,
-  stock,
-  rating,
-  categories,
-  detailId
-}) {
+function LinkCard({ type, id, name, image, price, discount, stock, rating, categories }) {
   const sale = discount > 0 ? price - (price * discount) / 100 : null;
   // const link =
   //   type === "equipment" ? "/equipments/" + id : "/supplements/" + id;
@@ -30,16 +18,16 @@ function LinkCard({
     <>
       {/* Product Modal */}
       <Modal isOpen={modalIsOpen} onClose={closeModal}>
-        <ProductModal id={detailId} type={type} />
+        <ProductModal id={id} type={type} />
       </Modal>
-      <div className="relative group flex flex-col bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden h-96">
+      <div className="relative group flex flex-col bg-white rounded-2xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 overflow-hidden h-[400px]">
         {/* Image Container */}
-        <div className="relative h-56 overflow-hidden">
+        <div className="relative h-[250px] overflow-hidden">
           <button onClick={openModal}>
-            <ApiImage
-              imageId={image}
+            <img
+              className="object-cover h-full w-full transition-transform duration-500 group-hover:scale-110"
+              src={image}
               alt={name}
-              className="object-cover h-full w-full transition-transform"
             />
           </button>
 
@@ -52,11 +40,10 @@ function LinkCard({
 
           {/* Stock Status */}
           <div
-            className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold shadow-lg z-10 ${
-              stock > 0
+            className={`absolute top-3 right-3 px-3 py-1 rounded-full text-xs font-semibold shadow-lg z-10 ${stock > 0
                 ? "bg-green-100 text-green-800 border border-green-200"
                 : "bg-red-100 text-red-800 border border-red-200"
-            }`}
+              }`}
           >
             {stock > 0 ? `In Stock (${stock})` : "Out of Stock"}
           </div>
@@ -66,14 +53,12 @@ function LinkCard({
         </div>
 
         {/* Content Container */}
-        <div className="flex flex-col flex-1 p-4">
+        <div className="flex flex-col flex-1 px-4 pb-4 pt-2">
           {/* Product Name */}
-          <h3 className="text-lg font-bold text-gray-800 mb-2 line-clamp-2 group-hover:text-sky-600 transition-colors duration-200">
+          <h3 className="text-lg font-bold text-gray-800 mb-2 truncate group-hover:text-sky-600 transition-colors duration-200">
             {name}
           </h3>
 
-          {/* Product ID */}
-          <p className="text-xs text-gray-500 mb-3">ID: #{id}</p>
 
           {/* Categories Tags */}
           {categories && categories.length > 0 && (
@@ -81,14 +66,12 @@ function LinkCard({
               {categories.slice(0, 3).map((category, index) => (
                 <span
                   key={index}
-                  className={`px-2 py-1 rounded-full text-xs font-medium transition-colors duration-200 ${
-                    type === "equipment"
+                  className={`px-2 py-1 rounded-full text-xs font-medium transition-colors duration-200 ${type === "equipment"
                       ? "bg-blue-100 text-blue-700 hover:bg-blue-200"
                       : "bg-purple-100 text-purple-700 hover:bg-purple-200"
-                  }`}
+                    }`}
                 >
-                  {category.charAt(0).toUpperCase() +
-                    category.slice(1).replace("-", " ")}
+                  {category.charAt(0).toUpperCase() + category.slice(1).replace('-', ' ')}
                 </span>
               ))}
               {categories.length > 3 && (
@@ -116,17 +99,6 @@ function LinkCard({
                 </span>
               )}
             </div>
-
-            {/* Type Badge */}
-            <div
-              className={`px-3 py-1 rounded-full text-xs font-medium ${
-                type === "product"
-                  ? "bg-sky-100 text-sky-800"
-                  : "bg-purple-100 text-purple-800"
-              }`}
-            >
-              {type === "equipment" ? "Equipment" : "Supplement"}
-            </div>
           </div>
           {/* Rate */}
           <div>
@@ -135,11 +107,10 @@ function LinkCard({
 
           {/* Action Button */}
           <button
-            className={`w-full py-3 text-center font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-md ${
-              stock > 0
+            className={`w-full py-3 text-center font-semibold rounded-xl transition-all duration-200 transform hover:scale-105 shadow-md ${stock > 0
                 ? "bg-gradient-to-r from-sky-500 to-sky-600 hover:from-sky-600 hover:to-sky-700 text-white hover:shadow-lg"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+              }`}
             onClick={openModal}
           >
             {stock > 0 ? "Buy Now" : "Out of Stock"}
