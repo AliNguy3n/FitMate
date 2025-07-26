@@ -46,6 +46,8 @@ public class EquipmentServiceImpl implements EquipmentService{
             equipment.setEcategories(categories);
         }
 
+        product.setType("supplement");
+        productRepository.save(product);
         return equipmentMapper.toEquipmentResponse(equipmentRepository.save(equipment));
     }
 
