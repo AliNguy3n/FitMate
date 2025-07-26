@@ -44,7 +44,8 @@ public class SupplementServiceImpl implements SupplementService {
             List<SCategory> sCategories = sCategoryRepository.findAllById(supplementRequest.getScategoryIds());
             supplement.setScategories(sCategories);
         }
-
+        product.setType("equipment");
+        productRepository.save(product);
         return supplementMapper.toSupplementResponse(supplementRepository.save(supplement));
     }
 

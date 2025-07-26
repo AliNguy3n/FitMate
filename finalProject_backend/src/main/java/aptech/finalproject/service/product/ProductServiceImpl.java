@@ -18,8 +18,9 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 import java.util.stream.Collectors;
-
+import java.util.Random;
 @Service
 public class ProductServiceImpl implements ProductService {
     @Autowired private ProductRepository productRepository;
@@ -59,6 +60,8 @@ public class ProductServiceImpl implements ProductService {
             product.setSupplement(supplement);
         }
 
+        float rating =  getRandomRating();
+        product.setRating(rating);
         Product savedProduct = productRepository.save(product);
 
         return productMapper.toProductResponse(savedProduct);
@@ -146,6 +149,13 @@ public class ProductServiceImpl implements ProductService {
                 .stream()
                 .map(productMapper::toProductResponse)
                 .collect(Collectors.toList());
+    }
+
+    public float getRandomRating() {
+        double min = 0.0;
+        double max = 5.0;
+        double random = ThreadLocalRandom.current().nextDouble(min, max);
+        return Math.round(random * 10.0f) / 10.0f; // làm tròn 1 chữ số thập phân
     }
 
 }
