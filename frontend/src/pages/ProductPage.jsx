@@ -231,7 +231,7 @@ function ProductPage() {
           >
             All categories
           </button>
-          {categories.map((category) => (
+          {categories && categories.map((category) => (
             <button
               key={category.id}
               type="button"
