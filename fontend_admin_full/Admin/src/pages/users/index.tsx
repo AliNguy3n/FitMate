@@ -125,12 +125,12 @@ const ManageUsers = () => {
             </button>
           </form>
           <div className="flex flex-wrap gap-2">
-            <button
+            {/* <button
               type="button"
               className="btn bg-success/25 text-lg font-medium text-success hover:text-white hover:bg-success"
             >
               <i className="mgc_settings_3_line"></i>
-            </button>
+            </button> */}
             {/* <button
               type="button"
               className="btn bg-dark/25 text-sm font-medium text-slate-900 dark:text-slate-200/70 hover:text-white hover:bg-dark/90"

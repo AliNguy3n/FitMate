@@ -42,6 +42,7 @@ const Orders = () => {
 
   const fetchOrders = async () => {
     const res = await api.get("/api/order");
+    console.log("Orders Data:", res);
     return res.data.data || [];
   };
 

@@ -121,4 +121,8 @@ public class OrderDetailServiceImpl implements OrderDetailService{
         String role = user.getRole();
         return "ADMIN".equals(role) || "MANAGER".equals(role);
     }
+
+    public Long countOrderDetailsByProductId(Long productId) {
+        return orderDetailRepository.countByProductId(productId);
+    }
 }

@@ -4,6 +4,7 @@ package aptech.finalproject.dto.response.product;
 import lombok.*;
 
 import java.time.Instant;
+import java.util.List;
 
 @Setter
 @Getter

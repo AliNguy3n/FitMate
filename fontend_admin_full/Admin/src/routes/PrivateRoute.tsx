@@ -19,7 +19,7 @@ const PrivateRoute: React.FC<PrivateRouteProps> = ({ roles }) => {
 
   if (roles && roles.length > 0 && !roles.includes(loggedInUser.role)) {
     // Role not authorized
-    return <Navigate to={{ pathname: "/" }} />;;
+    return <Navigate to={{ pathname: "/admin/product/products" }} />;;
   }
 
   // Authorized

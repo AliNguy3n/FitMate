@@ -3,6 +3,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { PageBreadcrumb } from "../../components";
 import { APICore } from "../../helpers/api/apiCore";
 import config from "../../config";
+import { toast } from "react-hot-toast";
 
 const BASE_URL = config.API_URL;
 const api = new APICore();
@@ -25,10 +26,13 @@ const AddEditEquipment = () => {
   const [preview, setPreview] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ [key: string]: string }>({});
+  const [showDeletePopup, setShowDeletePopup] = useState(false);
+  const [exerciseCount, setExerciseCount] = useState<number>(0);
 
   useEffect(() => {
     if (isEdit) {
       fetchEquipment();
+      checkIfUsedInExercises();
     }
     // eslint-disable-next-line
   }, [id]);
@@ -56,8 +60,17 @@ const AddEditEquipment = () => {
     }
   };
 
+  const checkIfUsedInExercises = async () => {
+    try {
+      const res = await api.get(`/api/admin/equipment/${id}/exercise-count`);
+      setExerciseCount(res.data.data || 0);
+    } catch (err) {
+      console.error("Failed to check exercise count", err);
+    }
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, files } = e.target as any;
+    const { name, type, files, value } = e.target as any;
     if (type === "file") {
       setForm((prev) => ({
         ...prev,
@@ -92,7 +105,8 @@ const AddEditEquipment = () => {
       if (res?.data?.success === false && res?.data?.errors) {
         setErrors(res.data.errors);
       } else if (res?.data?.success === true) {
-        navigate("/admin/equipment");
+        toast.success("Saved successfully");
+        navigate("/admin/exercise/equipments");
       } else {
         setErrors({ submit: res?.data?.message || "Save failed" });
       }
@@ -104,6 +118,21 @@ const AddEditEquipment = () => {
       }
     } finally {
       setLoading(false);
+    }
+  };
+
+  const confirmDelete = async () => {
+    if (!id) return;
+    setLoading(true);
+    try {
+      await api.delete(`/api/admin/equipment/${id}`);
+      toast.success("Deleted successfully");
+      navigate("/admin/exercise/equipments");
+    } catch (err: any) {
+      toast.error(err?.response?.data?.message || "Delete failed");
+    } finally {
+      setLoading(false);
+      setShowDeletePopup(false);
     }
   };
 
@@ -160,6 +189,16 @@ const AddEditEquipment = () => {
                 >
                   Cancel
                 </button>
+                {isEdit && exerciseCount === 0 && (
+                  <button
+                    type="button"
+                    onClick={() => setShowDeletePopup(true)}
+                    className="btn bg-red-500 text-white"
+                    disabled={loading}
+                  >
+                    Delete
+                  </button>
+                )}
                 <button
                   type="submit"
                   className="btn bg-primary text-white"
@@ -168,10 +207,40 @@ const AddEditEquipment = () => {
                   {isEdit ? "Update" : "Create"}
                 </button>
               </div>
+              {isEdit && exerciseCount > 0 && (
+                <div className="text-sm text-gray-500 mt-2">
+                  ⚠ This equipment is linked to {exerciseCount} exercise{exerciseCount > 1 ? "s" : ""} and cannot be deleted.
+                </div>
+              )}
             </form>
           </div>
         </div>
       </div>
+
+      {showDeletePopup && (
+        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded shadow-lg w-[90%] max-w-md">
+            <h2 className="text-lg font-semibold mb-4">Confirm Deletion</h2>
+            <p>Are you sure you want to delete this equipment?</p>
+            <div className="flex justify-end gap-3 mt-6">
+              <button
+                className="btn bg-gray-300"
+                onClick={() => setShowDeletePopup(false)}
+                disabled={loading}
+              >
+                Cancel
+              </button>
+              <button
+                className="btn bg-red-500 text-white"
+                onClick={confirmDelete}
+                disabled={loading}
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </>
   );
 };

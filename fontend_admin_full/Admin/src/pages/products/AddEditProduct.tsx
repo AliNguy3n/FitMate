@@ -1,6 +1,6 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate, useParams } from "react-router-dom";
-import { PageBreadcrumb, FormInput } from "../../components";
+import { PageBreadcrumb } from "../../components";
 import { APICore } from "../../helpers/api/apiCore";
 import config from "../../config";
 import Select from "react-select";
@@ -15,10 +15,10 @@ const initialState = {
   description: "",
   price: "",
   stock: "",
-  rating: "",
+  rating: "5",
   image: null as File | null,
   supplierId: "",
-  promotionId: "",
+  promotions: "",
   equipmentId: "",
   supplementId: "",
 };
@@ -55,21 +55,13 @@ const AddEditProduct = () => {
           stock: data.stock?.toString() || "",
           rating: data.rating?.toString() || "5",
           image: null,
-          supplierId: data.supplierId?.toString() || "",
-          promotionId: data.promotion?.toString() || "",
-          equipmentId: data.equipmentId?.toString() || "",
-          supplementId: data.supplementId?.toString() || "",
+          supplierId: data.supplier?.toString() || "",
+          promotions: data.promotions?.[0]?.promotionId?.toString() || "",
+          equipmentId: data.equipment?.toString() || "",
+          supplementId: data.supplement?.toString() || "",
         });
         if (data.image) {
           setPreview(`${BASE_URL}/resources/${data.image}`);
-        }
-        if (data.promotion) {
-          const promoRes = await api.get(`/api/promotion/${data.promotion}`);
-          const promoData = promoRes.data.data;
-          setPromotions((prev) => {
-            if (prev.some((p) => String(p.id) === String(promoData.id))) return prev;
-            return [...prev, promoData];
-          });
         }
       });
     }
@@ -102,7 +94,7 @@ const AddEditProduct = () => {
     formData.append("rating", form.rating || "5");
     if (form.image) formData.append("image", form.image);
     if (form.supplierId) formData.append("supplierId", form.supplierId);
-    if (form.promotionId) formData.append("promotionId", form.promotionId);
+    if (form.promotions) formData.append("promotionId", form.promotions);
     if (form.equipmentId) formData.append("equipmentId", form.equipmentId);
     if (form.supplementId) formData.append("supplementId", form.supplementId);
 
@@ -131,11 +123,7 @@ const AddEditProduct = () => {
     }
   };
 
-  const {
-    getRootProps,
-    getInputProps,
-    isDragActive,
-  } = useDropzone({
+  const { getRootProps, getInputProps, isDragActive } = useDropzone({
     accept: { 'image/*': [] },
     multiple: false,
     onDrop: (acceptedFiles: File[]) => {
@@ -148,7 +136,10 @@ const AddEditProduct = () => {
   });
 
   const supplierOptions = suppliers.map((s) => ({ value: s.id, label: s.name }));
-  const promotionOptions = promotions.map((p) => ({ value: p.id, label: p.name }));
+  const promotionOptions = promotions.map((p) => ({
+    value: p.promotionId || p.id,
+    label: p.promotionName || p.name,
+  }));
   const equipmentOptions = equipments.map((e) => ({ value: e.id, label: e.name }));
   const supplementOptions = supplements.map((s) => ({ value: s.id, label: s.name }));
 
@@ -160,22 +151,15 @@ const AddEditProduct = () => {
         breadCrumbItems={["Fitmate", "Products", isEdit ? "Edit Product" : "Add Product"]}
       />
       <div className="col-span-12 mx-auto">
-        <form
-          className="card p-8 col-span-12 space-y-6"
-          onSubmit={handleSubmit}
-          encType="multipart/form-data"
-        >
+        <form className="card p-8 space-y-6" onSubmit={handleSubmit} encType="multipart/form-data">
           <h2 className="text-xl font-semibold mb-4">
             {isEdit ? "Edit Product" : "Add New Product"}
           </h2>
           {errors.submit && <div className="text-red-500">{errors.submit}</div>}
           <div>
-            <label className="block font-medium mb-1">
-              Product Name<span className="text-red-500">*</span>
-            </label>
+            <label className="block font-medium mb-1">Product Name<span className="text-red-500">*</span></label>
             <input
               type="text"
-              name="name"
               className="form-input w-full"
               value={form.name}
               onChange={(e) => setForm((prev) => ({ ...prev, name: e.target.value }))}
@@ -185,7 +169,6 @@ const AddEditProduct = () => {
           <div>
             <label className="block font-medium mb-1">Description</label>
             <textarea
-              name="description"
               className="form-input w-full"
               value={form.description}
               onChange={(e) => setForm((prev) => ({ ...prev, description: e.target.value }))}
@@ -196,7 +179,6 @@ const AddEditProduct = () => {
               <label className="block font-medium mb-1">Price<span className="text-red-500">*</span></label>
               <input
                 type="number"
-                name="price"
                 className="form-input w-full"
                 value={form.price}
                 onChange={(e) => setForm((prev) => ({ ...prev, price: e.target.value }))}
@@ -209,7 +191,6 @@ const AddEditProduct = () => {
               <label className="block font-medium mb-1">Stock<span className="text-red-500">*</span></label>
               <input
                 type="number"
-                name="stock"
                 className="form-input w-full"
                 value={form.stock}
                 onChange={(e) => setForm((prev) => ({ ...prev, stock: e.target.value }))}
@@ -222,48 +203,47 @@ const AddEditProduct = () => {
             <label className="block font-medium mb-1">Image</label>
             <div {...getRootProps()} className="border border-dashed border-gray-400 p-4 rounded cursor-pointer hover:bg-gray-100">
               <input {...getInputProps()} />
-              {isDragActive ? <p>Drop the image here ...</p> : <p>Drag 'n' drop an image here, or click to select one</p>}
+              {isDragActive ? <p>Drop the image here ...</p> : <p>Drag 'n' drop or click to upload</p>}
               {preview && <img src={preview} alt="Preview" className="mt-2 rounded w-32 h-32 object-cover" />}
             </div>
           </div>
           <div>
             <label className="block font-medium mb-1">Supplier</label>
             <Select
-              name="supplierId"
-              className="basic-single"
-              classNamePrefix="select"
               options={supplierOptions}
-              onChange={(option) => setForm((prev) => ({ ...prev, supplierId: option?.value || "" }))}
+              value={supplierOptions.find(opt => opt.value === Number(form.supplierId))}
+              onChange={(opt) => setForm((prev) => ({ ...prev, supplierId: opt?.value.toString() || "" }))}
               isClearable
             />
-            {errors.supplierId && <div className="text-red-500">{errors.supplierId}</div>}
           </div>
           <div>
             <label className="block font-medium mb-1">Promotion</label>
-            {form.promotionId ? (
-              (() => {
-                const promo = promotions.find((p) => String(p.id) === String(form.promotionId));
-                const formatDate = (timestamp: number) => new Date(timestamp * 1000).toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh", year: "numeric", month: "2-digit", day: "2-digit" });
-                const price = Number(form.price) || 0;
-                const discount = Number(promo?.discount) || 0;
-                const finalPrice = price * (1 - discount);
-                return promo ? (
-                  <div className="border rounded p-3 bg-gray-50">
-                    <div className="font-semibold text-primary">{promo.name}</div>
-                    <div className="text-sm">Discount: <span className="font-medium">{discount * 100}%</span></div>
-                    <div className="text-sm">Start: {formatDate(promo.startDate)}</div>
-                    <div className="text-sm">End: {formatDate(promo.endDate)}</div>
-                    <div className="text-sm mt-2">
-                      <span className="font-medium">Final Price: </span>
-                      <span className="text-green-600 font-semibold">{finalPrice.toLocaleString()} $</span>
-                    </div>
-                  </div>
-                ) : <div className="text-gray-400">No promotion info</div>;
-              })()
-            ) : <div className="text-gray-400">No promotion applied</div>}
+            <Select
+              options={promotionOptions}
+              value={promotionOptions.find(opt => opt.value === Number(form.promotions))}
+              onChange={(opt) => setForm((prev) => ({ ...prev, promotions: opt?.value.toString() || "" }))}
+              isClearable
+            />
+            {(() => {
+              const promo = promotions.find(p => String(p.promotionId || p.id) === String(form.promotions));
+              if (!promo) return <div className="text-gray-400">No promotion selected</div>;
+              const price = Number(form.price) || 0;
+              const discount = Number(promo.discountOverride || promo.discount || 0);
+              const finalPrice = price * (1 - discount);
+              const formatDate = (timestamp: number) => new Date(timestamp * 1000).toLocaleString("vi-VN");
+              return (
+                <div className="mt-2 p-3 border rounded bg-gray-50 text-sm">
+                  <div><strong>Promotion:</strong> {promo.promotionName || promo.name}</div>
+                  <div>Discount: {discount * 100}%</div>
+                  <div>Start: {formatDate(promo.startDate)}</div>
+                  <div>End: {formatDate(promo.endDate)}</div>
+                  <div className="mt-1 text-green-600 font-medium">Final Price: {finalPrice.toLocaleString()} $</div>
+                </div>
+              );
+            })()}
           </div>
           <div className="flex justify-end gap-2">
-            <button type="button" className="btn bg-gray-200 text-gray-700" onClick={() => navigate("/admin/product/products")} disabled={loading}>Cancel</button>
+            <button type="button" className="btn bg-gray-200" onClick={() => navigate("/admin/product/products")}>Cancel</button>
             <button type="submit" className="btn bg-primary text-white" disabled={loading}>
               {loading ? (isEdit ? "Saving..." : "Saving...") : (isEdit ? "Update" : "Save")}
             </button>

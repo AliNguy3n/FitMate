@@ -12,4 +12,6 @@ public interface AdminEquipmentService {
     List<EquipmentsResponse> getAllEquipments();
     List<EquipmentsResponse> searchEquipmentsByName(String name);
     void deleteEquipment(int id);
+
+    Long countExercisesByEquipmentId(int equipmentId);
 }

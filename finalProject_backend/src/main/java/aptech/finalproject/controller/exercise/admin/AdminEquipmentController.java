@@ -77,4 +77,10 @@ public class AdminEquipmentController {
         equipmentService.deleteEquipment(id);
         return ApiResponse.noContent(String.format("Deleted equipment with id %s", id));
     }
+
+    @GetMapping("/{id}/exercise-count")
+    public ApiResponse<Long> countExercisesByEquipment(@PathVariable int id) {
+        long count = equipmentService.countExercisesByEquipmentId(id);
+        return ApiResponse.ok(count, "Number of exercises linked to equipment " + id);
+    }
 }

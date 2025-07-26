@@ -6,24 +6,38 @@ const api = new APICore();
 
 const Finance = () => {
   const [stats, setStats] = useState<any>(null);
+  const [dailyStats, setDailyStats] = useState<any>(null);
+  const [yearlyStats, setYearlyStats] = useState<any>(null);
   const [payments, setPayments] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Lấy thống kê tài chính tháng hiện tại
     const now = new Date();
     const year = now.getFullYear();
     const month = now.getMonth() + 1;
+    const day = now.toISOString().split("T")[0];
+
     Promise.all([
       api.get(`/api/finance/orders/month?year=${year}&month=${month}`),
+      api.get(`/api/finance/sales/day?date=${day}`),
+      api.get(`/api/finance/sales/year?year=${year}`),
       api.get(`/api/payment`),
     ])
-      .then(([financeRes, paymentRes]) => {
-        setStats(financeRes.data);
+      .then(([monthlyRes, dailyRes, yearlyRes, paymentRes]) => {
+        setStats(monthlyRes.data);
+        setDailyStats(dailyRes.data);
+        setYearlyStats(yearlyRes.data);
         setPayments(paymentRes.data.data || []);
+        console.log("Finance data loaded successfully", {
+          monthly: monthlyRes.data,
+          daily: dailyRes.data,
+          yearly: yearlyRes.data,
+          payments: paymentRes.data.data,
+        });
       })
       .finally(() => setLoading(false));
   }, []);
+
   return (
     <>
       <PageBreadcrumb
@@ -36,7 +50,7 @@ const Finance = () => {
           <div className="text-center py-10">Loading...</div>
         ) : (
           <>
-            {/* Tổng quan doanh thu */}
+            {/* Tổng quan doanh thu tháng */}
             <div className="card mb-6">
               <div className="p-6">
                 <h4 className="font-bold mb-2">Monthly Overview</h4>
@@ -48,6 +62,40 @@ const Finance = () => {
                   <div>
                     <div className="text-gray-500 text-sm">Total Sales</div>
                     <div className="text-xl font-bold">{stats?.totalSales?.toLocaleString()} $</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tổng quan doanh thu ngày */}
+            <div className="card mb-6">
+              <div className="p-6">
+                <h4 className="font-bold mb-2">Daily Overview</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <div>
+                    <div className="text-gray-500 text-sm">Order Count</div>
+                    <div className="text-xl font-bold">{dailyStats?.orderCount ?? 0}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 text-sm">Total Sales</div>
+                    <div className="text-xl font-bold">{dailyStats?.totalSales?.toLocaleString()} $</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Tổng quan doanh thu năm */}
+            <div className="card mb-6">
+              <div className="p-6">
+                <h4 className="font-bold mb-2">Yearly Overview</h4>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                  <div>
+                    <div className="text-gray-500 text-sm">Order Count</div>
+                    <div className="text-xl font-bold">{yearlyStats?.orderCount ?? 0}</div>
+                  </div>
+                  <div>
+                    <div className="text-gray-500 text-sm">Total Sales</div>
+                    <div className="text-xl font-bold">{yearlyStats?.totalSales?.toLocaleString()} $</div>
                   </div>
                 </div>
               </div>

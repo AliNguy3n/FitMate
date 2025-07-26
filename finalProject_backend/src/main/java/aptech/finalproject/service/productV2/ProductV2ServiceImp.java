@@ -68,20 +68,21 @@
                  productCardDTO.setImage(product.getImage().getStoredName());
              }
 
-              discount & check Date
-             if (product.getPromotion() != null) {
-                 Promotion promotion = product.getPromotion();
-                 Instant now = Instant.now();
-
-                 if (promotion.getStartDate().isBefore(now) && promotion.getEndDate().isAfter(now)) {
-                     productCardDTO.setDiscount(promotion.getDiscount());
-                 } else {
-                     productCardDTO.setDiscount(0f);
+             // discount & check Date
+             if (product.getProductPromotions() != null) {
+                 for (var promotion : product.getProductPromotions()) {
+                     Instant now = Instant.now();
+                     if (promotion.getStartDate() != null && promotion.getEndDate() != null) {
+                         if (promotion.getStartDate().isBefore(now) && promotion.getEndDate().isAfter(now)) {
+                             productCardDTO.setDiscount(promotion.getDiscountOverride());
+                         }
+                     }
                  }
-             } else {
-                 productCardDTO.setDiscount(0f);
              }
 
+             if(productCardDTO.getDiscount() == null){
+                 productCardDTO.setDiscount(0f);
+             }
              // categoryIds
              if ("equipment".equals(product.getType()) && product.getEquipment() != null) {
                  var eId = product.getEquipment().getId();
@@ -174,16 +175,19 @@
              dto.setImage(product.getImage().getStoredName());
          }
 
-          Discount
-         if (product.getPromotion() != null) {
-             var promotion = product.getPromotion();
-             Instant now = Instant.now();
-             if (!promotion.getStartDate().isAfter(now) && !promotion.getEndDate().isBefore(now)) {
-                 dto.setDiscount(promotion.getDiscount());
-             } else {
-                 dto.setDiscount(0f);
+         // Discount
+         if (product.getProductPromotions() != null) {
+             for (var promotion : product.getProductPromotions()) {
+                 Instant now = Instant.now();
+                 if (promotion.getStartDate() != null && promotion.getEndDate() != null) {
+                     if (promotion.getStartDate().isBefore(now) && promotion.getEndDate().isAfter(now)) {
+                         dto.setDiscount(promotion.getDiscountOverride());
+                     }
+                 }
              }
-         } else {
+         }
+
+         if(dto.getDiscount() == null){
              dto.setDiscount(0f);
          }
 

@@ -116,7 +116,7 @@ const Suppliers = () => {
                           >
                             <i className="mgc_edit_line text-lg"></i>
                           </Link>
-                          <a
+                          {/* <a
                             href={`/admin/product/supplier/delete/${s.id}`}
                             className="ms-2 text-red-600 disabled"
                             title="Delete"
@@ -125,7 +125,7 @@ const Suppliers = () => {
                             onClick={(e) => e.preventDefault()}
                           >
                             <i className="mgc_delete_line text-lg"></i>
-                          </a>
+                          </a> */}
                         </td>
                       </tr>
                     ))}

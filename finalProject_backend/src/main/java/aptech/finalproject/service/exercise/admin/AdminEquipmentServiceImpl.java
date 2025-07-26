@@ -8,6 +8,7 @@ import aptech.finalproject.exception.ApiException;
 import aptech.finalproject.exception.ErrorCode;
 import aptech.finalproject.mapper.exercise.EquipmentsMapper;
 import aptech.finalproject.repository.exercise.EquipmentsRepository;
+import aptech.finalproject.repository.exercise.ExercisesRepository;
 import aptech.finalproject.service.FileService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -29,7 +30,9 @@ public class AdminEquipmentServiceImpl implements AdminEquipmentService {
     @Autowired
     private FileService fileService;
 
-    
+    @Autowired
+    private ExercisesRepository exercisesRepository;
+
     @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
     public EquipmentsResponse createEquipment(EquipmentsRequest request) {
         EquipmentsModel equipment = equipmentsMapper.toEntity(request);
@@ -75,10 +78,11 @@ public class AdminEquipmentServiceImpl implements AdminEquipmentService {
 
     
     @PreAuthorize("hasAuthority('MANAGE_PRODUCTS')")
+    @Override
     public void deleteEquipment(int id) {
-        if (!equipmentsRepository.existsById(id)) {
-            throw new ApiException(ErrorCode.EQUIPMENT_NOT_FOUND);
-        }
+        EquipmentsModel equipment = equipmentsRepository.findById(id)
+                .orElseThrow(() -> new ApiException(ErrorCode.EQUIPMENT_NOT_FOUND));
+
         equipmentsRepository.deleteById(id);
     }
 
@@ -87,6 +91,10 @@ public class AdminEquipmentServiceImpl implements AdminEquipmentService {
         return equipmentsRepository.findByEquipmentNameContainingIgnoreCase(name).stream()
                 .map(equipmentsMapper::toResponse)
                 .collect(Collectors.toList());
+    }
+
+    public Long countExercisesByEquipmentId(int equipmentId) {
+        return exercisesRepository.countByEquipmentId(equipmentId);
     }
 }
 

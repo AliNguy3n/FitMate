@@ -20,10 +20,10 @@ const TopBarSearch = () => {
   return (
     <>
       <button type="button" className="nav-link p-2 me-auto" onClick={handleModal}>
-        <span className="sr-only">Search</span>
+        {/* <span className="sr-only">Search</span>
         <span className="flex items-center justify-center h-6 w-6">
           <i className="mgc_search_line text-2xl"></i>
-        </span>
+        </span> */}
       </button>
 
       <ModalLayout

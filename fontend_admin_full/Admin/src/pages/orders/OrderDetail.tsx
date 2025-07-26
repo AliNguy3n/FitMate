@@ -13,7 +13,7 @@ type OrderResponse = {
   totalAmount: number;
   status: boolean;
   delivered: boolean;
-  user: string;
+  user: string; // userId
   payment?: number;
 };
 
@@ -26,10 +26,6 @@ type UserResponse = {
   phone?: string;
 };
 
-type ProductImage = {
-  storedName: string;
-  relativePath: string;
-};
 
 type Supplier = {
   id: number;
@@ -39,7 +35,7 @@ type Supplier = {
 type Product = {
   id: number;
   name: string;
-  image?: ProductImage;
+  image?: string;
   supplier?: Supplier;
 };
 
@@ -48,7 +44,8 @@ type OrderDetailResponse = {
   quantity: number;
   unitPrice: number;
   subTotal: number;
-  product?: Product;
+  productId: number; 
+  product?: Product; 
 };
 
 const api = new APICore();
@@ -115,7 +112,7 @@ const OrderDetailOverview = ({
             </div>
             <div>
               <p className="text-sm text-gray-500">Total Amount</p>
-              <h5 className="font-medium text-gray-700">{order.totalAmount?.toLocaleString()} $</h5>
+              <h5 className="font-medium text-xl text-gray-700">{order.totalAmount?.toLocaleString()} $</h5>
             </div>
             <div>
               <p className="text-sm text-gray-500">Payment ID</p>
@@ -217,10 +214,10 @@ const OrderDetailTable = ({ details }: { details: OrderDetailResponse[] }) => (
           {Array.isArray(details) && details.length > 0 ? (
             details.map((item) => (
               <tr key={item.id}>
-                <td className="p-2 border text-center">
-                  {item.product?.image?.storedName ? (
+                <td className="px-4 py-2 border text-center">
+                  {item.product?.image? (
                     <img
-                      src={`${BASE_URL}/resources/${item.product.image.storedName}`}
+                      src={`${BASE_URL}/resources/${item.product.image}`}
                       alt={item.product.name}
                       style={{
                         width: 60,
@@ -268,31 +265,44 @@ const OrderDetail = () => {
   const [updating, setUpdating] = useState(false);
 
   useEffect(() => {
-    if (!id) return;
+  if (!id) return;
 
-    api
-      .get(`/api/order/${id}`)
-      .then((orderRes: any) => {
-        const orderData = orderRes.data.data;
-        setOrder(orderData);
+  api.get(`/api/order/${id}`).then((orderRes: any) => {
+    const orderData = orderRes.data.data;
+    setOrder(orderData);
 
-        if (orderData?.user) {
-          api
-            .get(`/identity/user/id/${orderData.user}`)
-            .then((userRes: any) => {
-              setUser(userRes.data.data);
-            });
-        }
+    if (orderData?.user) {
+      api.get(`/identity/user/id/${orderData.user}`).then((userRes: any) => {
+        setUser(userRes.data.data);
+      });
+    }
 
-        api.get(`/api/order-detail/order/${id}`).then((detailsRes: any) => {
-          const detailsData = Array.isArray(detailsRes.data.data)
-            ? detailsRes.data.data
-            : [detailsRes.data.data].filter(Boolean);
-          setDetails(detailsData);
-        });
-      })
-      .finally(() => setLoading(false));
-  }, [id]);
+    api.get(`/api/order-detail/order/${id}`).then(async (detailsRes: any) => {
+      const detailsData: OrderDetailResponse[] = Array.isArray(detailsRes.data.data)
+        ? detailsRes.data.data
+        : [detailsRes.data.data].filter(Boolean);
+
+      // Fetch product info separately
+      const enrichedDetails = await Promise.all(
+        detailsData.map(async (detail) => {
+          if (!detail.productId) return detail;
+          try {
+            const productRes = await api.get(`/api/product/id/${detail.productId}`);
+            return {
+              ...detail,
+              product: productRes.data.data,
+            };
+          } catch (error) {
+            console.warn("Failed to fetch product", detail.productId);
+            return detail;
+          }
+        })
+      );
+
+      setDetails(enrichedDetails);
+    });
+  }).finally(() => setLoading(false));
+}, [id]);
 
   const handleUpdateStatus = async (fields: Partial<OrderResponse>) => {
     if (!order || !id) {

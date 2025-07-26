@@ -12,17 +12,17 @@ export interface MenuItemTypes {
 }
 
 const MENU_ITEMS: MenuItemTypes[] = [
-  {
-    key: 'menu',
-    label: 'Menu',
-    isTitle: true,
-  },
-  {
-    key: 'dashboard',
-    label: 'Dashboard',
-    icon: 'mgc_home_3_line',
-    url: '/admin/dashboard',
-  },
+  // {
+  //   key: 'menu',
+  //   label: 'Menu',
+  //   isTitle: true,
+  // },
+  // {
+  //   key: 'dashboard',
+  //   label: 'Dashboard',
+  //   icon: 'mgc_home_3_line',
+  //   url: '/admin/dashboard',
+  // },
 
   {
     key: 'finance-title',

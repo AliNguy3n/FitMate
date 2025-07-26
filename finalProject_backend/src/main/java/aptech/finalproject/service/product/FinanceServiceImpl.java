@@ -31,8 +31,25 @@ public class FinanceServiceImpl implements FinanceService {
                 date.atStartOfDay().toInstant(java.time.ZoneOffset.UTC),
                 date.plusDays(1).atStartOfDay().toInstant(java.time.ZoneOffset.UTC)
         );
+
+        // Tính tổng doanh thu
+        BigDecimal totalSales = orders.stream()
+                .map(order -> order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Lấy danh sách sản phẩm bán chạy
+        List<FinanceResponse.TopProduct> topSellingProducts = getTopSellingProducts(10);
+
+        // Lấy danh sách sản phẩm có giá trị cao nhất
+        List<FinanceResponse.TopProduct> topValueProducts = getTopValueProducts(10);
+
+        // Tạo response
         FinanceResponse response = new FinanceResponse();
         response.setOrderCount(orders.size());
+        response.setTotalSales(totalSales);
+        response.setTopSellingProducts(topSellingProducts);
+        response.setTopValueProducts(topValueProducts);
+
         return response;
     }
 
@@ -42,12 +59,25 @@ public class FinanceServiceImpl implements FinanceService {
                 .with(WeekFields.ISO.weekOfYear(), week)
                 .with(WeekFields.ISO.dayOfWeek(), 1);
         LocalDate end = start.plusWeeks(1);
+
         List<Order> orders = orderRepository.findByOrderDateBetween(
                 start.atStartOfDay().toInstant(java.time.ZoneOffset.UTC),
                 end.atStartOfDay().toInstant(java.time.ZoneOffset.UTC)
         );
+
+        BigDecimal totalSales = orders.stream()
+                .map(order -> order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        List<FinanceResponse.TopProduct> topSellingProducts = getTopSellingProducts(10);
+        List<FinanceResponse.TopProduct> topValueProducts = getTopValueProducts(10);
+
         FinanceResponse response = new FinanceResponse();
         response.setOrderCount(orders.size());
+        response.setTotalSales(totalSales);
+        response.setTopSellingProducts(topSellingProducts);
+        response.setTopValueProducts(topValueProducts);
+
         return response;
     }
 
@@ -55,12 +85,25 @@ public class FinanceServiceImpl implements FinanceService {
     public FinanceResponse getOrderStatsByMonth(int year, int month) {
         LocalDate start = LocalDate.of(year, month, 1);
         LocalDate end = start.plusMonths(1);
+
         List<Order> orders = orderRepository.findByOrderDateBetween(
                 start.atStartOfDay().toInstant(java.time.ZoneOffset.UTC),
                 end.atStartOfDay().toInstant(java.time.ZoneOffset.UTC)
         );
+
+        BigDecimal totalSales = orders.stream()
+                .map(order -> order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        List<FinanceResponse.TopProduct> topSellingProducts = getTopSellingProducts(10);
+        List<FinanceResponse.TopProduct> topValueProducts = getTopValueProducts(10);
+
         FinanceResponse response = new FinanceResponse();
         response.setOrderCount(orders.size());
+        response.setTotalSales(totalSales);
+        response.setTopSellingProducts(topSellingProducts);
+        response.setTopValueProducts(topValueProducts);
+
         return response;
     }
 
@@ -70,11 +113,19 @@ public class FinanceServiceImpl implements FinanceService {
                 date.atStartOfDay().toInstant(java.time.ZoneOffset.UTC),
                 date.plusDays(1).atStartOfDay().toInstant(java.time.ZoneOffset.UTC)
         );
+
         BigDecimal totalSales = orders.stream()
                 .map(order -> order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        List<FinanceResponse.TopProduct> topSellingProducts = getTopSellingProducts(10);
+        List<FinanceResponse.TopProduct> topValueProducts = getTopValueProducts(10);
+
         FinanceResponse response = new FinanceResponse();
         response.setTotalSales(totalSales);
+        response.setTopSellingProducts(topSellingProducts);
+        response.setTopValueProducts(topValueProducts);
+
         return response;
     }
 
@@ -82,31 +133,59 @@ public class FinanceServiceImpl implements FinanceService {
     public FinanceResponse getSalesStatsByMonth(int year, int month) {
         LocalDate start = LocalDate.of(year, month, 1);
         LocalDate end = start.plusMonths(1);
+
         List<Order> orders = orderRepository.findByOrderDateBetween(
                 start.atStartOfDay().toInstant(java.time.ZoneOffset.UTC),
                 end.atStartOfDay().toInstant(java.time.ZoneOffset.UTC)
         );
+
         BigDecimal totalSales = orders.stream()
-                .map(Order::getTotalAmount)
+                .map(order -> order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        List<FinanceResponse.TopProduct> topSellingProducts = getTopSellingProducts(10);
+        List<FinanceResponse.TopProduct> topValueProducts = getTopValueProducts(10);
+
         FinanceResponse response = new FinanceResponse();
         response.setTotalSales(totalSales);
+        response.setTopSellingProducts(topSellingProducts);
+        response.setTopValueProducts(topValueProducts);
+
         return response;
     }
 
+
     @Override
     public FinanceResponse getSalesStatsByYear(int year) {
+        // Calculate start and end of the year
         LocalDate start = LocalDate.of(year, 1, 1);
         LocalDate end = start.plusYears(1);
+
+        // Log the date range for debugging
+        System.out.println("Yearly stats date range: " + start + " to " + end);
+
+        // Fetch orders within the date range
         List<Order> orders = orderRepository.findByOrderDateBetween(
                 start.atStartOfDay().toInstant(java.time.ZoneOffset.UTC),
                 end.atStartOfDay().toInstant(java.time.ZoneOffset.UTC)
         );
+
+        // Calculate total sales
         BigDecimal totalSales = orders.stream()
-                .map(Order::getTotalAmount)
+                .map(order -> order.getTotalAmount() != null ? order.getTotalAmount() : BigDecimal.ZERO)
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        // Fetch top products
+        List<FinanceResponse.TopProduct> topSellingProducts = getTopSellingProducts(10);
+        List<FinanceResponse.TopProduct> topValueProducts = getTopValueProducts(10);
+
+        // Create response
         FinanceResponse response = new FinanceResponse();
+        response.setOrderCount(orders.size()); // Set order count
         response.setTotalSales(totalSales);
+        response.setTopSellingProducts(topSellingProducts);
+        response.setTopValueProducts(topValueProducts);
+
         return response;
     }
 
@@ -120,6 +199,11 @@ public class FinanceServiceImpl implements FinanceService {
             top.setProductId(productId);
             top.setProductName(detail.getProduct().getName());
             top.setQuantitySold(top.getQuantitySold() + (detail.getQuantity() != null ? detail.getQuantity() : 0));
+            top.setTotalValue(top.getTotalValue() == null ? BigDecimal.ZERO : top.getTotalValue());
+            BigDecimal unitPrice = detail.getUnitPrice() != null ? BigDecimal.valueOf(detail.getUnitPrice()) : BigDecimal.ZERO;
+            int quantity = detail.getQuantity() != null ? detail.getQuantity() : 0;
+            BigDecimal value = unitPrice.multiply(BigDecimal.valueOf(quantity));
+            top.setTotalValue(top.getTotalValue().add(value));
             productMap.put(productId, top);
         }
         return productMap.values().stream()
@@ -142,6 +226,7 @@ public class FinanceServiceImpl implements FinanceService {
             int quantity = detail.getQuantity() != null ? detail.getQuantity() : 0;
             BigDecimal value = unitPrice.multiply(BigDecimal.valueOf(quantity));
             top.setTotalValue(top.getTotalValue().add(value));
+            top.setQuantitySold(top.getQuantitySold() + quantity);
             productMap.put(productId, top);
         }
         return productMap.values().stream()

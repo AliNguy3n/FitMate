@@ -72,4 +72,10 @@ public class OrderDetailController {
         orderDetailService.deleteOrderDetail(id);
         return ApiResponse.noContent("Deleted order detail with id " + id);
     }
+
+    @GetMapping("/count-by-product/{productId}")
+    public ApiResponse<Long> countOrderDetailsByProduct(@PathVariable Long productId) {
+        long count = orderDetailService.countOrderDetailsByProductId(productId);
+        return ApiResponse.ok(count, "Count of orders for product " + productId);
+    }
 }

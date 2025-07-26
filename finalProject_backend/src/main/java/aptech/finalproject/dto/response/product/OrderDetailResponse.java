@@ -25,4 +25,5 @@ public class OrderDetailResponse {
     private Long productId;
 
     private Long orderId;
+
 }

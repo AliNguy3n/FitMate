@@ -8,6 +8,7 @@ import aptech.finalproject.mapper.ProductMapper;
 import aptech.finalproject.service.product.ProductService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.MediaType;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
@@ -82,7 +83,13 @@ public class ProductController {
 
     @DeleteMapping("/{id}")
     public ApiResponse<ProductResponse> delete(@PathVariable Long id) {
-        productService.deleteProduct(id);
-        return ApiResponse.noContent(String.format("Deleted product with id %s", id));
+        try {
+            productService.deleteProduct(id);
+            return ApiResponse.noContent(String.format("Deleted product with id %s", id));
+        } catch (DataIntegrityViolationException e) {
+            return ApiResponse.badRequest("Cannot delete product due to related orders or constraints");
+        } catch (Exception e) {
+            return ApiResponse.badRequest("Unexpected error while deleting product");
+        }
     }
 }

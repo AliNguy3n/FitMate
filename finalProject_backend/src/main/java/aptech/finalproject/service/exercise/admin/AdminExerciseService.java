@@ -18,4 +18,5 @@ public interface AdminExerciseService {
     void deleteExercise(int id);
 
     List<ExercisesResponse> searchExercisesByName(String name);
+
 }

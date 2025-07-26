@@ -18,4 +18,5 @@ public interface OrderDetailService {
     OrderDetailResponse getOrderDetailById(Long id);
 
     List<OrderDetailResponse> getOrderDetailsByOrderId(Long orderId);
+    Long countOrderDetailsByProductId(Long productId);
 }

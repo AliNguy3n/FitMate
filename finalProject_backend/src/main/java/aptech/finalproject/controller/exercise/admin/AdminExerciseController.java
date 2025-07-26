@@ -66,4 +66,5 @@ public class AdminExerciseController {
         List<ExercisesResponse> results = exerciseService.searchExercisesByName(name);
         return ApiResponse.ok(results, "Exercises search result");
     }
+
 }

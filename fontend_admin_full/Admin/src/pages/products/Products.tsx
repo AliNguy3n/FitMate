@@ -35,6 +35,7 @@ const Products = () => {
   const [popupProduct, setPopupProduct] = useState<Product | null>(null);
   const [orderStats, setOrderStats] = useState<ProductOrderStats | null>(null);
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [productOrderCountMap, setProductOrderCountMap] = useState<{ [key: number]: number }>({});
 
   useEffect(() => {
     fetchProducts()
@@ -43,16 +44,28 @@ const Products = () => {
   }, []);
 
   useEffect(() => {
-    Promise.all([
-      fetchSuppliers(),
-      fetchEquipments(),
-      fetchSupplements(),
-    ]).then(([suppliers, equipments, supplements]) => {
-      setSupplierMap(Object.fromEntries(suppliers.map((s: any) => [s.id, s.name])));
-      setEquipmentMap(Object.fromEntries(equipments.map((e: any) => [e.id, e.name])));
-      setSupplementMap(Object.fromEntries(supplements.map((s: any) => [s.id, s.name])));
-    });
+    Promise.all([fetchSuppliers(), fetchEquipments(), fetchSupplements()]).then(
+      ([suppliers, equipments, supplements]) => {
+        setSupplierMap(Object.fromEntries(suppliers.map((s: any) => [s.id, s.name])));
+        setEquipmentMap(Object.fromEntries(equipments.map((e: any) => [e.id, e.name])));
+        setSupplementMap(Object.fromEntries(supplements.map((s: any) => [s.id, s.name])));
+      }
+    );
   }, []);
+
+  useEffect(() => {
+    if (products.length > 0) {
+      const fetchCounts = async () => {
+        const countMap: { [key: number]: number } = {};
+        for (const product of products) {
+          const count = await fetchProductOrderCount(product.id);
+          countMap[product.id] = count;
+        }
+        setProductOrderCountMap(countMap);
+      };
+      fetchCounts();
+    }
+  }, [products]);
 
   const fetchSuppliers = async () => {
     const res = await api.get("/api/supplier");
@@ -76,7 +89,6 @@ const Products = () => {
     return words.slice(0, maxWords).join(" ") + " ...";
   };
 
-  // Hàm lấy thống kê đơn hàng liên quan đến product
   const fetchOrderStats = async (productId: number) => {
     try {
       const res = await api.get(`/api/product/${productId}/order-stats`);
@@ -86,14 +98,21 @@ const Products = () => {
     }
   };
 
-  // Hàm mở popup xác nhận xóa
-  const handleDeleteConfirm = async (product: Product) => {
-    setPopupProduct(product);
-    setShowPopup(true);
-    await fetchOrderStats(product.id);
+  const fetchProductOrderCount = async (productId: number): Promise<number> => {
+    try {
+      const res = await api.get(`/api/order-detail/count-by-product/${productId}`);
+      return res.data.data || 0;
+    } catch {
+      return 0;
+    }
   };
 
-  // Hàm thực hiện xóa sau khi xác nhận
+  const handleDeleteConfirm = async (product: Product) => {
+    setPopupProduct(product);
+    await fetchOrderStats(product.id);
+    setShowPopup(true);
+  };
+
   const handleDeleteProduct = async (id: number) => {
     if (!popupProduct) return;
     setDeletingId(id);
@@ -103,34 +122,34 @@ const Products = () => {
       setShowPopup(false);
       setOrderStats(null);
       setPopupProduct(null);
-    } catch (err) {
-      alert("Delete failed!");
+    } catch (err: any) {
+      const errorMsg = err?.response?.data?.message || "Delete failed due to unknown error";
+      alert(errorMsg);
     } finally {
       setDeletingId(null);
     }
   };
 
-  // Sửa lại nút xóa trong Grid để gọi popup xác nhận
-  const getActionHtml = (p: Product, canDelete: boolean) => {
+  const getActionHtml = (p: Product) => {
+    const canDelete = (productOrderCountMap[p.id] ?? 0) === 0;
     return html(`
-      <span class="inline-flex" style="min-width:70px;max-width:140px;">
-        <a href="/admin/product/edit/${p.id}" class="me-2" title="Edit">
-          <i class="mgc_edit_line text-lg"></i>
-        </a>
-        ${
-          canDelete
-            ? `<button class="ms-2 text-red-600" title="Delete" onclick="window.handleDeleteProduct && window.handleDeleteProduct(${p.id})">
-                <i class="mgc_delete_line text-lg"></i>
-              </button>`
-            : `<a class="ms-2 disabled" title="Delete" tabindex="-1" aria-disabled="true" onclick="event.preventDefault();">
-                <i class="mgc_delete_line text-lg text-gray-300"></i>
-              </a>`
-        }
-      </span>
-    `);
+    <span class="inline-flex" style="min-width:70px;max-width:140px;">
+      <a href="/admin/product/edit/${p.id}" class="me-2" title="Edit">
+        <i class="mgc_edit_line text-lg"></i>
+      </a>
+      ${
+        canDelete
+          ? `<button class="ms-2 text-red-600" title="Delete" onclick="window.handleDeleteProduct && window.handleDeleteProduct(${p.id})">
+              <i class="mgc_delete_line text-lg"></i>
+            </button>`
+          : `<a class="ms-2 " title="Delete" tabindex="-1" aria-disabled="true" onclick="event.preventDefault();">
+              <i class="mgc_delete_line text-lg text-gray-300"></i>
+            </a>`
+      }
+    </span>
+  `);
   };
 
-  // Gán hàm mở popup vào window để gọi từ HTML string
   useEffect(() => {
     window.handleDeleteProduct = (id: number) => {
       const product = products.find((p) => p.id === id);
@@ -143,11 +162,13 @@ const Products = () => {
 
   return (
     <>
+      {/* Breadcrumb & Card */}
       <PageBreadcrumb
         name="Product Management"
         title="Product Management"
         breadCrumbItems={["Fitmate", "Products", "Products"]}
       />
+
       <div className="flex flex-col gap-6">
         <div className="card">
           <div className="card-header">
@@ -168,21 +189,12 @@ const Products = () => {
               <Grid
                 data={products.map((p) => {
                   const supplier = supplierMap[p.supplier ?? -1] || "";
-                  const equipment = equipmentMap[p.equipment ?? -1] || "";
-                  const supplement = supplementMap[p.supplement ?? -1] || "";
-
-                  const promotionText = (p.promotions || [])
-                    .map((promo) => promo.promotionName)
-                    .join(", ");
-
-                  const canDelete = true;
+                  const promotionText = (p.promotions || []).map((promo) => promo.promotionName).join(", ");
 
                   return [
                     p.id,
                     p.image
-                      ? html(
-                          `<img src="${IMAGE_BASE_URL + p.image}" alt="${p.name}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" />`
-                        )
+                      ? html(`<img src="${IMAGE_BASE_URL + p.image}" alt="${p.name}" style="width:80px;height:80px;object-fit:cover;border-radius:8px;" />`)
                       : "",
                     p.name,
                     truncateDescription(p.description),
@@ -190,7 +202,7 @@ const Products = () => {
                     p.stock,
                     supplier,
                     promotionText,
-                    getActionHtml(p, canDelete),
+                    getActionHtml(p),
                   ];
                 })}
                 columns={[
@@ -212,97 +224,27 @@ const Products = () => {
           </div>
         </div>
       </div>
-      {/* Popup xác nhận xóa */}
+
+      {/* Confirm Delete Popup */}
       {showPopup && popupProduct && (
         <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
           <div className="bg-white rounded shadow-lg p-6 w-full max-w-lg">
-            <h4 className="font-bold text-lg mb-2 text-red-600">
-              Confirm Delete Product
-            </h4>
+            <h4 className="font-bold text-lg mb-2 text-red-600">Confirm Delete Product</h4>
             <div className="mb-4">
-              <span>
-                Are you sure you want to delete product{" "}
-                <b>{popupProduct.name}</b>?
-              </span>
+              <span>Are you sure you want to delete product <b>{popupProduct.name}</b>?</span>
               <br />
               {orderStats ? (
                 orderStats.orderCount > 0 || orderStats.unpaidOrderCount > 0 ? (
-                  <div className="mt-2">
-                    <span className="text-red-500 font-semibold">
-                      There are {orderStats.orderCount} orders,{" "}
-                      {orderStats.orderDetailCount} products placed,
-                      {orderStats.paidOrderCount} paid orders and{" "}
-                      {orderStats.unpaidOrderCount} unpaid orders with this
-                      product!
-                    </span>
-                    <table className="min-w-full border mt-2">
-                      <thead>
-                        <tr className="bg-gray-100">
-                          <th className="p-2 border">Order Count</th>
-                          <th className="p-2 border">Order Detail Count</th>
-                          <th className="p-2 border">Paid Orders</th>
-                          <th className="p-2 border">Unpaid Orders</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td className="p-2 border">
-                            {orderStats.orderCount}
-                          </td>
-                          <td className="p-2 border">
-                            {orderStats.orderDetailCount}
-                          </td>
-                          <td className="p-2 border">
-                            {orderStats.paidOrderCount}
-                          </td>
-                          <td className="p-2 border">
-                            {orderStats.unpaidOrderCount}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
-                    <div className="mt-4 text-red-600 font-semibold">
-                      You cannot delete this product because there are related
-                      orders or unpaid orders.
-                    </div>
+                  <div className="mt-2 text-red-500 font-semibold">
+                    There are {orderStats.orderCount} orders, {orderStats.orderDetailCount} products placed, {orderStats.paidOrderCount} paid orders and {orderStats.unpaidOrderCount} unpaid orders with this product!
                   </div>
                 ) : (
-                  <div className="mt-2">
-                    <span className="text-green-600">
-                      There are no orders related to this product.
-                    </span>
-                    <table className="min-w-full border mt-2">
-                      <thead>
-                        <tr className="bg-gray-100">
-                          <th className="p-2 border">Order Count</th>
-                          <th className="p-2 border">Order Detail Count</th>
-                          <th className="p-2 border">Paid Orders</th>
-                          <th className="p-2 border">Unpaid Orders</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <tr>
-                          <td className="p-2 border">
-                            {orderStats.orderCount}
-                          </td>
-                          <td className="p-2 border">
-                            {orderStats.orderDetailCount}
-                          </td>
-                          <td className="p-2 border">
-                            {orderStats.paidOrderCount}
-                          </td>
-                          <td className="p-2 border">
-                            {orderStats.unpaidOrderCount}
-                          </td>
-                        </tr>
-                      </tbody>
-                    </table>
+                  <div className="mt-2 text-green-600">
+                    There are no orders related to this product.
                   </div>
                 )
               ) : (
-                <span className="text-green-600">
-                  There are no orders related to this product.
-                </span>
+                <span className="text-gray-500 text-sm mt-2">Loading order stats...</span>
               )}
             </div>
             <div className="flex justify-end gap-2 mt-4">
@@ -313,19 +255,19 @@ const Products = () => {
                   setOrderStats(null);
                   setPopupProduct(null);
                 }}
-                disabled={deletingId !== null}
+                
               >
                 Cancel
               </button>
-              {orderStats && orderStats.unpaidOrderCount === 0 && orderStats.orderCount === 0 && (
+              {
                 <button
                   className="btn bg-red-600 text-white"
                   onClick={() => handleDeleteProduct(popupProduct.id)}
-                  disabled={deletingId !== null}
+                  
                 >
                   {deletingId !== null ? "Deleting..." : "Delete"}
                 </button>
-              )}
+              }
             </div>
           </div>
         </div>

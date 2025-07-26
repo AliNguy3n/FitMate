@@ -159,5 +159,7 @@ public class AdminExerciseServiceImpl implements AdminExerciseService {
                 .map(exerciseMapper::toResponse)
                 .collect(Collectors.toList());
     }
+
+
 }
 

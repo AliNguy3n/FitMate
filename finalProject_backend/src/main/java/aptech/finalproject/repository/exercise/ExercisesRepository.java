@@ -15,4 +15,5 @@ public interface ExercisesRepository extends JpaRepository<ExercisesModel,Intege
     @Query("SELECT DISTINCT e FROM ExercisesModel e LEFT JOIN FETCH e.subCategory LEFT JOIN FETCH e.modes")
     List<ExercisesModel> findAllWithSubCategoryAndModes();
     List<ExercisesModel> findByExerciseNameContainingIgnoreCase(String name);
+    Long countByEquipmentId(int equipmentId);
 }
