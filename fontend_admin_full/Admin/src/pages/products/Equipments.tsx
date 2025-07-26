@@ -7,17 +7,20 @@ import config from "../../config";
 const BASE_URL = config.API_URL;
 const api = new APICore();
 
+type Product = {
+  id: number;
+  name: string;
+  image?: string;
+  supplier?: { name: string };
+};
+
 type Equipment = {
   id: number;
   size: number;
   color: string;
   gender: string;
-  product?: {
-    id: number;
-    name: string;
-    image?: { storedName: string; relativePath: string };
-    supplier?: { name: string };
-  };
+  productId: number;
+  product?: Product;
 };
 
 const PAGE_SIZE = 5;
@@ -34,7 +37,26 @@ const Equipments = () => {
   const fetchEquipments = async () => {
     try {
       const res = await api.get("/api/equipment");
-      setEquipments(res.data.data || []);
+      const equipmentsRaw: Equipment[] = res.data.data || [];
+      
+      // Nếu product chưa được gắn sẵn, ta fetch theo productId
+      const enrichedEquipments = await Promise.all(
+        equipmentsRaw.map(async (eq) => {
+          if (eq.productId) {
+            try {
+              const productRes = await api.get(`/api/product/id/${eq.productId}`);
+              console.log(`Fetched product for equipment ${eq.id}:`, productRes.data.data);
+              return { ...eq, product: productRes.data.data };
+            } catch (err) {
+              console.warn(`Failed to fetch product for equipment ${eq.id}`);
+              return eq;
+            }
+          }
+          return eq;
+        })
+      );
+
+      setEquipments(enrichedEquipments);
     } finally {
       setLoading(false);
     }
@@ -78,7 +100,7 @@ const Equipments = () => {
                       <th className="px-2 py-2 border">Color</th>
                       <th className="px-2 py-2 border">Gender</th>
                       <th className="px-2 py-2 border">Product</th>
-                      <th className="px-2 py-2 border">Supplier</th>
+                      
                       <th className="px-2 py-2 border">Action</th>
                     </tr>
                   </thead>
@@ -87,13 +109,9 @@ const Equipments = () => {
                       <tr key={e.id}>
                         <td className="px-2 py-2 border">{e.id}</td>
                         <td className="px-2 py-2 border">
-                          {e.product?.image?.storedName ? (
+                          {e.product?.image ? (
                             <img
-                              src={
-                                BASE_URL +
-                                "/resources/" +                                
-                                e.product.image.storedName
-                              }
+                              src={`${BASE_URL}/resources/${e.product.image}`}
                               alt={e.product.name}
                               style={{
                                 width: 60,
@@ -109,12 +127,8 @@ const Equipments = () => {
                         <td className="px-2 py-2 border">{e.size}</td>
                         <td className="px-2 py-2 border">{e.color}</td>
                         <td className="px-2 py-2 border">{e.gender}</td>
-                        <td className="px-2 py-2 border">
-                          {e.product ? e.product.name : ""}
-                        </td>
-                        <td className="px-2 py-2 border">
-                          {e.product?.supplier?.name || ""}
-                        </td>
+                        <td className="px-2 py-2 border">{e.product?.name || ""}</td>
+                        
                         <td className="px-2 py-2 border">
                           <Link
                             to={`/admin/product/equipment/edit/${e.id}`}
@@ -145,7 +159,6 @@ const Equipments = () => {
                     )}
                   </tbody>
                 </table>
-                {/* Pagination controls */}
                 <div className="flex justify-end items-center gap-2 mt-4">
                   <button
                     className="btn btn-sm bg-gray-200"

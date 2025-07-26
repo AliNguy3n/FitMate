@@ -20,8 +20,9 @@ public class EquipmentResponse {
 
     private String gender;
 
-    private Product product;
+    private Long productId;
 
     private List<Long> categoryIds; // change to categoryIds
+
 
 }
