@@ -32,3 +32,12 @@ export const getUserByUsername = async (username) => {
     return failResponse(error);
   }
 };
+
+export const updateUserById = async (id, newUserData) => {
+try {
+    const result = await apiAuth.put(`/identity/user/${id}`, newUserData);
+     return successResponse(result);
+  } catch (error) {
+    return failResponse(error);
+  }
+}

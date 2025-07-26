@@ -11,7 +11,7 @@ const createOrder = async (order) => {
 
 const createPayment = async (payment) => {
   try {
-    const result = await apiAuth.post("/api/order/create", payment);
+    const result = await apiAuth.post("/api/payment/create", payment);
     return successResponse(result);
   } catch (error) {
     return failResponse(error);
@@ -27,4 +27,13 @@ const createOrderDetail = async (detail) => {
   }
 };
 
-export { createOrder, createPayment, createOrderDetail };
+const getOrdersByUserId = async (userId) => {
+  try {
+    const result = await apiAuth.get(`/api/order/user/${userId}`);
+    return successResponse(result);
+  } catch (error) {
+    return failResponse(error);
+  }
+};
+
+export { createOrder, createPayment, createOrderDetail, getOrdersByUserId };

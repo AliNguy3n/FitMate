@@ -54,15 +54,3 @@ export const getProductTopCards = async (limit) => {
     return failResponse(error);
   }
 }
-
-//   {
-//     "id": 6,
-//     "name": "Adjustable Dumbbell Set",
-//     "image": "https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?w=400",
-//     "price": 299.99,
-//     "discount": 10,
-//     "rating": 2.1,
-//     "stock": 15,
-//     "type": "equipment",
-//     "categories": ["strength", "home-gym", "weights"] // can use id
-//   },

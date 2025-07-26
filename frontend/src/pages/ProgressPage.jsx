@@ -7,79 +7,148 @@ import DatePicker from "../components/DatePicker";
 function ProgressPage() {
   // handles Your Info Modal
   const [modalIsOpen, setModalIsOpen] = useState(false);
+  const [height, setHeight] = useState("");
+  const [weight, setWeight] = useState("");
+  const [age, setAge] = useState("");
+  const [history, setHistory] = useState([]);
+  const [currentHeight, setCurrentHeight] = useState(0);
+  const [currentWeight, setCurrentWeight] = useState(0);
+  const [currentAge, setCurrentAge] = useState(0);
+  const currentHeightParseToM = currentHeight / 100;
+  const bmi = currentWeight / (currentHeightParseToM * currentHeightParseToM);
+  const bodyfat = (1.20 * bmi) + (0.23 * currentAge) - 16.2;
+  const smm = bmi * 0.407;
+  const tbw = currentWeight * 0.6;
+  const bmr =
+    88.362 +
+    13.397 * currentWeight +
+    4.799 * currentHeight -
+    5.677 * currentAge;
+  const fatmass = currentWeight * (bodyfat / 100);
+  let status = "";
+  let color = "";
+
+  if (bmi < 16) {
+    status = "Severely underweight";
+    color = "text-blue-700";
+  } else if (bmi < 17) {
+    status = "Moderately underweight";
+    color = "text-blue-500";
+  } else if (bmi < 18.5) {
+    status = "Slightly underweight";
+    color = "text-blue-400";
+  } else if (bmi < 25) {
+    status = "Normal";
+    color = "text-green-600";
+  } else if (bmi < 30) {
+    status = "Overweight";
+    color = "text-yellow-600";
+  } else if (bmi < 35) {
+    status = "Obese Class I";
+    color = "text-orange-600";
+  } else if (bmi < 40) {
+    status = "Obese Class II";
+    color = "text-red-600";
+  } else {
+    status = "Obese Class III";
+    color = "text-red-800";
+  }
 
   const openModal = () => setModalIsOpen(true);
   const closeModal = () => setModalIsOpen(false);
 
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (!height || !weight || !age) return;
+
+    const today = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+    const newEntry = {
+      date: today,
+      height: parseFloat(height),
+      weight: parseFloat(weight),
+    };
+
+    // Cập nhật lịch sử
+    setHistory([newEntry, ...history]);
+    setCurrentHeight(parseFloat(height));
+    setCurrentWeight(parseFloat(weight));
+    setCurrentAge(parseInt(age));
+    setHeight("");
+    setWeight("");
+    setAge("");
+    closeModal();
+  };
+
   const formInfo = (
-    <div className="p-4">
-      {/* List history weight and height with time action */}
+    <div className="bg-white rounded-2xl shadow-lg p-6 max-w-3xl mx-auto">
+      {/* Form update */}
       <div>
-        <div className="text-lg text-gray-700 p-4 mt-6 mb-2">History</div>
-        <table className="w-full text-sm text-left text-gray-500">
-          <thead className="text-xs text-gray-700 uppercase bg-gray-100">
-            <tr>
-              <th className="px-6 py-3">Date</th>
-              <th className="px-6 py-3">Height (m)</th>
-              <th className="px-6 py-3">Weight (kg)</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr className="bg-white border-b hover:bg-gray-50">
-              <td className="px-6 py-4">2023-10-01</td>
-              <td className="px-6 py-4">1.80</td>
-              <td className="px-6 py-4">60.0</td>
-            </tr>
-            <tr className="bg-white border-b hover:bg-gray-50">
-              <td className="px-6 py-4">2023-09-01</td>
-              <td className="px-6 py-4">1.79</td>
-              <td className="px-6 py-4">59.5</td>
-            </tr>
-            <tr className="bg-white border-b hover:bg-gray-50">
-              <td className="px-6 py-4">2023-08-01</td>
-              <td className="px-6 py-4">1.78</td>
-              <td className="px-6 py-4">59.0</td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
-      {/* Form to update height and weight */}
-      <div>
-        <div className="mt-4 text-2xl text-center text-sky-800 font-bold mb-4">
-          Update New Info
-        </div>
-        <form className="space-y-4">
+        <h3 className="text-2xl text-center text-sky-800 font-bold mb-4">Update New Info</h3>
+        <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Height (m)
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Height (m)</label>
             <input
               type="number"
               step="0.01"
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              value={height}
+              onChange={(e) => setHeight(e.target.value)}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-lg"
               placeholder="Enter your height"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-gray-700">
-              Weight (kg)
-            </label>
+            <label className="block text-sm font-medium text-gray-700">Weight (kg)</label>
             <input
               type="number"
               step="0.1"
-              className="mt-1 block w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500"
+              value={weight}
+              onChange={(e) => setWeight(e.target.value)}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-lg"
               placeholder="Enter your weight"
             />
           </div>
-          <div className="flex justify-center">
-            <button
-              type="submit"
-              className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg shadow hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-            >
-              Save Changes
-            </button>
+          <div>
+            <label className="block text-sm font-medium text-gray-700">Age</label>
+            <input
+              type="number"
+              min={0}
+              value={age}
+              onChange={(e) => setAge(e.target.value)}
+              className="mt-1 block w-full p-2 border border-gray-300 rounded-lg"
+              placeholder="Enter your age"
+            />
           </div>
+          <button
+            type="submit"
+            className="w-full bg-blue-500 text-white py-2 px-4 rounded-lg hover:bg-blue-600"
+          >
+            Save Changes
+          </button>
         </form>
+      </div>
+
+      {/* History table */}
+      <div className="mt-8">
+        <div className="text-lg text-gray-700 mb-2 font-semibold">History</div>
+        <table className="w-full text-sm text-left text-gray-700 border">
+          <thead className="text-xs uppercase bg-gray-100">
+            <tr>
+              <th className="px-6 py-3">Date</th>
+              <th className="px-6 py-3">Height (cm)</th>
+              <th className="px-6 py-3">Weight (kg)</th>
+            </tr>
+          </thead>
+          <tbody>
+            {history.map((entry, index) => (
+              <tr key={index} className="border-t">
+                <td className="px-6 py-2">{entry.date}</td>
+                <td className="px-6 py-2">{entry.height.toFixed(2)}</td>
+                <td className="px-6 py-2">{entry.weight.toFixed(1)}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
       </div>
     </div>
   );
@@ -98,8 +167,8 @@ function ProgressPage() {
           <div id="table-right">
             <div className="my-4 p-4 border border-sky-500 shadow rounded-2xl">
               <ul className="list-none text-xl text-gray-700">
-                <li>Height: 1.8 m</li>
-                <li>Weight: 60 kg</li>
+                <li>Height:  {currentHeight.toFixed(1)} cm</li>
+                <li>Weight:  {currentWeight.toFixed(1)} kg</li>
               </ul>
               <button
                 onClick={openModal}
@@ -134,7 +203,7 @@ function ProgressPage() {
                     </p>
                   </td>
                   <td className="p-4 border-b border-slate-700">
-                    <p className="text-sm text-slate-300">20.6 %</p>
+                    <p className="text-sm text-slate-300">{bodyfat.toFixed(2)} %</p>
                   </td>
                 </tr>
                 <tr className="even:bg-slate-900 hover:bg-slate-700">
@@ -142,35 +211,28 @@ function ProgressPage() {
                     <p className="text-sm text-slate-100 font-semibold">SMM</p>
                   </td>
                   <td className="p-4 border-b border-slate-700">
-                    <p className="text-sm text-slate-300">7.0 Kg</p>
+                    <p className="text-sm text-slate-300">{smm.toFixed(2)} Kg</p>
                   </td>
                 </tr>
                 <tr className="even:bg-slate-900 hover:bg-slate-700">
                   <td className="p-4 border-b border-slate-700">
-                    <p className="text-sm text-slate-100 font-semibold">ECW</p>
+                    <p className="text-sm text-slate-100 font-semibold">TBW</p>
                   </td>
                   <td className="p-4 border-b border-slate-700">
-                    <p className="text-sm text-slate-300">22 L</p>
+                    <p className="text-sm text-slate-300">{tbw.toFixed(2)} L</p>
                   </td>
                 </tr>
                 <tr className="even:bg-slate-900 hover:bg-slate-700">
                   <td className="p-4 border-b border-slate-700">
                     <p className="text-sm text-slate-100 font-semibold">
-                      ECW/TBW
+                      BMR
                     </p>
                   </td>
                   <td className="p-4 border-b border-slate-700">
-                    <p className="text-sm text-slate-300">0.36</p>
+                    <p className="text-sm text-slate-300">{bmr.toFixed(0)} kcal</p>
                   </td>
                 </tr>
-                <tr className="even:bg-slate-900 hover:bg-slate-700">
-                  <td className="p-4 border-b border-slate-700">
-                    <p className="text-sm text-slate-100 font-semibold">MBR</p>
-                  </td>
-                  <td className="p-4 border-b border-slate-700">
-                    <p className="text-sm text-slate-300">1112.2 kl</p>
-                  </td>
-                </tr>
+
                 <tr className="even:bg-slate-900 hover:bg-slate-700">
                   <td className="p-4 border-b border-slate-700">
                     <p className="text-sm text-slate-100 font-semibold">
@@ -178,7 +240,7 @@ function ProgressPage() {
                     </p>
                   </td>
                   <td className="p-4 border-b border-slate-700">
-                    <p className="text-sm text-slate-300">8.2 Kg</p>
+                    <p className="text-sm text-slate-300">{fatmass.toFixed(2)} Kg</p>
                   </td>
                 </tr>
               </tbody>
@@ -186,22 +248,19 @@ function ProgressPage() {
           </div>
           {/* Center */}
           <div id="statistic">
-            <div className="p-4 text-center text-4xl text-rose-600 bg-rose-200 rounded-2xl shadow-2xl hover:bg-amber-800 hover:text-white">
-              You are <i>overweight</i>
+            <div className={`p-4 text-center text-4xl font-bold ${color}`}>
+              You are <i>{status}</i>
             </div>
             <div>
-              <MBIChart />
+              <MBIChart
+                bodyFat={bodyfat}
+                smm={smm}
+                tbw={tbw}
+                bmr={bmr}
+                fatMass={fatmass}
+              />
             </div>
-            <div className="m-4 p-2 shadow-2xl">
-              <div className="text-2xl text-gray-500 font-sans font-bold p-2">Select Goals You Want:</div>
-              <select className="mt-4 w-full p-2 border border-gray-300 rounded-lg shadow-sm focus:ring-blue-500 focus:border-blue-500">
-                 <option value="" selected disabled hidden>Choose here</option>
-                <option value="">Muscle Building (recommend)</option>
-                <option value="">Flexibility and Mobility</option>
-                <option value="">Overall Fitness (recommend)</option>
-                <option value="">Recovery and Rehabilitation</option>
-              </select>
-            </div>
+
           </div>
           {/* Left Side */}
           <div id="table-left">
@@ -325,73 +384,7 @@ function ProgressPage() {
           </div>
         </div>
       </section>
-      <div className="border-t-2 border-sky-400"></div>
-      <section id="schedule" className="bg-amber-200 p-4 my-4">
-        <div className="my-2">
-          <div className="text-center p-3 text-3xl font-bold text-sky-500">Pick up a day to watch your workouts</div>
-          <DatePicker />
-        </div>
-        {/* View selected workouts was using by Day*/}
-        <div className="flex justify-center items-center mt-4 mb-2">
-          <div className="w-full max-w-2xl p-4 bg-white rounded-lg shadow-md">
-            <h2 className="text-2xl font-bold text-center text-gray-800 mb-4">
-              Workouts by Day
-            </h2>
-            <table className="w-full text-sm text-left text-gray-500">
-              <thead className="text-xs text-gray-700 uppercase bg-gray-100">
-                <tr>
-                  <th className="px-6 py-3">Date</th>
-                  <th className="px-6 py-3">Workout</th>
-                  <th className="px-6 py-3">Duration</th>
-                  <th className="px-6 py-3">Status</th>
-                  <th className="px-6 py-3">Action</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr className="bg-white border-b hover:bg-gray-50">
-                  <td className="px-6 py-4">2023-10-01</td>
-                  <td className="px-6 py-4">Up your arms</td>
-                  <td className="px-6 py-4">30 minutes</td>
-                  <td className="px-6 py-4">
-                    <span className="text-green-600 font-semibold">Completed</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <button className="text-blue-600 hover:underline">
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-                <tr className="bg-white border-b hover:bg-gray-50">
-                  <td className="px-6 py-4">2023-10-02</td>
-                  <td className="px-6 py-4">Walking</td>
-                  <td className="px-6 py-4">45 minutes</td>
-                   <td className="px-6 py-4">
-                    <span className="text-red-600 font-semibold">Removed</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <button className="text-blue-600 hover:underline">
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-                <tr className="bg-white border-b hover:bg-gray-50">
-                  <td className="px-6 py-4">2023-10-03</td>
-                  <td className="px-6 py-4">Sleep</td>
-                  <td className="px-6 py-4">1 hour</td>
-                   <td className="px-6 py-4">
-                    <span className="text-yellow-600 font-semibold">Paused</span>
-                  </td>
-                  <td className="px-6 py-4">
-                    <button className="text-blue-600 hover:underline">
-                      View Details
-                    </button>
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </section>
+
     </MainLayout>
   );
 }

@@ -59,9 +59,8 @@ function Footer() {
             size="5x"
             className="text-white"
           />
-          <img src={ATMImage} />
+
         </div>
-        <img src={BCTImage}/>
       </div>
       <div className="bg-sky-800 px-8">
         <p className="text-end text-white">

@@ -1,6 +1,8 @@
  package aptech.finalproject.controller.productV2;
 
+ import aptech.finalproject.dto.productV2.EquipmentDTO;
  import aptech.finalproject.dto.productV2.ProductCardDTO;
+ import aptech.finalproject.dto.productV2.SupplementDTO;
  import aptech.finalproject.dto.response.ApiResponse;
  import aptech.finalproject.dto.response.product.ECategoryResponse;
  import aptech.finalproject.dto.response.product.EquipmentResponse;
@@ -61,14 +63,14 @@
      }
 
      @GetMapping("/equipment/{id}")
-     public ApiResponse<EquipmentResponse> getEquitmentById(@PathVariable Long id) {
-         EquipmentResponse response = productV2Service.getEquipmentById(id);
+     public ApiResponse<EquipmentDTO> getEquitmentById(@PathVariable Long id) {
+         EquipmentDTO response = productV2Service.getEquipmentById(id);
          return ApiResponse.ok(response, "Get Equipment by ID");
      }
 
      @GetMapping("/supplement/{id}")
-     public ApiResponse<SupplementResponse> getSupplementById(@PathVariable Long id) {
-         SupplementResponse response = productV2Service.getSupplementById(id);
+     public ApiResponse<SupplementDTO> getSupplementById(@PathVariable Long id) {
+         SupplementDTO response = productV2Service.getSupplementById(id);
          return ApiResponse.ok(response, "Get Supplement by ID");
      }
  }

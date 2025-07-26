@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { Formik, Form, Field, ErrorMessage } from "formik";
 import * as Yup from "yup";
-import { getUserByUsername } from "../services/userService";
+import { getUserByUsername, updateUserById } from "../services/userService";
 import useUserStore from "../stores/useUserStore";
 import MainLayout from "../layouts/MainLayout";
 
@@ -29,35 +29,51 @@ const ProfilePage = () => {
         if (result && result.success) {
           setUserProfile(result.data);
         } else {
-          console.log("API call failed, using mock data:", result);
-          // setUserProfile(mockData);
+          console.log("API call failed:", result);
         }
       } catch (apiError) {
-        console.log("API error, using mock data:", apiError);
+        console.log("API error:", apiError);
       }
 
       setLoading(false);
     };
 
-    fetchUserProfile();
+    if (user?.username) {
+      fetchUserProfile();
+    }
   }, [user?.username]);
 
   const handleFormSubmit = async (values, { setSubmitting }) => {
     try {
-      // API call to update user profile
-      console.log("Updating profile:", values);
+      const userRequest = {
+        password: userProfile.password,
+        firstName: values.firstName,
+        lastName: values.lastName,
+        email: values.email,
+        address: values.address,
+        phone: values.phone,
+        dob: values.dob
+      };
 
-      // Update local state
-      setUserProfile((prev) => ({
-        ...prev,
-        ...values,
-      }));
+      console.log("Updating profile with:", userRequest);
 
-      setIsEditing(false);
-      alert("Profile updated successfully!");
+      const result = await updateUserById(userProfile.id, userRequest);
+
+      if (result && result.success) {
+        // Update local state with the response data
+        setUserProfile((prev) => ({
+          ...prev,
+          ...result.data,
+        }));
+
+        setIsEditing(false);
+        alert("Profile updated successfully!");
+      } else {
+        throw new Error(result?.errors || "Update failed");
+      }
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile");
+      alert("Failed to update profile: " + (error.message || error));
     } finally {
       setSubmitting(false);
     }
@@ -86,22 +102,38 @@ const ProfilePage = () => {
         .toString()
         .padStart(2, "0")}`;
     }
+    if (typeof dateArray === 'string') {
+      return dateArray.split('T')[0]; // Handle ISO date strings
+    }
     return dateArray || "";
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl text-gray-600">Loading profile...</div>
-      </div>
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        </div>
+      </MainLayout>
     );
   }
 
   if (!userProfile) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
-        <div className="text-xl text-red-600">Failed to load profile</div>
-      </div>
+      <MainLayout>
+        <div className="flex items-center justify-center min-h-screen">
+          <div className="text-center">
+            <div className="text-red-400 text-6xl mb-4">⚠️</div>
+            <div className="text-xl text-red-600">Failed to load profile</div>
+            <button
+              onClick={() => window.location.reload()}
+              className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        </div>
+      </MainLayout>
     );
   }
 
@@ -119,26 +151,26 @@ const ProfilePage = () => {
       <div className="min-h-screen bg-gray-50 py-8">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
           {/* Profile Header */}
-          <div className="bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg shadow-lg overflow-hidden mb-8">
+          <div className="bg-gradient-to-r from-sky-300 to-purple-800 rounded-lg shadow-lg overflow-hidden mb-8">
             <div className="px-6 py-8 sm:px-8">
               <div className="flex items-center space-x-6">
                 <div className="h-20 w-20 bg-white bg-opacity-20 rounded-full flex items-center justify-center">
-                  <span className="text-2xl font-bold text-blue-600">
+                  <span className="text-2xl font-bold text-black">
                     {getInitials()}
                   </span>
                 </div>
                 <div className="flex-1">
-                  <h1 className="text-2xl font-bold text-white">
+                  <h1 className="text-2xl font-bold text-black">
                     {getDisplayName()}
                   </h1>
                   <p className="text-blue-100">@{userProfile.username}</p>
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-red-500 mt-2">
-                    {userProfile.role.role}
+                  <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-white bg-opacity-20 text-red-600 mt-2">
+                    {userProfile.role?.role || 'User'}
                   </span>
                 </div>
                 <button
                   onClick={() => setIsEditing(!isEditing)}
-                  className="bg-white bg-opacity-20 hover:bg-opacity-30 text-black px-4 py-2 rounded-lg transition-colors duration-200"
+                  className="bg-white bg-opacity-20 hover:bg-opacity-30 text-violet-800 px-4 py-2 rounded-lg transition-colors duration-200"
                 >
                   {isEditing ? "Cancel" : "Edit Profile"}
                 </button>
@@ -277,7 +309,7 @@ const ProfilePage = () => {
                           <button
                             type="submit"
                             disabled={isSubmitting}
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-colors duration-200 disabled:opacity-50"
+                            className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded-md transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                           >
                             {isSubmitting ? "Saving..." : "Save Changes"}
                           </button>
@@ -300,38 +332,86 @@ const ProfilePage = () => {
             <div className="space-y-6">
               <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Role Information
+                  Account Information
                 </h3>
                 <div className="space-y-3">
                   <div>
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
-                      {userProfile.role.role}
-                    </span>
+                    <span className="text-sm font-medium text-gray-700">Username:</span>
+                    <p className="text-gray-900">{userProfile.username}</p>
                   </div>
-                  <p className="text-gray-600 text-sm">
-                    {userProfile.role.description}
-                  </p>
+                  <div>
+                    <span className="text-sm font-medium text-gray-700">Role:</span>
+                    <div className="mt-1">
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-blue-100 text-blue-800">
+                        {userProfile.role?.role || 'User'}
+                      </span>
+                    </div>
+                  </div>
+                  {userProfile.role?.description && (
+                    <div>
+                      <span className="text-sm font-medium text-gray-700">Description:</span>
+                      <p className="text-gray-600 text-sm mt-1">
+                        {userProfile.role.description}
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
 
+              {userProfile.role?.permissions && userProfile.role.permissions.length > 0 && (
+                <div className="bg-white rounded-lg shadow p-6">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                    Permissions
+                  </h3>
+                  <div className="space-y-2 max-h-96 overflow-y-auto">
+                    {userProfile.role.permissions.map((permission, index) => (
+                      <div
+                        key={permission.id || index}
+                        className="p-3 bg-gray-50 rounded-md"
+                      >
+                        <h4 className="text-sm font-medium text-gray-900">
+                          {permission.permission?.replace(/_/g, " ") || 'Unknown Permission'}
+                        </h4>
+                        {permission.description && (
+                          <p className="text-xs text-gray-600 mt-1">
+                            {permission.description}
+                          </p>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Additional Stats */}
               <div className="bg-white rounded-lg shadow p-6">
                 <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  Permissions
+                  Account Stats
                 </h3>
-                <div className="space-y-2 max-h-96 overflow-y-auto">
-                  {userProfile.role.permissions.map((permission) => (
-                    <div
-                      key={permission.id}
-                      className="p-3 bg-gray-50 rounded-md"
-                    >
-                      <h4 className="text-sm font-medium text-gray-900">
-                        {permission.permission.replace(/_/g, " ")}
-                      </h4>
-                      <p className="text-xs text-gray-600 mt-1">
-                        {permission.description}
-                      </p>
-                    </div>
-                  ))}
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Member since:</span>
+                    <span className="text-sm font-medium text-gray-900">
+                      {new Date().getFullYear()}
+                    </span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Profile completion:</span>
+                    <span className="text-sm font-medium text-green-600">
+                      {(() => {
+                        const fields = [
+                          userProfile.firstName,
+                          userProfile.lastName,
+                          userProfile.email,
+                          userProfile.phone,
+                          userProfile.address,
+                          userProfile.dob
+                        ];
+                        const completed = fields.filter(field => field && field.length > 0).length;
+                        return Math.round((completed / fields.length) * 100);
+                      })()}%
+                    </span>
+                  </div>
                 </div>
               </div>
             </div>

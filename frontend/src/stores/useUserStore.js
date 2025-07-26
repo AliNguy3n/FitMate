@@ -26,6 +26,7 @@ export default useUserStore;
 /**
  *  isLogin ? =
  * user: {
+ *  id:
  *  username:
  *  role: user | admin
  *  permissions = [

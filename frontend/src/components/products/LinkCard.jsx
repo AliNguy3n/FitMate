@@ -16,9 +16,8 @@ function LinkCard({
   categories,
   detailId
 }) {
-  const sale = discount > 0 ? price - (price * discount) / 100 : null;
-  // const link =
-  //   type === "equipment" ? "/equipments/" + id : "/supplements/" + id;
+  // Fix: Handle discount as decimal (0.0 to 1.0) instead of percentage (0-100)
+  const sale = discount > 0 ? price - (price * discount) : null; // Remove /100
 
   // handles Product Modal
   const [modalIsOpen, setModalIsOpen] = useState(false);
@@ -43,10 +42,10 @@ function LinkCard({
             />
           </button>
 
-          {/* Discount Badge */}
+          {/* Discount Badge - Fix percentage display */}
           {discount > 0 && (
             <div className="absolute top-3 left-3 bg-gradient-to-r from-red-500 to-red-600 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg z-10">
-              -{discount}%
+              -{(discount * 100).toFixed(0)}% {/* Convert decimal to percentage for display */}
             </div>
           )}
 

@@ -9,7 +9,6 @@ import ApiImage from "../ui/ApiImage";
 import { useNotification } from "../ui/Notification";
 import { useNavigate } from "react-router-dom";
 
-// id is id of equipment or supplement
 function ProductModal({ type, id }) {
   const [detail, setDetail] = useState({});
   const [quantity, setQuantity] = useState(1);
@@ -40,13 +39,16 @@ function ProductModal({ type, id }) {
 
   // Extract product data from nested structure
   const product = detail?.product || {};
-
-  // Calculate discounted price
-  const promotion = product.promotion;
+  const promotion = detail?.promotion;
+  const supplier = detail?.supplier;
+  const categoryNames = detail?.categoryNames || [];
   const price = product.price || 0;
-  const discountedPrice = promotion
-    ? price - (price * promotion.discount) / 100
-    : null;
+
+  const discount = promotion?.discountOverride || 0;
+  const discountedPrice =
+    promotion && discount > 0
+      ? price - (price * discount)
+      : null;
 
   // Check if promotion is active
   const isPromotionActive = promotion
@@ -54,7 +56,6 @@ function ProductModal({ type, id }) {
       new Date() <= new Date(promotion.endDate * 1000)
     : false;
 
-  // Get current price (discounted or regular)
   const currentPrice =
     isPromotionActive && discountedPrice ? discountedPrice : price;
 
@@ -70,23 +71,19 @@ function ProductModal({ type, id }) {
   // Handle add to cart
   const handleAddToCart = () => {
     if (product.stock > 0) {
-      const imageId = product.image?.storedName || null;
-
+      const image = product.image || null;
       const cartItem = {
         id: product.id,
         name: product.name,
         price: currentPrice,
         quantity: quantity,
-        image: imageId,
+        image: image,
         type: type,
         stock: product.stock,
         originalPrice: price,
-        discount: promotion?.discount || 0,
+        discount: discount,
       };
-
       addToCart(cartItem, quantity);
-
-      // Show notification with actions
       showActionNotification();
     }
   };
@@ -117,54 +114,54 @@ function ProductModal({ type, id }) {
         </div>
       </div>
     );
-
     showNotification(message, "success", 8000);
+  };
+
+  const parseIngredients = (ingredientString) => {
+    if (!ingredientString) return [];
+    try {
+      const cleaned = ingredientString.replace(/^"|"$/g, "");
+      return cleaned.split(",").map((item) => item.trim());
+    } catch {
+      return [ingredientString];
+    }
   };
 
   return (
     <>
       <NotificationContainer />
-      {/* Card Container */}
       <div className="flex flex-col p-6 m-3 space-y-10 bg-white rounded-2xl shadow-2xl md:flex-row md:space-y-0 md:space-x-10 md:m-0 md:p-16 max-w-4xl">
-        {/* Image Div */}
+        {/* Image */}
         <div className="flex-shrink-0">
           <ApiImage
-            imageId={product.image?.storedName}
+            imageId={product.image}
             alt={product.name}
             className="mx-auto duration-200 w-80 h-80 object-cover rounded-lg hover:scale-105"
           />
         </div>
-
         {/* Content */}
         <div className="flex flex-col space-y-6 flex-1">
-          {/* Label & Title Container */}
           <div className="flex flex-col mb-4 space-y-3 text-center md:text-left">
-            {/* Title */}
             <div className="max-w-lg text-2xl font-medium text-gray-800">
               {product.name}
             </div>
-
-            {/* Product ID */}
             <div className="text-sm text-gray-500">
               Product ID: {product.id}
             </div>
-
-            {/* Description */}
             <div className="text-gray-600 text-sm max-w-lg">
               {product.description}
             </div>
-
             {/* Product Details */}
             <div
               className={`grid grid-cols-2 gap-4 p-4 ${
                 type === "equipment" ? "bg-gray-50" : "bg-purple-50"
               } rounded-lg`}
             >
-              {/* Show supplement or equipment specific details */}
+              {/* Size */}
               <div>
                 <span className="text-sm font-medium text-gray-700">Size:</span>
                 <p className="text-sm text-gray-600">
-                  {detail.size === 1
+                  {detail?.size === 1
                     ? "Small"
                     : detail.size === 2
                     ? "Medium"
@@ -173,28 +170,39 @@ function ProductModal({ type, id }) {
                     : "N/A"}
                 </p>
               </div>
-
-              {/* Color - mainly for equipment */}
-              {detail.color && (
+              {/* Color (equipment only) */}
+              {type === "equipment" && detail.color && (
                 <div>
-                  <span className="text-sm font-medium text-gray-700">
-                    Color:
-                  </span>
+                  <span className="text-sm font-medium text-gray-700">Color:</span>
                   <p className="text-sm text-gray-600">{detail.color}</p>
                 </div>
               )}
-
-              {/* Gender */}
+              {/* Gender (equipment only) */}
+              {type === "equipment" && detail.gender && (
+                <div>
+                  <span className="text-sm font-medium text-gray-700">Gender:</span>
+                  <p className="text-sm text-gray-600 capitalize">{detail.gender}</p>
+                </div>
+              )}
+              {/* Ingredients (supplement only) */}
+              {type === "supplement" && detail.ingredient && (
+                <div className="col-span-2">
+                  <span className="text-sm font-medium text-gray-700">Ingredients:</span>
+                  <div className="flex flex-wrap gap-1 mt-1">
+                    {parseIngredients(detail.ingredient).map((ingredient, idx) => (
+                      <span key={idx} className="px-2 py-1 bg-green-100 text-green-800 rounded-md text-xs">
+                        {ingredient}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              )}
+              {/* Type */}
               <div>
-                <span className="text-sm font-medium text-gray-700">
-                  Gender:
-                </span>
-                <p className="text-sm text-gray-600 capitalize">
-                  {detail.gender}
-                </p>
+                <span className="text-sm font-medium text-gray-700">Type:</span>
+                <p className="text-sm text-gray-600 capitalize">{product.type}</p>
               </div>
-
-              {/* ID */}
+              {/* Modal ID */}
               <div>
                 <span className="text-sm font-medium text-gray-700">
                   {type === "equipment" ? "Equipment ID:" : "Supplement ID:"}
@@ -202,46 +210,46 @@ function ProductModal({ type, id }) {
                 <p className="text-sm text-gray-600">{detail.id}</p>
               </div>
             </div>
-
             {/* Categories */}
             <div className="flex flex-wrap gap-2">
-              {detail.categoryIds &&
-                detail.categoryIds.map((categoryId) => (
-                  <span
-                    key={categoryId}
-                    className={`px-3 py-1 ${
-                      type === "equipment"
-                        ? "bg-blue-100 text-blue-800"
-                        : "bg-purple-100 text-purple-800"
-                    } rounded-full text-sm font-medium`}
-                  >
-                    Category #{categoryId}
-                  </span>
-                ))}
+              {categoryNames.map((categoryName, idx) => (
+                <span
+                  key={idx}
+                  className={`px-3 py-1 ${
+                    type === "equipment"
+                      ? "bg-blue-100 text-blue-800"
+                      : "bg-purple-100 text-purple-800"
+                  } rounded-full text-sm font-medium`}
+                >
+                  {categoryName}
+                </span>
+              ))}
             </div>
-
             {/* Rating */}
             <div className="flex items-center space-x-2">
               <Rating rating={product.rating || 0} />
             </div>
-
-            {/* Price Container */}
+            {/* Price Display with Discount */}
             <div className="flex flex-col mb-4 space-y-3 text-center md:text-left">
-              {isPromotionActive && discountedPrice ? (
+              {isPromotionActive && discount > 0 ? (
                 <>
+                  {/* Original Price (crossed out) */}
                   <div className="flex items-center space-x-2">
                     <p className="line-through text-gray-500 text-lg">
                       ${price.toFixed(2)}
                     </p>
+                    {/* Discount Badge */}
                     <span className="bg-red-500 text-white px-2 py-1 rounded text-sm">
-                      -{promotion.discount}%
+                      -{(discount * 100).toFixed(0)}% {/* Convert 0.15 → 15% */}
                     </span>
                   </div>
+                  {/* Discounted Price */}
                   <p className="text-4xl font-bold text-green-600">
                     ${discountedPrice.toFixed(2)}
                   </p>
+                  {/* Promotion Details */}
                   <p className="text-sm font-light text-gray-400">
-                    {promotion.name} - Valid until{" "}
+                    {promotion.promotionName} - Valid until{" "}
                     {new Date(promotion.endDate * 1000).toLocaleDateString()}
                   </p>
                 </>
@@ -251,12 +259,9 @@ function ProductModal({ type, id }) {
                 </p>
               )}
             </div>
-
             {/* Quantity Selector */}
             <div className="flex items-center space-x-4 p-4 bg-gray-50 rounded-lg">
-              <span className="text-sm font-medium text-gray-700">
-                Quantity:
-              </span>
+              <span className="text-sm font-medium text-gray-700">Quantity:</span>
               <div className="flex items-center space-x-3">
                 <button
                   onClick={() => handleQuantityChange(-1)}
@@ -280,7 +285,6 @@ function ProductModal({ type, id }) {
                 Max: {product.stock || 0}
               </div>
             </div>
-
             {/* Total Price */}
             <div className="flex justify-between items-center p-4 bg-gray-100 rounded-lg">
               <span className="text-lg font-medium text-gray-700">Total:</span>
@@ -288,32 +292,29 @@ function ProductModal({ type, id }) {
                 ${(currentPrice * quantity).toFixed(2)}
               </span>
             </div>
-
             {/* Supplier Info */}
-            {product.supplier && (
+            {supplier && (
               <div className="flex items-center p-3 bg-gray-50 rounded-lg space-x-3">
-                {product.supplier.image && (
+                {supplier.image && (
                   <ApiImage
-                    imageId={product.supplier.image.storedName}
-                    alt={product.supplier.name}
+                    imageId={supplier.image}
+                    alt={supplier.name}
                     className="w-12 h-12 rounded-full object-cover"
                   />
                 )}
                 <div className="flex-1">
                   <p className="text-sm text-gray-700">
-                    <span className="font-medium">Supplier:</span>{" "}
-                    {product.supplier.name}
+                    <span className="font-medium">Supplier:</span> {supplier.name}
                   </p>
                   <p className="text-sm text-gray-600">
-                    Contact: {product.supplier.contact}
+                    Contact: {supplier.contact}
                   </p>
                   <p className="text-xs text-gray-500">
-                    Address: {product.supplier.address}
+                    Address: {supplier.address}
                   </p>
                 </div>
               </div>
             )}
-
             {/* Button Group */}
             <div className="group">
               <button
@@ -338,7 +339,6 @@ function ProductModal({ type, id }) {
                 </div>
               </button>
             </div>
-
             {/* Stock */}
             <div className="flex items-center space-x-3 group">
               <div

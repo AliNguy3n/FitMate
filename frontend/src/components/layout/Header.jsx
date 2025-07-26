@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 // import React, { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import LogoImg from "../../assets/images/logo.svg";
+import LogoImg from "../../assets/images/logo-dark.png";
 import { useState } from "react";
 import Modal from "../ui/Modal";
 import CartModal from "../cart/CartModal";
@@ -171,11 +171,12 @@ function Header() {
                     Account settings
                   </a>
                   <a
-                    href="#"
+                    href="/user/history"
                     className="block px-4 py-2 text-gray-800 hover:bg-indigo-500 hover:text-white"
                   >
-                    Support
+                    Orders History
                   </a>
+
                   <a
                     onClick={logout}
                     href="#"

@@ -73,6 +73,15 @@ function CheckoutPage() {
   const totalItems = getTotalItems();
   const finalTotal = parseFloat((total * 1.1).toFixed(2)); // Including tax
 
+  // Calculate total savings
+  const totalSavings = cart.reduce((savings, item) => {
+    if (item.discount && item.discount > 0) {
+      const originalPrice = item.originalPrice || (item.price / (1 - item.discount));
+      return savings + ((originalPrice - item.price) * item.quantity);
+    }
+    return savings;
+  }, 0);
+
   const handlePaymentSuccess = async (details) => {
     try {
       // Extract the transaction code from PayPal response
@@ -137,13 +146,11 @@ function CheckoutPage() {
         }! Your payment was successful.\n Your products was delivered to you at least 3 days.`
       });
 
-      // Clear the cart after successful order processing
       clearCart();
 
     } catch (error) {
       console.error("Error processing order:", error);
 
-      // Show error to user but maintain paid status if payment was actually received
       setPaymentStatus({
         paid: false,
         message: "Payment was processed but we encountered an issue saving your order details. Please contact customer support."
@@ -237,7 +244,7 @@ function CheckoutPage() {
                               />
                             </a>
 
-                            {/* Quantity Controls */}
+                            {/* Quantity Controls and Price */}
                             <div className="flex items-center justify-between md:order-3 md:justify-end">
                               <div className="flex items-center">
                                 <button
@@ -288,9 +295,22 @@ function CheckoutPage() {
                                 </button>
                               </div>
                               <div className="text-end md:order-4 md:w-32">
+                                {/* Promotion Badge */}
+                                {item.discount && item.discount > 0 && (
+                                  <div className="mb-1">
+                                    <span className="bg-red-500 text-white px-2 py-1 rounded text-xs font-bold">
+                                      -{(item.discount * 100).toFixed(0)}% OFF
+                                    </span>
+                                  </div>
+                                )}
                                 <p className="text-base font-bold text-gray-900">
                                   ${(item.price * item.quantity).toFixed(2)}
                                 </p>
+                                {item.discount && item.discount > 0 && (
+                                  <p className="text-sm text-gray-500 line-through">
+                                    ${((item.originalPrice || (item.price / (1 - item.discount))) * item.quantity).toFixed(2)}
+                                  </p>
+                                )}
                               </div>
                             </div>
 
@@ -321,10 +341,23 @@ function CheckoutPage() {
                                 </span>
                               </div>
 
-                              {/* Unit Price */}
-                              <p className="text-sm text-gray-500">
-                                ${item.price} each
-                              </p>
+                              {/* Unit Price with Promotion */}
+                              <div className="flex items-center space-x-2">
+                                {item.discount && item.discount > 0 ? (
+                                  <>
+                                    <p className="text-sm text-gray-500 line-through">
+                                      ${(item.originalPrice || (item.price / (1 - item.discount))).toFixed(2)} each
+                                    </p>
+                                    <p className="text-sm font-medium text-green-600">
+                                      ${item.price.toFixed(2)} each
+                                    </p>
+                                  </>
+                                ) : (
+                                  <p className="text-sm text-gray-500">
+                                    ${item.price.toFixed(2)} each
+                                  </p>
+                                )}
+                              </div>
 
                               <div className="flex items-center gap-4">
                                 <button
@@ -419,6 +452,19 @@ function CheckoutPage() {
                             </dd>
                           </dl>
 
+                          {/* Promotion Savings */}
+                          {totalSavings > 0 && (
+                            <dl className="flex items-center justify-between gap-4">
+                              <dt className="text-base font-normal text-green-600">
+                                <FontAwesomeIcon icon={['fas', 'tag']} className="mr-2" />
+                                Promotion Savings
+                              </dt>
+                              <dd className="text-base font-medium text-green-600">
+                                -${totalSavings.toFixed(2)}
+                              </dd>
+                            </dl>
+                          )}
+
                           <dl className="flex items-center justify-between gap-4">
                             <dt className="text-base font-normal text-gray-500">
                               Shipping
@@ -443,9 +489,18 @@ function CheckoutPage() {
                             Total
                           </dt>
                           <dd className="text-base font-bold text-gray-900">
-                            ${finalTotal}
+                            ${finalTotal.toFixed(2)}
                           </dd>
                         </dl>
+
+                        {/* Total Savings Summary */}
+                        {totalSavings > 0 && (
+                          <div className="bg-green-50 p-3 rounded-lg border border-green-200">
+                            <p className="text-sm text-green-800 font-medium">
+                              🎉 You saved ${totalSavings.toFixed(2)} with current promotions!
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       {/* Payment section - PayPal only */}

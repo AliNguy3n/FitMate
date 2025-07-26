@@ -5,12 +5,12 @@ spring:
     import: optional:env.properties
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-#    url: jdbc:mysql://localhost:3306/fitmatedb
-#    username: root
-#    password:
-    url: jdbc:mysql://fitmate.mysql.database.azure.com:3306/fitmatedb?useSSL=true
-    username: fitmate
-    password: ${AZURE_PASSWORD}
+    url: jdbc:mysql://localhost:3306/finalProject
+    username: root
+    password: 1234
+    # url: jdbc:mysql://fitmate.mysql.database.azure.com:3306/fitmatedb?useSSL=true
+    # username: fitmate
+    # password: ${AZURE_PASSWORD}
   jpa:
     show-sql: true
     hibernate:

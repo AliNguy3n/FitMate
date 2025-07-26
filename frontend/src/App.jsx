@@ -6,14 +6,15 @@ import AboutPage from "./pages/AboutPage";
 import AuthPage from "./pages/AuthPage";
 import ProductPage from "./pages/ProductPage";
 import ProgressPage from "./pages/ProgressPage";
-import WorkoutPage from "./pages/WorkoutPage";
-import WorkoutDetailPage from "./pages/WorkoutDetailPage";
 import PromotionPage from "./pages/PromotionPage";
 import UnauthorizedPage from "./pages/UnauthorizedPage";
 import ProtectedRoute from "./components/auth/ProtectRoute";
 import CheckoutPage from "./pages/CheckoutPage";
 import ProfilePage from "./pages/ProfilePage";
 import ZZZPage from "./pages/ZZZPage";
+import MealPage from "./pages/MealPage";
+import ExercisePage from "./pages/ExercisePage";
+import OrderHistoryPage from "./pages/OrderHistoryPage";
 
 function App() {
   return (
@@ -28,6 +29,10 @@ function App() {
         <Route path="/promotions" element={<PromotionPage />} />
         <Route path="/products" element={<ProductPage />} />
         <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/progress" element={<ProgressPage />} />
+        <Route path="/meals" element={<MealPage />} />
+        <Route path="/exercises" element={<ExercisePage />} />
+
 
         {/* Test Page */}
         <Route path="/test" element={<ZZZPage/>} />
@@ -46,6 +51,14 @@ function App() {
               <ProfilePage />
             </ProtectedRoute> }
         />
+         <Route
+          path="/user/history"
+          element={
+            <ProtectedRoute requiredRole={"USER"}>
+              <OrderHistoryPage />
+            </ProtectedRoute>
+          }
+        />
 
         {/* Admin routes*/}
         <Route
@@ -58,7 +71,6 @@ function App() {
         <Route path="/cart" element={<CartPage />} />
         <Route path="/login" element={<AuthPage mode="login" />} />
         <Route path="/progress" element={<ProgressPage />} />
-        <Route path="/workout" element={<WorkoutPage />} />
         <Route path="/workout/1" element={<WorkoutDetailPage />} />
         <Route path="/promotions" element={<PromotionPage />} /> */}
       </Routes>
