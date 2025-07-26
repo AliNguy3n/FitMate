@@ -100,7 +100,7 @@ function HomePage() {
           Best Equipments All Time
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {bestEquipments.length > 0 ? (
+          {bestEquipments && bestEquipments.length > 0 ? (
             bestEquipments.map((p, index) => (
              <LinkCard
                 key={p.id || index}
@@ -129,7 +129,7 @@ function HomePage() {
           Best Supplement All Time
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {bestSupplements.length > 0 ? (
+          {bestSupplements && bestSupplements.length > 0 ? (
             bestSupplements.map((p, index) => (
               <LinkCard
                 key={p.id || index}
@@ -157,7 +157,7 @@ function HomePage() {
           Best Workouts for Beginners
         </div>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {bestExercises.length > 0 ? (
+          {bestExercises && bestExercises.length > 0 ? (
             bestExercises.map((e, index) => (
               <ExerciseLinkCard
                 key={e.id || index}
