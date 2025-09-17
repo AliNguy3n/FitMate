@@ -44,7 +44,7 @@ const AddEditExercise = () => {
 
   useEffect(() => {
     api
-      .get("/api/admin/meal-subcategory")
+      .get("/api/admin/exercise-sub-category")
       .then((res: any) => setSubCategories(res.data.data || []));
     api
       .get("/api/admin/equipment")

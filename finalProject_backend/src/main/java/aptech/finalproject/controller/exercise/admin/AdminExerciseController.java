@@ -35,7 +35,7 @@ public class AdminExerciseController {
             BindingResult result) {
                 
 
-        System.out.println("🛠️ Controller updateExercise called with id = " + id);
+        System.out.println("Controller updateExercise called with id = " + id);
         if (result.hasErrors()) {
             return ApiResponse.badRequest(result);
         }
